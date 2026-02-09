@@ -22,6 +22,14 @@ interface BooksRepository {
         bookId: String,
     )
 
+    suspend fun upsert(
+        book: BookEntity,
+    )
+
+    suspend fun deleteAndReturn(
+        bookId: String,
+    ): BookEntity?
+
     suspend fun insertFromCandidate(
         candidate: BookCandidate,
     ): String

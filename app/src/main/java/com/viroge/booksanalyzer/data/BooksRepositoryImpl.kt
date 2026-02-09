@@ -44,6 +44,21 @@ class BooksRepositoryImpl @Inject constructor(
         bookDao.deleteById(bookId)
     }
 
+    override suspend fun upsert(
+        book: BookEntity,
+    ) {
+        bookDao.upsert(book)
+    }
+
+    override suspend fun deleteAndReturn(
+        bookId: String,
+    ): BookEntity? {
+        val existing = bookDao.getById(bookId) ?: return null
+
+        bookDao.deleteById(bookId)
+        return existing
+    }
+
     override suspend fun insertFromCandidate(
         candidate: BookCandidate,
     ): String {

@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.ui.books.confirm
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -25,6 +26,7 @@ fun ConfirmBookScreen(
     ) {
 
         Row(
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
         ) {
             OutlinedButton(
@@ -32,10 +34,12 @@ fun ConfirmBookScreen(
                 enabled = !isSaving,
             ) { Text(text = "Back") }
 
-            Button(
-                onClick = onConfirmSave,
-                enabled = !isSaving && candidate?.let { true } ?: false,
-            ) { Text(text = "Save") }
+            Text(
+                text = "Confirm book",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .padding(start = 16.dp),
+            )
         }
 
         if (isSaving) {
@@ -59,15 +63,6 @@ fun ConfirmBookScreen(
 
         when {
             candidate != null -> {
-                Text(
-                    text = "Confirm book",
-                    style = MaterialTheme.typography.titleLarge,
-                )
-
-                Spacer(
-                    Modifier.height(height = 8.dp),
-                )
-
                 AsyncImage(
                     model = candidate.coverUrl,
                     contentDescription = null,
@@ -75,6 +70,8 @@ fun ConfirmBookScreen(
                         .fillMaxWidth()
                         .height(height = 240.dp),
                 )
+
+                Spacer(Modifier.height(height = 16.dp))
 
                 Text(
                     text = candidate.title,
@@ -110,5 +107,17 @@ fun ConfirmBookScreen(
                 Text(text = "Nothing to confirm.")
             }
         }
+
+        Spacer(
+            Modifier.height(height = 8.dp),
+        )
+
+        Button(
+            onClick = onConfirmSave,
+            enabled = !isSaving && candidate?.let { true } ?: false,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 48.dp),
+        ) { Text(text = "Save") }
     }
 }

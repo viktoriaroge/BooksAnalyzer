@@ -69,10 +69,6 @@ fun AppNavHost() {
 
             BookDetailsRoute(
                 onBack = { navController.popBackStack() },
-                onDeleted = {
-                    // after delete, go back to Library
-                    navController.popBackStack(Routes.LIBRARY, inclusive = false)
-                },
             )
         }
     }
