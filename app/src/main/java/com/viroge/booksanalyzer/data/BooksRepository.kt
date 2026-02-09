@@ -4,7 +4,7 @@ import com.viroge.booksanalyzer.data.local.BookEntity
 import com.viroge.booksanalyzer.domain.BookCandidate
 import kotlinx.coroutines.flow.Flow
 
-interface BookSearchRepository {
+interface BooksRepository {
 
     fun observeLibrary(): Flow<List<BookEntity>>
 

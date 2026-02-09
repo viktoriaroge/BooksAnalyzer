@@ -2,7 +2,7 @@ package com.viroge.booksanalyzer.ui.books.confirm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.data.BookSearchRepository
+import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.domain.BookCandidate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConfirmBookViewModel @Inject constructor(
-    private val booksRepo: BookSearchRepository,
+    private val booksRepo: BooksRepository,
 ) : ViewModel() {
 
     private val _isSaving = MutableStateFlow(false)

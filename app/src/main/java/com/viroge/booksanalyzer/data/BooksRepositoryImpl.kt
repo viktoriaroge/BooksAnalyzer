@@ -14,11 +14,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class BookSearchRepositoryImpl @Inject constructor(
+class BooksRepositoryImpl @Inject constructor(
     private val bookDao: BookDao,
     private val google: GoogleBooksClient,
     private val openLibrary: OpenLibraryClient,
-) : BookSearchRepository {
+) : BooksRepository {
 
     private val resultsCache = LruCache<String, List<BookCandidate>>(/*maxSize*/ 100)
 
@@ -55,7 +55,7 @@ class BookSearchRepositoryImpl @Inject constructor(
 
     override suspend fun search(
         query: String,
-    ): BookSearchRepository.SearchResult = multiSourceSearch(
+    ): BooksRepository.SearchResult = multiSourceSearch(
         cacheKey = cacheKey(mode = "q", query = query, limit = 15),
         query = query,
         limit = 15,
@@ -63,7 +63,7 @@ class BookSearchRepositoryImpl @Inject constructor(
 
     override suspend fun lookupByIsbn(
         isbn: String,
-    ): BookSearchRepository.SearchResult = multiSourceSearch(
+    ): BooksRepository.SearchResult = multiSourceSearch(
         cacheKey = cacheKey(mode = "isbn", query = isbn, limit = 10),
         query = "isbn:$isbn",
         limit = 10,
@@ -73,11 +73,11 @@ class BookSearchRepositoryImpl @Inject constructor(
         cacheKey: String,
         query: String,
         limit: Int,
-    ): BookSearchRepository.SearchResult {
+    ): BooksRepository.SearchResult {
 
         // 1) Serve from cache
         resultsCache[cacheKey]?.let { cached ->
-            return BookSearchRepository.SearchResult.Success(cached)
+            return BooksRepository.SearchResult.Success(cached)
         }
 
         // 2) Fetch both sources in parallel
@@ -98,13 +98,13 @@ class BookSearchRepositoryImpl @Inject constructor(
 
             when {
                 merged.isNotEmpty() && errors.isEmpty() ->
-                    BookSearchRepository.SearchResult.Success(merged)
+                    BooksRepository.SearchResult.Success(merged)
 
                 merged.isNotEmpty() && errors.isNotEmpty() ->
-                    BookSearchRepository.SearchResult.Partial(merged, errors)
+                    BooksRepository.SearchResult.Partial(merged, errors)
 
                 else ->
-                    BookSearchRepository.SearchResult.Failure(errors.ifEmpty {
+                    BooksRepository.SearchResult.Failure(errors.ifEmpty {
                         listOf(
                             IllegalStateException("No results")
                         )
