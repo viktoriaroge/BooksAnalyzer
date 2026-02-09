@@ -3,10 +3,13 @@ package com.viroge.booksanalyzer.ui.books.library
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.viroge.booksanalyzer.data.local.BookEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,19 +22,19 @@ fun LibraryScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Library") })
+            TopAppBar(title = { Text(text = "Library") })
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddBook) { Text("+") }
+            FloatingActionButton(onClick = onAddBook) { Text(text = "+") }
         },
     ) { padding ->
 
         if (books.isEmpty()) {
             Column(
                 modifier = Modifier
-                    .padding(padding)
+                    .padding(paddingValues = padding)
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(all = 16.dp),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
@@ -39,23 +42,27 @@ fun LibraryScreen(
                     style = MaterialTheme.typography.titleMedium,
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(height = 8.dp))
 
                 Text(text = "Tap + to add your first book.")
             }
         } else {
             LazyColumn(
                 modifier = Modifier
-                    .padding(padding)
+                    .padding(paddingValues = padding)
                     .fillMaxSize(),
-                contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(all = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(space = 8.dp),
             ) {
                 items(
                     items = books,
                     key = { it.bookId },
                 ) { book ->
-                    BookRow(book = book, onClick = { onOpenBook(book.bookId) })
+
+                    BookRow(
+                        book = book,
+                        onClick = { onOpenBook(book.bookId) },
+                    )
                 }
             }
         }
@@ -73,32 +80,40 @@ private fun BookRow(
         onClick = onClick,
     ) {
 
-        Column(
-            Modifier.padding(12.dp),
+        Row(
+            modifier = Modifier.padding(all = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
 
-            Text(
-                text = book.title,
-                style = MaterialTheme.typography.titleMedium,
+            AsyncImage(
+                model = book.coverUrl,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(width = 80.dp, height = 120.dp),
             )
 
-            if (book.authors.isNotBlank()) {
-                Text(
-                    text = book.authors,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
+            Column(modifier = Modifier.weight(weight = 1f)) {
 
-            val meta = listOfNotNull(
-                book.publishedYear?.toString(),
-                book.isbn13
-            ).joinToString(" • ")
-
-            if (meta.isNotBlank()) {
                 Text(
-                    text = meta,
-                    style = MaterialTheme.typography.bodySmall,
+                    text = book.title,
+                    style = MaterialTheme.typography.titleMedium,
                 )
+
+                if (book.authors.isNotBlank()) {
+                    Text(text = book.authors)
+                }
+
+                val meta = listOfNotNull(
+                    book.publishedYear?.toString(),
+                    book.isbn13
+                ).joinToString(separator = " • ")
+
+                if (meta.isNotBlank()) {
+                    Text(
+                        text = meta,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
         }
     }

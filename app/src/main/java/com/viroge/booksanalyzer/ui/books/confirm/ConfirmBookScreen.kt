@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.viroge.booksanalyzer.domain.BookCandidate
 
 @Composable
@@ -18,27 +19,27 @@ fun ConfirmBookScreen(
 ) {
 
     Column(
-        Modifier
+        modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(all = 16.dp),
     ) {
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
         ) {
             OutlinedButton(
                 onClick = onBack,
                 enabled = !isSaving,
-            ) { Text("Back") }
+            ) { Text(text = "Back") }
 
             Button(
                 onClick = onConfirmSave,
                 enabled = !isSaving && candidate?.let { true } ?: false,
-            ) { Text("Save") }
+            ) { Text(text = "Save") }
         }
 
         if (isSaving) {
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(height = 12.dp))
 
             LinearProgressIndicator(
                 Modifier.fillMaxWidth(),
@@ -46,15 +47,15 @@ fun ConfirmBookScreen(
         }
 
         error?.let {
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(height = 12.dp))
 
             Text(
-                error,
+                text = error,
                 color = MaterialTheme.colorScheme.error,
             )
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(height = 16.dp))
 
         when {
             candidate != null -> {
@@ -64,7 +65,15 @@ fun ConfirmBookScreen(
                 )
 
                 Spacer(
-                    Modifier.height(8.dp),
+                    Modifier.height(height = 8.dp),
+                )
+
+                AsyncImage(
+                    model = candidate.coverUrl,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(height = 240.dp),
                 )
 
                 Text(
@@ -74,30 +83,31 @@ fun ConfirmBookScreen(
 
                 if (candidate.authors.isNotEmpty()) {
                     Text(
-                        text = candidate.authors.joinToString(", "),
+                        text = candidate.authors
+                            .joinToString(separator = ", "),
                     )
                 }
 
                 candidate.isbn13?.let {
-                    Text("ISBN-13: $it")
+                    Text(text = "ISBN-13: $it")
                 }
             }
 
             !prefillQuery.isNullOrBlank() -> {
                 Text(
-                    "Manual add is next",
+                    text = "Manual add is next",
                     style = MaterialTheme.typography.titleLarge,
                 )
 
                 Spacer(
-                    Modifier.height(8.dp),
+                    Modifier.height(height = 8.dp),
                 )
 
-                Text("We’ll add a form soon. For now, go back and select a result.")
+                Text(text = "We’ll add a form soon. For now, go back and select a result.")
             }
 
             else -> {
-                Text("Nothing to confirm.")
+                Text(text = "Nothing to confirm.")
             }
         }
     }

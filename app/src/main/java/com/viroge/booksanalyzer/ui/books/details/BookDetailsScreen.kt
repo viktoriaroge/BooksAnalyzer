@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.viroge.booksanalyzer.domain.ReadingStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,10 +47,14 @@ fun BookDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Book") },
+                title = {
+                    Text(text = "Book")
+                },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Text("←") }
-                }
+                    IconButton(
+                        onClick = onBack
+                    ) { Text(text = "←") }
+                },
             )
         }
     ) { padding ->
@@ -57,39 +63,60 @@ fun BookDetailsScreen(
 
         Column(
             modifier = Modifier
-                .padding(padding)
+                .padding(paddingValues = padding)
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(all = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
 
             if (state.error != null) {
-                Text(state.error, color = MaterialTheme.colorScheme.error)
+                Text(
+                    text = state.error,
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
 
             if (book == null) {
-                Text("Loading…")
+                Text(text = "Loading…")
                 return@Column
             }
 
-            Text(book.title, style = MaterialTheme.typography.titleLarge)
+            AsyncImage(
+                model = book.coverUrl,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp),
+            )
 
-            if (book.authors.isNotBlank()) Text(book.authors)
+            Text(
+                text = book.title,
+                style = MaterialTheme.typography.titleLarge,
+            )
+
+            if (book.authors.isNotBlank()) {
+                Text(text = book.authors)
+            }
 
             val meta = listOfNotNull(
                 book.publishedYear?.toString(),
                 book.isbn13
-            ).joinToString(" • ")
+            ).joinToString(separator = " • ")
 
-            if (meta.isNotBlank()) Text(meta, style = MaterialTheme.typography.bodySmall)
+            if (meta.isNotBlank()) {
+                Text(
+                    text = meta,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
 
             StatusPicker(
-                current = runCatching { ReadingStatus.valueOf(book.status) }
-                    .getOrDefault(ReadingStatus.NOT_STARTED),
+                current = runCatching { ReadingStatus.valueOf(value = book.status) }
+                    .getOrDefault(defaultValue = ReadingStatus.NOT_STARTED),
                 onChange = onStatusChange,
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(height = 8.dp))
 
             Button(
                 onClick = { showDeleteDialog = true },
@@ -97,28 +124,35 @@ fun BookDetailsScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
                 ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 48.dp),
             ) {
-                Text(if (state.isDeleting) "Deleting…" else "Delete book")
+                Text(text = if (state.isDeleting) "Deleting…" else "Delete book")
             }
         }
 
         if (showDeleteDialog) {
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
-                title = { Text("Delete book?") },
-                text = { Text("This will remove the book from your library. This can’t be undone.") },
+                title = {
+                    Text(text = "Delete book?")
+                },
+                text = {
+                    Text(text = "This will remove the book from your library. This can’t be undone.")
+                },
                 confirmButton = {
                     TextButton(
                         onClick = {
                             showDeleteDialog = false
                             onDelete()
-                        }) { Text("Delete") }
+                        }) { Text(text = "Delete") }
                 },
                 dismissButton = {
                     TextButton(
                         onClick = {
                             showDeleteDialog = false
-                        }) { Text("Cancel") }
+                        }) { Text(text = "Cancel") }
                 },
             )
         }
@@ -132,11 +166,14 @@ private fun StatusPicker(
     onChange: (ReadingStatus) -> Unit,
 ) {
 
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(value = false) }
 
     Column {
 
-        Text("Status", style = MaterialTheme.typography.titleSmall)
+        Text(
+            text = "Status",
+            style = MaterialTheme.typography.titleSmall,
+        )
 
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -144,7 +181,9 @@ private fun StatusPicker(
         ) {
 
             OutlinedTextField(
-                value = current.name.replace('_', ' ').lowercase()
+                value = current.name
+                    .replace(oldChar = '_', newChar = ' ')
+                    .lowercase()
                     .replaceFirstChar { it.uppercase() },
                 onValueChange = {},
                 readOnly = true,
@@ -167,8 +206,8 @@ private fun StatusPicker(
                     DropdownMenuItem(
                         text = {
                             Text(
-                                status.name
-                                    .replace('_', ' ')
+                                text = status.name
+                                    .replace(oldChar = '_', newChar = ' ')
                                     .lowercase()
                                     .replaceFirstChar { it.uppercase() })
                         },
