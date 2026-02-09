@@ -1,8 +1,20 @@
 package com.viroge.booksanalyzer.data
 
+import com.viroge.booksanalyzer.data.local.BookEntity
 import com.viroge.booksanalyzer.domain.BookCandidate
+import kotlinx.coroutines.flow.Flow
 
 interface BookSearchRepository {
+
+    fun observeLibrary(): Flow<List<BookEntity>>
+
+    fun observeBook(
+        bookId: String,
+    ): Flow<BookEntity?>
+
+    suspend fun insertFromCandidate(
+        candidate: BookCandidate,
+    ): String
 
     suspend fun search(
         query: String,

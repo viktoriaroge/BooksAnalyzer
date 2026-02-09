@@ -18,6 +18,7 @@ fun ConfirmBookRoute(
     onBack: () -> Unit,
     onBookSaved: (String) -> Unit,
 ) {
+    val vm: ConfirmBookViewModel = hiltViewModel()
 
     val parentEntry = remember(entry) {
         navController.getBackStackEntry(Routes.ADD_BOOK_FLOW)
@@ -26,16 +27,24 @@ fun ConfirmBookRoute(
 
     val candidate by flowVm.selectedCandidate.collectAsState()
     val prefill by flowVm.prefillQuery.collectAsState()
+    val isSaving by vm.isSaving.collectAsState()
+    val error by vm.error.collectAsState()
 
     ConfirmBookScreen(
         candidate = candidate,
         prefillQuery = prefill,
+        isSaving = isSaving,
+        error = error,
         onBack = onBack,
         onConfirmSave = {
-            // TODO: replace with actual Room insert. For now, generate ID or return a placeholder.
-            val newBookId = UUID.randomUUID().toString()
-            flowVm.clear()
-            onBookSaved(newBookId)
+            val candidateToSave = candidate
+            candidateToSave?.let {
+                vm.saveCandidate(it) { newBookId ->
+                    flowVm.clear()
+                    onBookSaved(newBookId)
+                }
+            }
+            // TODO: Later in case of null candidate, implement manual addition and saving
         }
     )
 }

@@ -1,21 +1,57 @@
 package com.viroge.booksanalyzer.data
 
 import androidx.collection.LruCache
+import com.viroge.booksanalyzer.data.local.BookDao
+import com.viroge.booksanalyzer.data.local.BookEntity
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.domain.BookCandidate
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class BookSearchRepositoryImpl @Inject constructor(
+    private val bookDao: BookDao,
     private val google: GoogleBooksClient,
     private val openLibrary: OpenLibraryClient,
 ) : BookSearchRepository {
 
     private val resultsCache = LruCache<String, List<BookCandidate>>(/*maxSize*/ 100)
+
+    override fun observeLibrary(): Flow<List<BookEntity>> = bookDao.observeAll()
+
+    override fun observeBook(
+        bookId: String,
+    ): Flow<BookEntity?> = bookDao.observeById(bookId)
+
+    override suspend fun insertFromCandidate(
+        candidate: BookCandidate,
+    ): String {
+
+        val id = UUID.randomUUID().toString()
+        val authors = candidate.authors.joinToString(", ")
+
+        val entity = BookEntity(
+            bookId = id,
+            title = candidate.title,
+            authors = authors,
+            publishedYear = candidate.publishedYear,
+            isbn13 = candidate.isbn13,
+            isbn10 = candidate.isbn10,
+            openLibraryId = candidate.sourceId.takeIf { candidate.source == BookCandidate.Source.OPEN_LIBRARY },
+            googleVolumeId = candidate.sourceId.takeIf { candidate.source == BookCandidate.Source.GOOGLE_BOOKS },
+            coverUrl = candidate.coverUrl,
+            status = "NOT_STARTED",
+            createdAtEpochMs = System.currentTimeMillis(),
+        )
+
+        bookDao.upsert(entity)
+        return id
+    }
 
     override suspend fun search(
         query: String,

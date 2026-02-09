@@ -11,6 +11,8 @@ import com.viroge.booksanalyzer.domain.BookCandidate
 fun ConfirmBookScreen(
     candidate: BookCandidate?,
     prefillQuery: String?,
+    isSaving: Boolean,
+    error: String?,
     onBack: () -> Unit,
     onConfirmSave: () -> Unit,
 ) {
@@ -26,33 +28,76 @@ fun ConfirmBookScreen(
         ) {
             OutlinedButton(
                 onClick = onBack,
+                enabled = !isSaving,
             ) { Text("Back") }
+
             Button(
                 onClick = onConfirmSave,
+                enabled = !isSaving && candidate?.let { true } ?: false,
             ) { Text("Save") }
+        }
+
+        if (isSaving) {
+            Spacer(Modifier.height(12.dp))
+
+            LinearProgressIndicator(
+                Modifier.fillMaxWidth(),
+            )
+        }
+
+        error?.let {
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                error,
+                color = MaterialTheme.colorScheme.error,
+            )
         }
 
         Spacer(Modifier.height(16.dp))
 
         when {
             candidate != null -> {
-                Text("Confirm book", style = MaterialTheme.typography.titleLarge)
-                Spacer(Modifier.height(8.dp))
-                Text(candidate.title, style = MaterialTheme.typography.titleMedium)
-                if (candidate.authors.isNotEmpty()) Text(candidate.authors.joinToString(", "))
-                candidate.isbn13?.let { Text("ISBN-13: $it") }
+                Text(
+                    text = "Confirm book",
+                    style = MaterialTheme.typography.titleLarge,
+                )
+
+                Spacer(
+                    Modifier.height(8.dp),
+                )
+
+                Text(
+                    text = candidate.title,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+
+                if (candidate.authors.isNotEmpty()) {
+                    Text(
+                        text = candidate.authors.joinToString(", "),
+                    )
+                }
+
+                candidate.isbn13?.let {
+                    Text("ISBN-13: $it")
+                }
             }
 
             !prefillQuery.isNullOrBlank() -> {
-                Text("Add manually", style = MaterialTheme.typography.titleLarge)
-                Spacer(Modifier.height(8.dp))
-                Text("Prefill: $prefillQuery")
-                Text("TODO: manual entry form here")
+                Text(
+                    "Manual add is next",
+                    style = MaterialTheme.typography.titleLarge,
+                )
+
+                Spacer(
+                    Modifier.height(8.dp),
+                )
+
+                Text("We’ll add a form soon. For now, go back and select a result.")
             }
 
             else -> {
                 Text("Nothing to confirm.")
-                Text("Go back and search or add manually.")
             }
         }
     }
