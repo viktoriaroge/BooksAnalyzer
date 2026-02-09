@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.search
+package com.viroge.booksanalyzer.ui.books.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

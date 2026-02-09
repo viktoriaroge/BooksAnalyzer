@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.library
+package com.viroge.booksanalyzer.ui.books.library
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

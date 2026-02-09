@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.addbook
+package com.viroge.booksanalyzer.ui.books.add
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -6,8 +6,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.viroge.booksanalyzer.ui.nav.Routes
-import com.viroge.booksanalyzer.ui.search.BookSearchScreen
-import com.viroge.booksanalyzer.ui.search.BookSearchViewModel
+import com.viroge.booksanalyzer.ui.books.search.BookSearchScreen
+import com.viroge.booksanalyzer.ui.books.search.BookSearchViewModel
 
 @Composable
 fun AddBookRoute(

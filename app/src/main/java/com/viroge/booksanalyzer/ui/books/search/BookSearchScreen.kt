@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.search
+package com.viroge.booksanalyzer.ui.books.search
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

@@ -7,10 +7,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.viroge.booksanalyzer.ui.addbook.AddBookRoute
-import com.viroge.booksanalyzer.ui.confirm.ConfirmBookRoute
-import com.viroge.booksanalyzer.ui.details.BookDetailsRoute
-import com.viroge.booksanalyzer.ui.library.LibraryRoute
+import com.viroge.booksanalyzer.ui.books.add.AddBookRoute
+import com.viroge.booksanalyzer.ui.books.confirm.ConfirmBookRoute
+import com.viroge.booksanalyzer.ui.books.details.BookDetailsRoute
+import com.viroge.booksanalyzer.ui.books.library.LibraryRoute
 
 @Composable
 fun AppNavHost() {

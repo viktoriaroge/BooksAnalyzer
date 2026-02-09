@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.confirm
+package com.viroge.booksanalyzer.ui.books.confirm
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

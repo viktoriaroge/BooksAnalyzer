@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.confirm
+package com.viroge.booksanalyzer.ui.books.confirm
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -7,8 +7,9 @@ import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import com.viroge.booksanalyzer.ui.addbook.AddBookFlowViewModel
+import com.viroge.booksanalyzer.ui.books.add.AddBookFlowViewModel
 import com.viroge.booksanalyzer.ui.nav.Routes
+import java.util.UUID
 
 @Composable
 fun ConfirmBookRoute(
@@ -32,7 +33,7 @@ fun ConfirmBookRoute(
         onBack = onBack,
         onConfirmSave = {
             // TODO: replace with actual Room insert. For now, generate ID or return a placeholder.
-            val newBookId = java.util.UUID.randomUUID().toString()
+            val newBookId = UUID.randomUUID().toString()
             flowVm.clear()
             onBookSaved(newBookId)
         }

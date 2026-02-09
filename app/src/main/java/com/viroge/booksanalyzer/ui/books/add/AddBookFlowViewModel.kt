@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.addbook
+package com.viroge.booksanalyzer.ui.books.add
 
 import androidx.lifecycle.ViewModel
 import com.viroge.booksanalyzer.domain.BookCandidate

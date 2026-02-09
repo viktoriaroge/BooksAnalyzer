@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.details
+package com.viroge.booksanalyzer.ui.books.details
 
 import androidx.compose.runtime.Composable
 
