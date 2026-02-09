@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.books.search
+package com.viroge.booksanalyzer.ui.books.add
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class BookSearchViewModel @Inject constructor(
+class SearchBookViewModel @Inject constructor(
     private val booksRepo: BooksRepository,
 ) : ViewModel() {
 

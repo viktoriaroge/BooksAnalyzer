@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.books.search
+package com.viroge.booksanalyzer.ui.books.add
 
 import com.viroge.booksanalyzer.domain.BookCandidate
 

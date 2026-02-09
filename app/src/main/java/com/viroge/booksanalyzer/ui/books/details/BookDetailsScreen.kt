@@ -52,7 +52,7 @@ fun BookDetailsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Book")
+                    Text(text = "Book Details")
                 },
                 navigationIcon = {
                     IconButton(

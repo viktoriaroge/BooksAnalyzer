@@ -6,8 +6,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.viroge.booksanalyzer.ui.nav.Routes
-import com.viroge.booksanalyzer.ui.books.search.BookSearchScreen
-import com.viroge.booksanalyzer.ui.books.search.BookSearchViewModel
 
 @Composable
 fun AddBookRoute(
@@ -17,12 +15,12 @@ fun AddBookRoute(
     onGoToConfirm: () -> Unit,
 ) {
 
-    val searchVm: BookSearchViewModel = hiltViewModel()
+    val searchVm: SearchBookViewModel = hiltViewModel()
 
-    val parentEntry = remember(entry) {
+    val parentEntry = remember(key1 = entry) {
         navController.getBackStackEntry(Routes.ADD_BOOK_FLOW)
     }
-    val flowVm: AddBookFlowViewModel = hiltViewModel(parentEntry)
+    val flowVm: AddBookFlowViewModel = hiltViewModel(viewModelStoreOwner = parentEntry)
 
     BookSearchScreen(
         vm = searchVm,
@@ -33,6 +31,7 @@ fun AddBookRoute(
         onManualAdd = { prefill ->
             flowVm.setManualPrefill(prefill)
             onGoToConfirm()
-        }
+        },
+        onBack = onBack,
     )
 }

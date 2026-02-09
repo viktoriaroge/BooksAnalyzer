@@ -9,6 +9,7 @@ fun LibraryRoute(
     onAddBook: () -> Unit,
     onOpenBook: (String) -> Unit,
 ) {
+
     val vm: LibraryViewModel = hiltViewModel()
     val books = vm.books.collectAsState().value
 
