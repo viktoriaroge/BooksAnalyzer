@@ -6,6 +6,7 @@ import com.viroge.booksanalyzer.data.local.BookEntity
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.ReadingStatus
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +28,21 @@ class BooksRepositoryImpl @Inject constructor(
     override fun observeBook(
         bookId: String,
     ): Flow<BookEntity?> = bookDao.observeById(bookId)
+
+    override suspend fun updateStatus(
+        bookId: String,
+        status: ReadingStatus,
+    ) {
+        val existing = bookDao.getById(bookId) ?: return
+
+        bookDao.upsert(existing.copy(status = status.name))
+    }
+
+    override suspend fun deleteBook(
+        bookId: String,
+    ) {
+        bookDao.deleteById(bookId)
+    }
 
     override suspend fun insertFromCandidate(
         candidate: BookCandidate,

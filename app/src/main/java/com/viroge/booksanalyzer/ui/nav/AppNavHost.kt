@@ -65,12 +65,14 @@ fun AppNavHost() {
         composable(
             route = "${Routes.BOOK_DETAILS}/{${Routes.ARG_BOOK_ID}}",
             arguments = listOf(navArgument(Routes.ARG_BOOK_ID) { type = NavType.StringType }),
-        ) { entry ->
+        ) {
 
-            val bookId = entry.arguments?.getString(Routes.ARG_BOOK_ID)!! // TODO: handle better
             BookDetailsRoute(
-                bookId = bookId,
                 onBack = { navController.popBackStack() },
+                onDeleted = {
+                    // after delete, go back to Library
+                    navController.popBackStack(Routes.LIBRARY, inclusive = false)
+                },
             )
         }
     }
