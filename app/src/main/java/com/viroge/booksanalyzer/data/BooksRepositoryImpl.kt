@@ -3,10 +3,12 @@ package com.viroge.booksanalyzer.data
 import androidx.collection.LruCache
 import com.viroge.booksanalyzer.data.local.BookDao
 import com.viroge.booksanalyzer.data.local.BookEntity
+import com.viroge.booksanalyzer.data.local.InsertBookResult
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.util.BookKeys
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -61,15 +63,33 @@ class BooksRepositoryImpl @Inject constructor(
 
     override suspend fun insertFromCandidate(
         candidate: BookCandidate,
-    ): String {
+    ): InsertBookResult {
+        candidate.isbn13?.let {
+            bookDao.findByIsbn13(it)?.let { return InsertBookResult(it.bookId, false) }
+        }
+        candidate.isbn10?.let {
+            bookDao.findByIsbn10(it)?.let { return InsertBookResult(it.bookId, false) }
+        }
+
+        when (candidate.source) {
+            BookCandidate.Source.GOOGLE_BOOKS ->
+                bookDao.findByGoogleId(candidate.sourceId)
+                    ?.let { return InsertBookResult(it.bookId, false) }
+
+            BookCandidate.Source.OPEN_LIBRARY ->
+                bookDao.findByOpenLibraryId(candidate.sourceId)
+                    ?.let { return InsertBookResult(it.bookId, false) }
+        }
+
+        val key = BookKeys.titleKey(candidate.title, candidate.authors, candidate.publishedYear)
+        bookDao.findByTitleKey(key)?.let { return InsertBookResult(it.bookId, false) }
 
         val id = UUID.randomUUID().toString()
-        val authors = candidate.authors.joinToString(", ")
-
         val entity = BookEntity(
             bookId = id,
             title = candidate.title,
-            authors = authors,
+            authors = candidate.authors.joinToString(", "),
+            titleKey = key,
             publishedYear = candidate.publishedYear,
             isbn13 = candidate.isbn13,
             isbn10 = candidate.isbn10,
@@ -77,11 +97,10 @@ class BooksRepositoryImpl @Inject constructor(
             googleVolumeId = candidate.sourceId.takeIf { candidate.source == BookCandidate.Source.GOOGLE_BOOKS },
             coverUrl = candidate.coverUrl,
             status = "NOT_STARTED",
-            createdAtEpochMs = System.currentTimeMillis(),
+            createdAtEpochMs = System.currentTimeMillis()
         )
-
         bookDao.upsert(entity)
-        return id
+        return InsertBookResult(id, true)
     }
 
     override suspend fun search(

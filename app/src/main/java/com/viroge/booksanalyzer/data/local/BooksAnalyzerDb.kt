@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [BookEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 abstract class BooksAnalyzerDb : RoomDatabase() {

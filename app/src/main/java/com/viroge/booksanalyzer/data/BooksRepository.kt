@@ -1,6 +1,7 @@
 package com.viroge.booksanalyzer.data
 
 import com.viroge.booksanalyzer.data.local.BookEntity
+import com.viroge.booksanalyzer.data.local.InsertBookResult
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.ReadingStatus
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +33,7 @@ interface BooksRepository {
 
     suspend fun insertFromCandidate(
         candidate: BookCandidate,
-    ): String
+    ): InsertBookResult
 
     suspend fun search(
         query: String,
