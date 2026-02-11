@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -60,11 +62,16 @@ class LibraryViewModel @Inject constructor(
                 LibrarySort.AUTHOR -> filtered.sortedBy { it.authors.lowercase() }
             }
 
+            val currentlyReading = sorted
+                .filter { it.status == ReadingStatus.READING.name }
+                .take(5) // max 5 books
+
             LibraryUiState(
                 query = q,
                 selectedStatus = status,
                 sort = sort,
-                books = sorted
+                currentlyReading = currentlyReading,
+                books = sorted,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -94,5 +101,6 @@ data class LibraryUiState(
     val query: String = "",
     val selectedStatus: ReadingStatus? = null,
     val sort: LibrarySort = LibrarySort.RECENT,
+    val currentlyReading: List<BookEntity> = emptyList(),
     val books: List<BookEntity> = emptyList(),
 )

@@ -10,13 +10,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -41,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.viroge.booksanalyzer.data.local.BookEntity
@@ -141,6 +144,24 @@ fun LibraryScreen(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(space = 8.dp),
                 ) {
+                    // Currently Reading section
+                    if (state.currentlyReading.isNotEmpty()) {
+                        item {
+                            CurrentlyReadingSection(
+                                books = state.currentlyReading,
+                                onOpenBook = onOpenBook,
+                            )
+                        }
+                    }
+
+                    item {
+                        Text(
+                            text = "Your collection".uppercase(),
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                    }
+
+                    // A list of all saved books
                     items(
                         items = state.books,
                         key = { it.bookId },
@@ -300,6 +321,68 @@ private fun String.pretty(): String = lowercase()
     .replaceFirstChar { it.uppercase() }
 
 @Composable
+fun CurrentlyReadingSection(
+    books: List<BookEntity>,
+    onOpenBook: (String) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
+        Text(
+            text = "Currently reading".uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+        )
+
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(space = 12.dp)) {
+            items(items = books, key = { it.bookId }) { book ->
+
+                CurrentlyReadingCard(
+                    book = book,
+                    onClick = { onOpenBook(book.bookId) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CurrentlyReadingCard(
+    book: BookEntity,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.width(width = 260.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(all = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
+        ) {
+            AsyncImage(
+                model = book.coverUrl,
+                contentDescription = null,
+                modifier = Modifier.size(width = 56.dp, height = 84.dp),
+            )
+
+            Column(modifier = Modifier.weight(weight = 1f)) {
+                Text(
+                    text = book.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                )
+
+                if (book.authors.isNotBlank()) {
+                    Text(
+                        text = book.authors,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
 private fun BookRow(
     book: BookEntity,
     onClick: () -> Unit,
@@ -348,7 +431,10 @@ private fun BookRow(
                 AssistChip(
                     onClick = {},
                     label = {
-                        Text(text = book.status.replace(oldChar = '_', newChar = ' '))
+                        Text(
+                            text = book.status.replace(oldChar = '_', newChar = ' '),
+                            style = MaterialTheme.typography.labelSmall,
+                        )
                     }
                 )
             }
