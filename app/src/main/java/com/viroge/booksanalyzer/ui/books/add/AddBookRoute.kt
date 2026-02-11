@@ -26,6 +26,7 @@ fun AddBookRoute(
         vm = searchVm,
         onLoadMore = { searchVm.loadMore() },
         onQueryChanged = { searchVm.changeQuery(newValue = it) },
+        onModeChanged = { searchVm.changeSearchMode(newMode = it) },
         onSelectCandidate = { candidate ->
             flowVm.setCandidate(candidate)
             onGoToConfirm()

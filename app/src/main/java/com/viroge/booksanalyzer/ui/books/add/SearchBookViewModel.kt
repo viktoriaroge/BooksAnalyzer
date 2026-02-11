@@ -5,19 +5,18 @@ import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
+import com.viroge.booksanalyzer.domain.SearchMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.skip
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.collections.isNotEmpty
@@ -29,6 +28,9 @@ class SearchBookViewModel @Inject constructor(
 
     private val query = MutableStateFlow("")
     val queryState: StateFlow<String> = query.asStateFlow()
+
+    private val mode = MutableStateFlow(SearchMode.ALL)
+    val modeState: StateFlow<SearchMode> = mode.asStateFlow()
 
     private val _uiState = MutableStateFlow<SearchUiState>(SearchUiState.Idle)
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
@@ -47,7 +49,7 @@ class SearchBookViewModel @Inject constructor(
     init {
         query
             .map { it.trim() }
-            .debounce(350)
+            .debounce(timeoutMillis = 350)
             .distinctUntilChanged()
             .onEach { q ->
                 if (q.isBlank() || q.length < 2) {
@@ -56,6 +58,13 @@ class SearchBookViewModel @Inject constructor(
                 }
                 searchFirstPage(q)
             }
+            .launchIn(viewModelScope)
+
+        mode
+            .drop(count = 1)
+            .debounce(timeoutMillis = 350)
+            .distinctUntilChanged()
+            .onEach { searchFirstPage(query.value) }
             .launchIn(viewModelScope)
     }
 
@@ -67,9 +76,10 @@ class SearchBookViewModel @Inject constructor(
             _isLoadingMore.value = true
 
             val page = booksRepo.searchPage(
+                searchMode = mode.value,
                 query = lastQuery,
                 pageToken = token,
-                limit = 15
+                limit = 15,
             )
 
             // append + dedupe
@@ -101,6 +111,10 @@ class SearchBookViewModel @Inject constructor(
         query.value = newValue
     }
 
+    fun changeSearchMode(newMode: SearchMode) {
+        mode.value = newMode
+    }
+
     private fun reset() {
         nextToken = null
         lastQuery = ""
@@ -119,9 +133,11 @@ class SearchBookViewModel @Inject constructor(
         _canLoadMore.value = false
         _isLoadingMore.value = false
 
+
         _uiState.value = SearchUiState.Loading
 
         val page = booksRepo.searchPage(
+            searchMode = mode.value,
             query = q,
             pageToken = null,
             limit = 15,

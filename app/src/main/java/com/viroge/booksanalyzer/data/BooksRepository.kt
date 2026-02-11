@@ -5,6 +5,7 @@ import com.viroge.booksanalyzer.data.local.InsertBookResult
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.BooksPageResult
 import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.domain.SearchMode
 import kotlinx.coroutines.flow.Flow
 
 interface BooksRepository {
@@ -36,33 +37,10 @@ interface BooksRepository {
         candidate: BookCandidate,
     ): InsertBookResult
 
-    suspend fun search(
-        query: String,
-    ): SearchResult
-
     suspend fun searchPage(
+        searchMode: SearchMode,
         query: String,
         pageToken: String?, // null = first page
         limit: Int,
     ): BooksPageResult
-
-    suspend fun lookupByIsbn(
-        isbn: String,
-    ): SearchResult
-
-    sealed class SearchResult {
-
-        data class Success(
-            val items: List<BookCandidate>,
-        ) : SearchResult()
-
-        data class Partial(
-            val items: List<BookCandidate>,
-            val errors: List<Throwable>,
-        ) : SearchResult()
-
-        data class Failure(
-            val errors: List<Throwable>,
-        ) : SearchResult()
-    }
 }

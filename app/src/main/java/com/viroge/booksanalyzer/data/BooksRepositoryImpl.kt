@@ -1,6 +1,5 @@
 package com.viroge.booksanalyzer.data
 
-import androidx.collection.LruCache
 import com.viroge.booksanalyzer.data.local.BookDao
 import com.viroge.booksanalyzer.data.local.BookEntity
 import com.viroge.booksanalyzer.data.local.InsertBookResult
@@ -8,11 +7,11 @@ import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.BooksPageResult
-import com.viroge.booksanalyzer.domain.BooksUtil.cacheKey
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.BooksUtil.titleKey
 import com.viroge.booksanalyzer.domain.PageToken
 import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.domain.SearchMode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -27,8 +26,6 @@ class BooksRepositoryImpl @Inject constructor(
     private val googleClient: GoogleBooksClient,
     private val openLibraryClient: OpenLibraryClient,
 ) : BooksRepository {
-
-    private val resultsCache = LruCache<String, List<BookCandidate>>(maxSize = 100)
 
     override fun observeLibrary(): Flow<List<BookEntity>> = bookDao.observeAll()
 
@@ -140,16 +137,9 @@ class BooksRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun search(
-        query: String,
-    ): BooksRepository.SearchResult = multiSourceSearch(
-        cacheKey = cacheKey(mode = "q", query = query, limit = 15),
-        query = query,
-        limit = 15,
-    )
-
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun searchPage(
+        searchMode: SearchMode,
         query: String,
         pageToken: String?,
         limit: Int,
@@ -159,6 +149,7 @@ class BooksRepositoryImpl @Inject constructor(
 
         val g = async {
             googleClient.search(
+                searchMode = searchMode,
                 query = query,
                 limit = limit,
                 startIndex = token.googleStart,
@@ -166,6 +157,7 @@ class BooksRepositoryImpl @Inject constructor(
         }
         val o = async {
             openLibraryClient.search(
+                searchMode = searchMode,
                 query = query,
                 limit = limit,
                 page = token.olPage,
@@ -197,58 +189,6 @@ class BooksRepositoryImpl @Inject constructor(
             errors = errors,
             nextToken = next,
         )
-    }
-
-    override suspend fun lookupByIsbn(
-        isbn: String,
-    ): BooksRepository.SearchResult = multiSourceSearch(
-        cacheKey = cacheKey(mode = "isbn", query = isbn, limit = 10),
-        query = "isbn:$isbn",
-        limit = 10,
-    )
-
-    private suspend fun multiSourceSearch(
-        cacheKey: String,
-        query: String,
-        limit: Int,
-    ): BooksRepository.SearchResult {
-
-        // 1) Serve from cache
-        resultsCache[cacheKey]?.let { cached ->
-            return BooksRepository.SearchResult.Success(cached)
-        }
-
-        // 2) Fetch both sources in parallel
-        return coroutineScope {
-            val g = async { googleClient.search(query, limit) }
-            val o = async { openLibraryClient.search(query, limit) }
-            val results = listOf(g.await(), o.await())
-
-            val items = results.flatMap { it.getOrNull().orEmpty() }
-            val errors = results.mapNotNull { it.exceptionOrNull() }
-
-            val merged = mergeAndRank(list = items)
-
-            // 3) Cache only good-enough lists
-            if (merged.isNotEmpty()) {
-                resultsCache.put(cacheKey, merged)
-            }
-
-            when {
-                merged.isNotEmpty() && errors.isEmpty() ->
-                    BooksRepository.SearchResult.Success(merged)
-
-                merged.isNotEmpty() && errors.isNotEmpty() ->
-                    BooksRepository.SearchResult.Partial(merged, errors)
-
-                else ->
-                    BooksRepository.SearchResult.Failure(errors.ifEmpty {
-                        listOf(
-                            IllegalStateException("No results")
-                        )
-                    })
-            }
-        }
     }
 
     private fun parseToken(

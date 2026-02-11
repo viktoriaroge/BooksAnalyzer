@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.SearchMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +37,7 @@ fun BookSearchScreen(
     vm: SearchBookViewModel,
     onLoadMore: () -> Unit,
     onQueryChanged: (String) -> Unit,
+    onModeChanged: (SearchMode) -> Unit,
     onSelectCandidate: (BookCandidate) -> Unit,
     onManualAdd: (String) -> Unit,
     onBack: () -> Unit,
@@ -43,6 +46,7 @@ fun BookSearchScreen(
     val query by vm.queryState.collectAsState()
     val canLoadMore by vm.canLoadMore.collectAsState()
     val isLoadingMore by vm.isLoadingMore.collectAsState()
+    val mode by vm.modeState.collectAsState()
     val state by vm.uiState.collectAsState()
 
     Scaffold(
@@ -73,6 +77,13 @@ fun BookSearchScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(text = "Search by title, author, or ISBN") },
                 singleLine = true,
+            )
+
+            Spacer(Modifier.height(height = 8.dp))
+
+            SearchModeChips(
+                selected = mode,
+                onSelect = { onModeChanged(it) }
             )
 
             Spacer(Modifier.height(height = 12.dp))
@@ -135,6 +146,35 @@ fun BookSearchScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SearchModeChips(
+    selected: SearchMode,
+    onSelect: (SearchMode) -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(
+            selected = selected == SearchMode.ALL,
+            onClick = { onSelect(SearchMode.ALL) },
+            label = { Text("All") }
+        )
+        FilterChip(
+            selected = selected == SearchMode.TITLE,
+            onClick = { onSelect(SearchMode.TITLE) },
+            label = { Text("Title") }
+        )
+        FilterChip(
+            selected = selected == SearchMode.AUTHOR,
+            onClick = { onSelect(SearchMode.AUTHOR) },
+            label = { Text("Author") }
+        )
+        FilterChip(
+            selected = selected == SearchMode.ISBN,
+            onClick = { onSelect(SearchMode.ISBN) },
+            label = { Text("ISBN") }
+        )
     }
 }
 
