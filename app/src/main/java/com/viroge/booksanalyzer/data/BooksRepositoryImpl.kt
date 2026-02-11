@@ -169,70 +169,81 @@ class BooksRepositoryImpl @Inject constructor(
     }
 
     private fun List<BookCandidate>.mergeAndRank(): List<BookCandidate> {
+        if (isEmpty()) return emptyList()
 
-        // 1) de-dupe: ISBN-13 strongest, otherwise normalized (title+firstAuthor)
-        val byIsbn = this.filter { !it.isbn13.isNullOrBlank() }
-            .associateBy { it.isbn13!! }
-            .toMutableMap()
+        // 1) Group by best-available identity key
+        val grouped: Map<String, List<BookCandidate>> = this.groupBy { it.dedupeKey() }
 
-        val noIsbn = this.filter { it.isbn13.isNullOrBlank() }
-
-        val byKey = mutableMapOf<String, BookCandidate>()
-        for (newCandidate in noIsbn) {
-            val key = normalizeKey(newCandidate.title, newCandidate.authors.firstOrNull())
-            val existing = byKey[key]
-            byKey[key] = chooseBetter(existing, newCandidate)
+        // 2) Merge duplicates into one "best" candidate per key
+        val merged: List<BookCandidate> = grouped.values.map { group ->
+            group.reduce { acc, next -> acc.mergePreferBetter(next) }
         }
 
-        // Combine: ISBN ones + non-ISBN ones that aren’t duplicates of ISBN group
-        val combined = buildList {
-            addAll(byIsbn.values)
-            addAll(byKey.values)
-        }
-
-        // 2) rank: prefer ISBN-13, cover, year, more authors info
-        return combined.sortedWith(
-            compareByDescending<BookCandidate> { !it.isbn13.isNullOrBlank() }
+        // 3) Rank: prefer richer metadata
+        return merged.sortedWith(
+            comparator = compareByDescending<BookCandidate> { !it.isbn13.isNullOrBlank() }
+                .thenByDescending { !it.isbn10.isNullOrBlank() }
                 .thenByDescending { !it.coverUrl.isNullOrBlank() }
                 .thenByDescending { it.publishedYear ?: 0 }
                 .thenByDescending { it.authors.size }
-                .thenBy { it.title.length } // slight preference for cleaner titles
+                .thenByDescending { it.title.length }
         )
     }
 
-    private fun normalizeKey(
-        title: String,
-        firstAuthor: String?,
-    ): String {
+    private fun BookCandidate.dedupeKey(): String {
+        // strongest identifiers first
+        isbn13?.takeIf { it.isNotBlank() }?.let { return "isbn13:${it.normalizeIsbn()}" }
+        isbn10?.takeIf { it.isNotBlank() }?.let { return "isbn10:${it.normalizeIsbn()}" }
 
-        fun norm(s: String) = s.lowercase()
-            .replace(Regex("""[^\p{L}\p{N}\s]"""), "")
-            .replace(Regex("""\s+"""), " ")
-            .trim()
+        // source-specific stable IDs
+        if (sourceId.isNotBlank()) return "src:${source.name}:${sourceId.trim()}"
 
-        return norm(title) + "||" + norm(firstAuthor ?: "")
+        // fallback: stable titleKey (title + first author + year)
+        return "ta:${BookKeys.titleKey(title, authors, publishedYear)}"
     }
 
-    private fun chooseBetter(
-        candidate1: BookCandidate?,
+    private fun String.normalizeIsbn(): String =
+        replace(oldValue = "-", newValue = "")
+            .replace(oldValue = " ", newValue = "")
+            .trim()
+
+    private fun BookCandidate.mergePreferBetter(other: BookCandidate): BookCandidate {
+        // Prefer non-null / richer fields.
+        // Keep the original source/sourceId (doesn't matter much for merged display),
+        // but we can keep the one that has "better" metadata as the base.
+        val base = chooseBase(this, other)
+        val extra = if (base === this) other else this
+
+        return base.copy(
+            // Merge best-known values
+            publishedYear = base.publishedYear ?: extra.publishedYear,
+            isbn13 = base.isbn13 ?: extra.isbn13,
+            isbn10 = base.isbn10 ?: extra.isbn10,
+            coverUrl = base.coverUrl ?: extra.coverUrl,
+            authors = if (base.authors.size >= extra.authors.size) base.authors else extra.authors,
+            title = if (base.title.length >= extra.title.length) base.title else extra.title
+        )
+    }
+
+    private fun chooseBase(
+        candidate1: BookCandidate,
         candidate2: BookCandidate,
     ): BookCandidate {
 
-        if (candidate1 == null) return candidate2
-        val score1 = score(candidate1)
-        val score2 = score(candidate2)
-        return if (score2 > score1) candidate2 else candidate1
-    }
-
-    private fun score(
-        candidate: BookCandidate,
-    ): Int {
-
-        var score = 0
-        if (!candidate.isbn13.isNullOrBlank()) score += 10
-        if (!candidate.coverUrl.isNullOrBlank()) score += 4
-        if (candidate.publishedYear != null) score += 2
-        if (candidate.authors.isNotEmpty()) score += 1
-        return score
+        // Pick the candidate with “better” metadata as base.
+        fun score(candidate: BookCandidate): Int {
+            var s = 0
+            if (!candidate.isbn13.isNullOrBlank()) s += 8
+            if (!candidate.isbn10.isNullOrBlank()) s += 4
+            if (!candidate.coverUrl.isNullOrBlank()) s += 3
+            if (candidate.publishedYear != null) s += 2
+            s += (candidate.authors.size.coerceAtMost(maximumValue = 3)) // small boost
+            return s
+        }
+        return if (score(candidate = candidate1) >= score(candidate = candidate2)) {
+            candidate1
+        } else {
+            candidate2
+        }
     }
 }
