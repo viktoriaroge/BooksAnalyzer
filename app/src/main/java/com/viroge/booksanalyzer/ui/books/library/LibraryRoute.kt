@@ -1,7 +1,6 @@
 package com.viroge.booksanalyzer.ui.books.library
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
@@ -11,10 +10,9 @@ fun LibraryRoute(
 ) {
 
     val vm: LibraryViewModel = hiltViewModel()
-    val books = vm.books.collectAsState().value
 
     LibraryScreen(
-        books = books,
+        vm = vm,
         onAddBook = onAddBook,
         onOpenBook = onOpenBook,
     )

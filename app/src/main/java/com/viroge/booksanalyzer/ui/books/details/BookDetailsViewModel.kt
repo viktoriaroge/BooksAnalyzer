@@ -19,19 +19,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class BookDetailsUiState(
-    val book: BookEntity? = null,
-    val isDeleting: Boolean = false,
-    val error: String? = null,
-)
-
-sealed interface BookDetailEvent {
-
-    data class Deleted(
-        val title: String,
-    ) : BookDetailEvent
-}
-
 @HiltViewModel
 class BookDetailsViewModel @Inject constructor(
     private val repo: BooksRepository,
@@ -100,4 +87,17 @@ class BookDetailsViewModel @Inject constructor(
                 .onFailure { e -> _ui.update { it.copy(error = e.message ?: "Failed to undo") } }
         }
     }
+}
+
+data class BookDetailsUiState(
+    val book: BookEntity? = null,
+    val isDeleting: Boolean = false,
+    val error: String? = null,
+)
+
+sealed interface BookDetailEvent {
+
+    data class Deleted(
+        val title: String,
+    ) : BookDetailEvent
 }

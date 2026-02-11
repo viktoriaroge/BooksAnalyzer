@@ -23,18 +23,6 @@ class ConfirmBookViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    sealed interface ConfirmEvent {
-
-        data class Saved(
-            val bookId: String,
-            val wasInserted: Boolean,
-        ) : ConfirmEvent
-
-        data class Error(
-            val message: String,
-        ) : ConfirmEvent
-    }
-
     private val _events = MutableSharedFlow<ConfirmEvent>()
     val events: SharedFlow<ConfirmEvent> = _events
 
@@ -58,4 +46,16 @@ class ConfirmBookViewModel @Inject constructor(
             _isSaving.value = false
         }
     }
+}
+
+sealed interface ConfirmEvent {
+
+    data class Saved(
+        val bookId: String,
+        val wasInserted: Boolean,
+    ) : ConfirmEvent
+
+    data class Error(
+        val message: String,
+    ) : ConfirmEvent
 }

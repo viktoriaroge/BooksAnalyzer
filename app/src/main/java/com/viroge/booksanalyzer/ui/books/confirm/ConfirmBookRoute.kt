@@ -36,7 +36,7 @@ fun ConfirmBookRoute(
     LaunchedEffect(key1 = Unit) {
         vm.events.collect { event ->
             when (event) {
-                is ConfirmBookViewModel.ConfirmEvent.Saved -> {
+                is ConfirmEvent.Saved -> {
                     if (!event.wasInserted) {
                         snackbarHostState.showSnackbar(message = "Already in your library — opening it.")
                     }
@@ -44,7 +44,7 @@ fun ConfirmBookRoute(
                     onBookSaved(event.bookId)
                 }
 
-                is ConfirmBookViewModel.ConfirmEvent.Error -> {
+                is ConfirmEvent.Error -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
             }
