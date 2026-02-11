@@ -24,6 +24,8 @@ fun AddBookRoute(
 
     BookSearchScreen(
         vm = searchVm,
+        onLoadMore = { searchVm.loadMore() },
+        onQueryChanged = { searchVm.changeQuery(newValue = it) },
         onSelectCandidate = { candidate ->
             flowVm.setCandidate(candidate)
             onGoToConfirm()

@@ -10,9 +10,11 @@ class OpenLibraryClient(
     suspend fun search(
         query: String,
         limit: Int = 10,
+        page: Int = 1,
     ): Result<List<BookCandidate>> = runCatching {
         val resp = api.search(
             query = query,
+            page = page,
             limit = limit,
         )
         resp.docs.mapNotNull { it.toCandidateOrNull() }

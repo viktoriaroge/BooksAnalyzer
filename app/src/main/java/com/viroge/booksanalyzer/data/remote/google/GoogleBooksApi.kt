@@ -9,6 +9,7 @@ interface GoogleBooksApi {
     @GET("volumes")
     suspend fun searchVolumes(
         @Query("q") query: String,
+        @Query("startIndex") startIndex: Int = 0,
         @Query("maxResults") maxResults: Int = 10,
         @Query("key") apiKey: String,
     ): VolumesResponse

@@ -11,9 +11,11 @@ class GoogleBooksClient(
     suspend fun search(
         query: String,
         limit: Int = 10,
+        startIndex: Int = 0,
     ): Result<List<BookCandidate>> = runCatching {
         val resp = api.searchVolumes(
             query = query,
+            startIndex = startIndex,
             maxResults = limit,
             apiKey = apiKey,
         )

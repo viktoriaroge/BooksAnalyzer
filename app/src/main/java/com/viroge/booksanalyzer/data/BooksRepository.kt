@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.data
 import com.viroge.booksanalyzer.data.local.BookEntity
 import com.viroge.booksanalyzer.data.local.InsertBookResult
 import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.BooksPageResult
 import com.viroge.booksanalyzer.domain.ReadingStatus
 import kotlinx.coroutines.flow.Flow
 
@@ -38,6 +39,12 @@ interface BooksRepository {
     suspend fun search(
         query: String,
     ): SearchResult
+
+    suspend fun searchPage(
+        query: String,
+        pageToken: String?, // null = first page
+        limit: Int,
+    ): BooksPageResult
 
     suspend fun lookupByIsbn(
         isbn: String,

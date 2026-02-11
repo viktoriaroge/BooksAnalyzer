@@ -33,12 +33,16 @@ import com.viroge.booksanalyzer.domain.BookCandidate
 @Composable
 fun BookSearchScreen(
     vm: SearchBookViewModel,
+    onLoadMore: () -> Unit,
+    onQueryChanged: (String) -> Unit,
     onSelectCandidate: (BookCandidate) -> Unit,
     onManualAdd: (String) -> Unit,
     onBack: () -> Unit,
 ) {
 
     val query by vm.queryState.collectAsState()
+    val canLoadMore by vm.canLoadMore.collectAsState()
+    val isLoadingMore by vm.isLoadingMore.collectAsState()
     val state by vm.uiState.collectAsState()
 
     Scaffold(
@@ -65,13 +69,13 @@ fun BookSearchScreen(
 
             OutlinedTextField(
                 value = query,
-                onValueChange = vm::onQueryChange,
+                onValueChange = { onQueryChanged(it) },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(text = "Search by title, author, or ISBN") },
                 singleLine = true,
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(height = 12.dp))
 
             when (val selectedState = state) {
                 SearchUiState.Idle -> {
@@ -111,11 +115,23 @@ fun BookSearchScreen(
 
                     Spacer(Modifier.height(height = 8.dp))
 
-                    CandidatesList(selectedState.items, onSelectCandidate)
+                    CandidatesList(
+                        selectedState.items,
+                        onSelectCandidate,
+                        canLoadMore,
+                        isLoadingMore,
+                        onLoadMore,
+                    )
                 }
 
                 is SearchUiState.Success -> {
-                    CandidatesList(selectedState.items, onSelectCandidate)
+                    CandidatesList(
+                        selectedState.items,
+                        onSelectCandidate,
+                        canLoadMore,
+                        isLoadingMore,
+                        onLoadMore
+                    )
                 }
             }
         }
@@ -126,6 +142,9 @@ fun BookSearchScreen(
 private fun CandidatesList(
     items: List<BookCandidate>,
     onSelect: (BookCandidate) -> Unit,
+    canLoadMore: Boolean,
+    isLoadingMore: Boolean,
+    onLoadMore: () -> Unit,
 ) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
         items(items) { candidate ->
@@ -169,6 +188,19 @@ private fun CandidatesList(
                             )
                         }
                     }
+                }
+            }
+        }
+        if (canLoadMore) {
+            item {
+                Spacer(Modifier.height(height = 12.dp))
+
+                Button(
+                    onClick = { onLoadMore() },
+                    enabled = !isLoadingMore,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = if (isLoadingMore) "Loading…" else "Show more")
                 }
             }
         }

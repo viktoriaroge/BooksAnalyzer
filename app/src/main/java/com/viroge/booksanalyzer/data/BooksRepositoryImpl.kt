@@ -7,8 +7,13 @@ import com.viroge.booksanalyzer.data.local.InsertBookResult
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.BooksPageResult
+import com.viroge.booksanalyzer.domain.BooksUtil.cacheKey
+import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
+import com.viroge.booksanalyzer.domain.BooksUtil.titleKey
+import com.viroge.booksanalyzer.domain.PageToken
 import com.viroge.booksanalyzer.domain.ReadingStatus
-import com.viroge.booksanalyzer.util.BookKeys
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -19,11 +24,11 @@ import javax.inject.Singleton
 @Singleton
 class BooksRepositoryImpl @Inject constructor(
     private val bookDao: BookDao,
-    private val google: GoogleBooksClient,
-    private val openLibrary: OpenLibraryClient,
+    private val googleClient: GoogleBooksClient,
+    private val openLibraryClient: OpenLibraryClient,
 ) : BooksRepository {
 
-    private val resultsCache = LruCache<String, List<BookCandidate>>(/*maxSize*/ 100)
+    private val resultsCache = LruCache<String, List<BookCandidate>>(maxSize = 100)
 
     override fun observeLibrary(): Flow<List<BookEntity>> = bookDao.observeAll()
 
@@ -37,7 +42,7 @@ class BooksRepositoryImpl @Inject constructor(
     ) {
         val existing = bookDao.getById(bookId) ?: return
 
-        bookDao.upsert(existing.copy(status = status.name))
+        bookDao.upsert(book = existing.copy(status = status.name))
     }
 
     override suspend fun deleteBook(
@@ -64,43 +69,75 @@ class BooksRepositoryImpl @Inject constructor(
     override suspend fun insertFromCandidate(
         candidate: BookCandidate,
     ): InsertBookResult {
-        candidate.isbn13?.let {
-            bookDao.findByIsbn13(it)?.let { return InsertBookResult(it.bookId, false) }
+
+        candidate.isbn13?.let { isbn13OfCandidate ->
+            bookDao.findByIsbn13(isbn13 = isbn13OfCandidate)?.let {
+                return InsertBookResult(
+                    it.bookId,
+                    wasInserted = false,
+                )
+            }
         }
-        candidate.isbn10?.let {
-            bookDao.findByIsbn10(it)?.let { return InsertBookResult(it.bookId, false) }
+        candidate.isbn10?.let { isbn10OfCandidate ->
+            bookDao.findByIsbn10(isbn10 = isbn10OfCandidate)?.let {
+                return InsertBookResult(
+                    it.bookId,
+                    wasInserted = false,
+                )
+            }
         }
 
         when (candidate.source) {
             BookCandidate.Source.GOOGLE_BOOKS ->
-                bookDao.findByGoogleId(candidate.sourceId)
-                    ?.let { return InsertBookResult(it.bookId, false) }
+                bookDao.findByGoogleId(googleId = candidate.sourceId)
+                    ?.let {
+                        return InsertBookResult(
+                            it.bookId,
+                            wasInserted = false,
+                        )
+                    }
 
             BookCandidate.Source.OPEN_LIBRARY ->
-                bookDao.findByOpenLibraryId(candidate.sourceId)
-                    ?.let { return InsertBookResult(it.bookId, false) }
+                bookDao.findByOpenLibraryId(olId = candidate.sourceId)
+                    ?.let {
+                        return InsertBookResult(
+                            it.bookId,
+                            wasInserted = false,
+                        )
+                    }
         }
 
-        val key = BookKeys.titleKey(candidate.title, candidate.authors, candidate.publishedYear)
-        bookDao.findByTitleKey(key)?.let { return InsertBookResult(it.bookId, false) }
+        val key = titleKey(candidate.title, candidate.authors, candidate.publishedYear)
+        bookDao.findByTitleKey(titleKey = key)?.let {
+            return InsertBookResult(
+                it.bookId,
+                wasInserted = false,
+            )
+        }
 
         val id = UUID.randomUUID().toString()
         val entity = BookEntity(
             bookId = id,
             title = candidate.title,
-            authors = candidate.authors.joinToString(", "),
+            authors = candidate.authors.joinToString(separator = ", "),
             titleKey = key,
             publishedYear = candidate.publishedYear,
             isbn13 = candidate.isbn13,
             isbn10 = candidate.isbn10,
-            openLibraryId = candidate.sourceId.takeIf { candidate.source == BookCandidate.Source.OPEN_LIBRARY },
-            googleVolumeId = candidate.sourceId.takeIf { candidate.source == BookCandidate.Source.GOOGLE_BOOKS },
+            openLibraryId = candidate.sourceId
+                .takeIf { candidate.source == BookCandidate.Source.OPEN_LIBRARY },
+            googleVolumeId = candidate.sourceId
+                .takeIf { candidate.source == BookCandidate.Source.GOOGLE_BOOKS },
             coverUrl = candidate.coverUrl,
             status = "NOT_STARTED",
             createdAtEpochMs = System.currentTimeMillis()
         )
-        bookDao.upsert(entity)
-        return InsertBookResult(id, true)
+        bookDao.upsert(book = entity)
+
+        return InsertBookResult(
+            bookId = id,
+            wasInserted = true,
+        )
     }
 
     override suspend fun search(
@@ -110,6 +147,57 @@ class BooksRepositoryImpl @Inject constructor(
         query = query,
         limit = 15,
     )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun searchPage(
+        query: String,
+        pageToken: String?,
+        limit: Int,
+    ): BooksPageResult = coroutineScope {
+
+        val token = parseToken(pageToken)
+
+        val g = async {
+            googleClient.search(
+                query = query,
+                limit = limit,
+                startIndex = token.googleStart,
+            )
+        }
+        val o = async {
+            openLibraryClient.search(
+                query = query,
+                limit = limit,
+                page = token.olPage,
+            )
+        }
+
+        val results = listOf(g.await(), o.await())
+        val items = results.flatMap { it.getOrNull().orEmpty() }
+        val errors = results.mapNotNull { it.exceptionOrNull() }
+
+        val merged = mergeAndRank(list = items)
+
+        // crude but effective "has more" heuristic:
+        val googleReturned = g.getCompleted().getOrNull().orEmpty().size
+        val olReturned = o.getCompleted().getOrNull().orEmpty().size
+
+        val googleHasMore = googleReturned >= limit
+        val olHasMore = olReturned >= limit
+
+        val next = if (googleHasMore || olHasMore) {
+            makeToken(
+                nextGoogleStart = token.googleStart + limit,
+                nextOlPage = token.olPage + 1
+            )
+        } else null
+
+        BooksPageResult(
+            items = merged,
+            errors = errors,
+            nextToken = next,
+        )
+    }
 
     override suspend fun lookupByIsbn(
         isbn: String,
@@ -132,14 +220,14 @@ class BooksRepositoryImpl @Inject constructor(
 
         // 2) Fetch both sources in parallel
         return coroutineScope {
-            val g = async { google.search(query, limit) }
-            val o = async { openLibrary.search(query, limit) }
+            val g = async { googleClient.search(query, limit) }
+            val o = async { openLibraryClient.search(query, limit) }
             val results = listOf(g.await(), o.await())
 
             val items = results.flatMap { it.getOrNull().orEmpty() }
             val errors = results.mapNotNull { it.exceptionOrNull() }
 
-            val merged = items.mergeAndRank()
+            val merged = mergeAndRank(list = items)
 
             // 3) Cache only good-enough lists
             if (merged.isNotEmpty()) {
@@ -163,87 +251,26 @@ class BooksRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun cacheKey(mode: String, query: String, limit: Int): String {
-        val normalized = query.trim().lowercase().replace(Regex("""\s+"""), " ")
-        return "$mode|$limit|$normalized"
+    private fun parseToken(
+        token: String?,
+    ): PageToken {
+
+        if (token.isNullOrBlank()) return PageToken(googleStart = 0, olPage = 1)
+
+        val parts = token.split("|")
+        val g = parts
+            .firstOrNull { it.startsWith("g:") }
+            ?.removePrefix("g:")
+            ?.toIntOrNull() ?: 0
+        val ol = parts
+            .firstOrNull { it.startsWith("ol:") }
+            ?.removePrefix("ol:")
+            ?.toIntOrNull() ?: 1
+        return PageToken(g, ol)
     }
 
-    private fun List<BookCandidate>.mergeAndRank(): List<BookCandidate> {
-        if (isEmpty()) return emptyList()
-
-        // 1) Group by best-available identity key
-        val grouped: Map<String, List<BookCandidate>> = this.groupBy { it.dedupeKey() }
-
-        // 2) Merge duplicates into one "best" candidate per key
-        val merged: List<BookCandidate> = grouped.values.map { group ->
-            group.reduce { acc, next -> acc.mergePreferBetter(next) }
-        }
-
-        // 3) Rank: prefer richer metadata
-        return merged.sortedWith(
-            comparator = compareByDescending<BookCandidate> { !it.isbn13.isNullOrBlank() }
-                .thenByDescending { !it.isbn10.isNullOrBlank() }
-                .thenByDescending { !it.coverUrl.isNullOrBlank() }
-                .thenByDescending { it.publishedYear ?: 0 }
-                .thenByDescending { it.authors.size }
-                .thenByDescending { it.title.length }
-        )
-    }
-
-    private fun BookCandidate.dedupeKey(): String {
-        // strongest identifiers first
-        isbn13?.takeIf { it.isNotBlank() }?.let { return "isbn13:${it.normalizeIsbn()}" }
-        isbn10?.takeIf { it.isNotBlank() }?.let { return "isbn10:${it.normalizeIsbn()}" }
-
-        // source-specific stable IDs
-        if (sourceId.isNotBlank()) return "src:${source.name}:${sourceId.trim()}"
-
-        // fallback: stable titleKey (title + first author + year)
-        return "ta:${BookKeys.titleKey(title, authors, publishedYear)}"
-    }
-
-    private fun String.normalizeIsbn(): String =
-        replace(oldValue = "-", newValue = "")
-            .replace(oldValue = " ", newValue = "")
-            .trim()
-
-    private fun BookCandidate.mergePreferBetter(other: BookCandidate): BookCandidate {
-        // Prefer non-null / richer fields.
-        // Keep the original source/sourceId (doesn't matter much for merged display),
-        // but we can keep the one that has "better" metadata as the base.
-        val base = chooseBase(this, other)
-        val extra = if (base === this) other else this
-
-        return base.copy(
-            // Merge best-known values
-            publishedYear = base.publishedYear ?: extra.publishedYear,
-            isbn13 = base.isbn13 ?: extra.isbn13,
-            isbn10 = base.isbn10 ?: extra.isbn10,
-            coverUrl = base.coverUrl ?: extra.coverUrl,
-            authors = if (base.authors.size >= extra.authors.size) base.authors else extra.authors,
-            title = if (base.title.length >= extra.title.length) base.title else extra.title
-        )
-    }
-
-    private fun chooseBase(
-        candidate1: BookCandidate,
-        candidate2: BookCandidate,
-    ): BookCandidate {
-
-        // Pick the candidate with “better” metadata as base.
-        fun score(candidate: BookCandidate): Int {
-            var s = 0
-            if (!candidate.isbn13.isNullOrBlank()) s += 8
-            if (!candidate.isbn10.isNullOrBlank()) s += 4
-            if (!candidate.coverUrl.isNullOrBlank()) s += 3
-            if (candidate.publishedYear != null) s += 2
-            s += (candidate.authors.size.coerceAtMost(maximumValue = 3)) // small boost
-            return s
-        }
-        return if (score(candidate = candidate1) >= score(candidate = candidate2)) {
-            candidate1
-        } else {
-            candidate2
-        }
-    }
+    private fun makeToken(
+        nextGoogleStart: Int,
+        nextOlPage: Int,
+    ): String = "g:$nextGoogleStart|ol:$nextOlPage"
 }
