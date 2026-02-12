@@ -31,8 +31,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.ReadingStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,7 +90,11 @@ fun BookDetailsScreen(
             }
 
             AsyncImage(
-                model = book.coverUrl,
+                model = ImageRequest.Builder(context = LocalContext.current)
+                    .data(data = book.coverUrl)
+                    .crossfade(enable = true)
+                    .build(),
+                error = painterResource(id = R.drawable.blank_book),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()

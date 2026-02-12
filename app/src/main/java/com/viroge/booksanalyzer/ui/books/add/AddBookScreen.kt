@@ -26,8 +26,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.SearchMode
 
@@ -199,7 +203,11 @@ private fun CandidatesList(
                 ) {
 
                     AsyncImage(
-                        model = candidate.coverUrl,
+                        model = ImageRequest.Builder(context = LocalContext.current)
+                            .data(data = candidate.coverUrl)
+                            .crossfade(enable = true)
+                            .build(),
+                        error = painterResource(id = R.drawable.blank_book),
                         contentDescription = null,
                         modifier = Modifier
                             .size(width = 80.dp, height = 120.dp),

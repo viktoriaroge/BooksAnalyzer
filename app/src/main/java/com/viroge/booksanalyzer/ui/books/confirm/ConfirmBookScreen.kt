@@ -18,8 +18,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.BookCandidate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,7 +83,11 @@ fun ConfirmBookScreen(
             when {
                 candidate != null -> {
                     AsyncImage(
-                        model = candidate.coverUrl,
+                        model = ImageRequest.Builder(context = LocalContext.current)
+                            .data(data = candidate.coverUrl)
+                            .crossfade(enable = true)
+                            .build(),
+                        error = painterResource(id = R.drawable.blank_book),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()

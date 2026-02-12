@@ -44,8 +44,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.data.local.BookEntity
 import com.viroge.booksanalyzer.domain.LibraryFilters
 import com.viroge.booksanalyzer.domain.LibrarySort
@@ -121,6 +125,8 @@ fun LibraryScreen(
                         vm.onQueryChange(value = "")
                     },
                 )
+
+                Spacer(Modifier.height(height = 8.dp))
             }
 
             ActiveFiltersRow(
@@ -357,7 +363,11 @@ fun CurrentlyReadingCard(
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
             AsyncImage(
-                model = book.coverUrl,
+                model = ImageRequest.Builder(context = LocalContext.current)
+                    .data(data = book.coverUrl)
+                    .crossfade(enable = true)
+                    .build(),
+                error = painterResource(id = R.drawable.blank_book),
                 contentDescription = null,
                 modifier = Modifier.size(width = 56.dp, height = 84.dp),
             )
@@ -399,7 +409,11 @@ private fun BookRow(
         ) {
 
             AsyncImage(
-                model = book.coverUrl,
+                model = ImageRequest.Builder(context = LocalContext.current)
+                    .data(data = book.coverUrl)
+                    .crossfade(enable = true)
+                    .build(),
+                error = painterResource(id = R.drawable.blank_book),
                 contentDescription = null,
                 modifier = Modifier
                     .size(width = 80.dp, height = 120.dp),
