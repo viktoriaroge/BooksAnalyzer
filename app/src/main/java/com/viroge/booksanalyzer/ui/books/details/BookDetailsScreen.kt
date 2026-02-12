@@ -152,7 +152,7 @@ fun BookDetailsScreen(
                     Text(text = "Delete book?")
                 },
                 text = {
-                    Text(text = "This will remove the book from your library. This can’t be undone.")
+                    Text(text = "This will remove the book from your library. This can't be undone.")
                 },
                 confirmButton = {
                     TextButton(

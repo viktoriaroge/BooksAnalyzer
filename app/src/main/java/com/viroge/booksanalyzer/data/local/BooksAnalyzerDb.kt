@@ -2,13 +2,19 @@ package com.viroge.booksanalyzer.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.viroge.booksanalyzer.data.local.books.BookDao
+import com.viroge.booksanalyzer.data.local.books.BookEntity
+import com.viroge.booksanalyzer.data.local.searchhistory.SearchHistoryDao
+import com.viroge.booksanalyzer.data.local.searchhistory.SearchHistoryEntity
 
 @Database(
-    entities = [BookEntity::class],
-    version = 2,
+    entities = [BookEntity::class, SearchHistoryEntity::class],
+    version = 3,
     exportSchema = true,
 )
 abstract class BooksAnalyzerDb : RoomDatabase() {
 
     abstract fun bookDao(): BookDao
+
+    abstract fun searchHistoryDao(): SearchHistoryDao
 }

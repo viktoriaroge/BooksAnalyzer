@@ -1,8 +1,8 @@
 package com.viroge.booksanalyzer.data
 
-import com.viroge.booksanalyzer.data.local.BookDao
-import com.viroge.booksanalyzer.data.local.BookEntity
-import com.viroge.booksanalyzer.data.local.InsertBookResult
+import com.viroge.booksanalyzer.data.local.books.BookDao
+import com.viroge.booksanalyzer.data.local.books.BookEntity
+import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.domain.BookCandidate

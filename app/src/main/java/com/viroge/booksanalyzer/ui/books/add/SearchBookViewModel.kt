@@ -3,11 +3,13 @@ package com.viroge.booksanalyzer.ui.books.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
+import com.viroge.booksanalyzer.data.SearchHistoryRepository
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.SearchMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
@@ -16,29 +18,37 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.skip
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.collections.isNotEmpty
 
 @HiltViewModel
 class SearchBookViewModel @Inject constructor(
     private val booksRepo: BooksRepository,
+    private val historyRepo: SearchHistoryRepository,
 ) : ViewModel() {
 
-    private val query = MutableStateFlow("")
+    val recentQueries: StateFlow<List<String>> =
+        historyRepo.observeRecent(limit = 10)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                initialValue = emptyList(),
+            )
+
+    private val query = MutableStateFlow(value = "")
     val queryState: StateFlow<String> = query.asStateFlow()
 
-    private val mode = MutableStateFlow(SearchMode.ALL)
+    private val mode = MutableStateFlow(value = SearchMode.ALL)
     val modeState: StateFlow<SearchMode> = mode.asStateFlow()
 
-    private val _uiState = MutableStateFlow<SearchUiState>(SearchUiState.Idle)
+    private val _uiState = MutableStateFlow<SearchUiState>(value = SearchUiState.Idle)
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
-    private val _canLoadMore = MutableStateFlow(false)
+    private val _canLoadMore = MutableStateFlow(value = false)
     val canLoadMore: StateFlow<Boolean> = _canLoadMore.asStateFlow()
 
-    private val _isLoadingMore = MutableStateFlow(false)
+    private val _isLoadingMore = MutableStateFlow(value = false)
     val isLoadingMore: StateFlow<Boolean> = _isLoadingMore.asStateFlow()
 
     private var nextToken: String? = null
@@ -115,6 +125,23 @@ class SearchBookViewModel @Inject constructor(
         mode.value = newMode
     }
 
+    fun onSearchExecuted(query: String) {
+        viewModelScope.launch {
+            historyRepo.recordQuery(
+                query = query,
+                limit = 10,
+            )
+        }
+    }
+
+    fun removeRecent(query: String) {
+        viewModelScope.launch { historyRepo.deleteQuery(query) }
+    }
+
+    fun clearRecents() {
+        viewModelScope.launch { historyRepo.clearAll() }
+    }
+
     private fun reset() {
         nextToken = null
         lastQuery = ""
@@ -133,6 +160,7 @@ class SearchBookViewModel @Inject constructor(
         _canLoadMore.value = false
         _isLoadingMore.value = false
 
+        onSearchExecuted(query = q)
 
         _uiState.value = SearchUiState.Loading
 

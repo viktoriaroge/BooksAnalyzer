@@ -2,8 +2,9 @@ package com.viroge.booksanalyzer.di
 
 import android.content.Context
 import androidx.room.Room
-import com.viroge.booksanalyzer.data.local.BookDao
+import com.viroge.booksanalyzer.data.local.books.BookDao
 import com.viroge.booksanalyzer.data.local.BooksAnalyzerDb
+import com.viroge.booksanalyzer.data.local.searchhistory.SearchHistoryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,4 +25,7 @@ object DatabaseModule {
 
     @Provides
     fun provideBookDao(db: BooksAnalyzerDb): BookDao = db.bookDao()
+
+    @Provides
+    fun provideSearchHistoryDao(db: BooksAnalyzerDb): SearchHistoryDao = db.searchHistoryDao()
 }

@@ -1,7 +1,7 @@
 package com.viroge.booksanalyzer.data
 
-import com.viroge.booksanalyzer.data.local.BookEntity
-import com.viroge.booksanalyzer.data.local.InsertBookResult
+import com.viroge.booksanalyzer.data.local.books.BookEntity
+import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.BooksPageResult
 import com.viroge.booksanalyzer.domain.ReadingStatus

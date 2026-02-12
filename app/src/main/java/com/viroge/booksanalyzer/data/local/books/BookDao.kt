@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.data.local
+package com.viroge.booksanalyzer.data.local.books
 
 import androidx.room.Dao
 import androidx.room.Insert
