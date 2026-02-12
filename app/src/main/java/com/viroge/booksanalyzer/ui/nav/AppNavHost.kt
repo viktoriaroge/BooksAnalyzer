@@ -17,7 +17,6 @@ import com.viroge.booksanalyzer.ui.profile.ProfileRoute
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    snackbarHostState: SnackbarHostState,
 ) {
     NavHost(
         navController = navController,
@@ -47,12 +46,11 @@ fun AppNavHost(
             composable(Routes.CONFIRM_BOOK) { entry ->
                 ConfirmBookRoute(
                     navController = navController,
-                    snackbarHostState = snackbarHostState,
                     entry = entry,
                     onBack = { navController.popBackStack() },
                     onBookSaved = { newBookId ->
                         navController.navigate(route = "${Routes.BOOK_DETAILS}/$newBookId") {
-                            popUpTo(Routes.LIBRARY) { inclusive = false }
+                            popUpTo(Routes.ADD_BOOK) { inclusive = false }
                         }
                     },
                 )
@@ -66,7 +64,6 @@ fun AppNavHost(
             }),
         ) {
             BookDetailsRoute(
-                snackbarHostState = snackbarHostState,
                 onBack = { navController.popBackStack() },
             )
         }

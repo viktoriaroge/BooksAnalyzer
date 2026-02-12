@@ -10,10 +10,10 @@ import javax.inject.Inject
 @HiltViewModel
 class AddBookFlowViewModel @Inject constructor() : ViewModel() {
 
-    private val _selectedCandidate = MutableStateFlow<BookCandidate?>(null)
+    private val _selectedCandidate = MutableStateFlow<BookCandidate?>(value = null)
     val selectedCandidate: StateFlow<BookCandidate?> = _selectedCandidate
 
-    private val _prefillQuery = MutableStateFlow<String?>(null)
+    private val _prefillQuery = MutableStateFlow<String?>(value = null)
     val prefillQuery: StateFlow<String?> = _prefillQuery
 
     fun setCandidate(

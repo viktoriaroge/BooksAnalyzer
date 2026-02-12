@@ -7,13 +7,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.viroge.booksanalyzer.ui.snackbar.AppSnackbarController
+import com.viroge.booksanalyzer.ui.snackbar.LocalAppSnackbar
 
 @Composable
 fun AppRoot() {
@@ -29,38 +33,42 @@ fun AppRoot() {
     )
 
     val showBottomBar = currentDestination?.hierarchy?.any { it.route in topLevelRoutes } == true
+
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val snackbarController = remember(scope, snackbarHostState) {
+        AppSnackbarController(scope, snackbarHostState)
+    }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = {
-            if (showBottomBar) {
-                AppBottomBar(
-                    currentDestination = currentDestination,
-                    onNavigate = { route ->
-                        navController.navigate(route) {
-                            // keeps one instance of each tab
-                            launchSingleTop = true
-                            restoreState = true
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+    CompositionLocalProvider(value = LocalAppSnackbar provides snackbarController) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            bottomBar = {
+                if (showBottomBar) {
+                    AppBottomBar(
+                        currentDestination = currentDestination,
+                        onNavigate = { route ->
+                            navController.navigate(route) {
+                                // keeps one instance of each tab
+                                launchSingleTop = true
+                                restoreState = true
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
                             }
-                        }
-                    },
-                )
-            }
-        },
-    ) { rootPadding ->
+                        },
+                    )
+                }
+            },
+        ) { rootPadding ->
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = rootPadding.calculateBottomPadding()),
-        ) {
-            AppNavHost(
-                navController = navController,
-                snackbarHostState = snackbarHostState,
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = rootPadding.calculateBottomPadding()),
+            ) {
+                AppNavHost(navController = navController)
+            }
         }
     }
 }

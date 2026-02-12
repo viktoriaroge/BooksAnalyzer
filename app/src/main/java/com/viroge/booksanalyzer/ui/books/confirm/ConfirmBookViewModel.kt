@@ -17,10 +17,10 @@ class ConfirmBookViewModel @Inject constructor(
     private val booksRepo: BooksRepository,
 ) : ViewModel() {
 
-    private val _isSaving = MutableStateFlow(false)
+    private val _isSaving = MutableStateFlow(value = false)
     val isSaving: StateFlow<Boolean> = _isSaving
 
-    private val _error = MutableStateFlow<String?>(null)
+    private val _error = MutableStateFlow<String?>(value = null)
     val error: StateFlow<String?> = _error
 
     private val _events = MutableSharedFlow<ConfirmEvent>()
@@ -35,7 +35,7 @@ class ConfirmBookViewModel @Inject constructor(
 
             runCatching { booksRepo.insertFromCandidate(candidate) }
                 .onSuccess { res ->
-                    _events.emit(ConfirmEvent.Saved(res.bookId, res.wasInserted))
+                    _events.emit(value = ConfirmEvent.Saved(res.bookId, res.wasInserted))
                 }
                 .onFailure { t ->
                     val msg = t.message ?: "Failed to save book"

@@ -11,11 +11,11 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.viroge.booksanalyzer.ui.books.add.AddBookFlowViewModel
 import com.viroge.booksanalyzer.ui.nav.Routes
+import com.viroge.booksanalyzer.ui.snackbar.LocalAppSnackbar
 
 @Composable
 fun ConfirmBookRoute(
     navController: NavController,
-    snackbarHostState: SnackbarHostState,
     entry: NavBackStackEntry,
     onBack: () -> Unit,
     onBookSaved: (String) -> Unit,
@@ -32,19 +32,18 @@ fun ConfirmBookRoute(
     val isSaving by vm.isSaving.collectAsState()
     val error by vm.error.collectAsState()
 
+    val snackbar = LocalAppSnackbar.current
+
     LaunchedEffect(key1 = Unit) {
         vm.events.collect { event ->
             when (event) {
                 is ConfirmEvent.Saved -> {
-                    if (!event.wasInserted) {
-                        snackbarHostState.showSnackbar(message = "Already in your library — opening it.")
-                    }
                     flowVm.clear()
                     onBookSaved(event.bookId)
                 }
 
                 is ConfirmEvent.Error -> {
-                    snackbarHostState.showSnackbar(event.message)
+                    snackbar.show(event.message)
                 }
             }
         }
