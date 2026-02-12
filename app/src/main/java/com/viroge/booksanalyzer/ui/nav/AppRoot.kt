@@ -1,10 +1,14 @@
 package com.viroge.booksanalyzer.ui.nav
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -25,8 +29,10 @@ fun AppRoot() {
     )
 
     val showBottomBar = currentDestination?.hierarchy?.any { it.route in topLevelRoutes } == true
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (showBottomBar) {
                 AppBottomBar(
@@ -40,14 +46,21 @@ fun AppRoot() {
                                 saveState = true
                             }
                         }
-                    }
+                    },
                 )
             }
-        }
-    ) { padding ->
+        },
+    ) { rootPadding ->
 
-        Box(modifier = Modifier.padding(paddingValues = padding)) {
-            AppNavHost(navController = navController)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = rootPadding.calculateBottomPadding()),
+        ) {
+            AppNavHost(
+                navController = navController,
+                snackbarHostState = snackbarHostState,
+            )
         }
     }
 }

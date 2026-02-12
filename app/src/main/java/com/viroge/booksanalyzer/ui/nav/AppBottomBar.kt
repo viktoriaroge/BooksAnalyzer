@@ -1,21 +1,39 @@
 package com.viroge.booksanalyzer.ui.nav
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.LocalLibrary
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 
 @Composable
 fun AppBottomBar(
     currentDestination: NavDestination?,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
 ) {
     val items = listOf(
-        BottomItem(label = "My Books", route = Routes.LIBRARY),
-        BottomItem(label = "Find Books", route = Routes.ADD_BOOK_FLOW),
-        BottomItem(label = "Profile", route = Routes.PROFILE),
+        BottomItem(
+            route = Routes.LIBRARY,
+            label = "My Books",
+            icon = Icons.Default.LocalLibrary,
+        ),
+        BottomItem(
+            route = Routes.ADD_BOOK_FLOW,
+            label = "Find Books",
+            icon = Icons.Default.Search,
+        ),
+        BottomItem(
+            route = Routes.PROFILE,
+            label = "Profile",
+            icon = Icons.Default.AccountCircle,
+        ),
     )
 
     NavigationBar {
@@ -28,13 +46,19 @@ fun AppBottomBar(
                 selected = selected,
                 onClick = { onNavigate(item.route) },
                 label = { Text(text = item.label) },
-                icon = { Text(text = item.label.first().toString()) } // placeholder icon
+                icon = {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = null,
+                    )
+                },
             )
         }
     }
 }
 
 private data class BottomItem(
-    val label: String,
     val route: String,
+    val label: String,
+    val icon: ImageVector,
 )

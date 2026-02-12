@@ -7,18 +7,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun BookDetailsRoute(
+    snackbarHostState: SnackbarHostState,
     onBack: () -> Unit,
 ) {
 
     val vm: BookDetailsViewModel = hiltViewModel()
-
     val state by vm.ui.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(key1 = Unit) {
         vm.events.collect { event ->
@@ -43,7 +41,6 @@ fun BookDetailsRoute(
 
     BookDetailsScreen(
         state = state,
-        snackbarHostState = snackbarHostState,
         onBack = onBack,
         onStatusChange = vm::setStatus,
         onDelete = vm::delete,

@@ -11,7 +11,6 @@ import com.viroge.booksanalyzer.ui.nav.Routes
 fun AddBookRoute(
     navController: NavController,
     entry: NavBackStackEntry,
-    onBack: () -> Unit,
     onGoToConfirm: () -> Unit,
 ) {
 
@@ -35,6 +34,5 @@ fun AddBookRoute(
             flowVm.setManualPrefill(prefill)
             onGoToConfirm()
         },
-        onBack = onBack,
     )
 }

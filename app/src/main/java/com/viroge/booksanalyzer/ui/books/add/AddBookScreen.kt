@@ -15,7 +15,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -44,7 +43,6 @@ fun BookSearchScreen(
     onModeChanged: (SearchMode) -> Unit,
     onSelectCandidate: (BookCandidate) -> Unit,
     onManualAdd: (String) -> Unit,
-    onBack: () -> Unit,
 ) {
 
     val query by vm.queryState.collectAsState()
@@ -57,22 +55,17 @@ fun BookSearchScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Book Search")
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBack
-                    ) { Text(text = "←") }
+                    Text(text = "Find Books")
                 },
             )
         }
-    ) { padding ->
+    ) { screenPadding ->
 
         Column(
             modifier = Modifier
-                .padding(paddingValues = padding)
+                .padding(top = screenPadding.calculateTopPadding()) // top bar
                 .fillMaxSize()
-                .padding(all = 16.dp),
+                .padding(horizontal = 16.dp),
         ) {
 
             OutlinedTextField(
@@ -252,5 +245,7 @@ private fun CandidatesList(
                 }
             }
         }
+
+        item { Spacer(Modifier.height(height = 8.dp)) }
     }
 }

@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -15,13 +16,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -43,7 +43,6 @@ import com.viroge.booksanalyzer.domain.ReadingStatus
 @Composable
 fun BookDetailsScreen(
     state: BookDetailsUiState,
-    snackbarHostState: SnackbarHostState,
     onBack: () -> Unit,
     onStatusChange: (ReadingStatus) -> Unit,
     onDelete: () -> Unit,
@@ -52,28 +51,30 @@ fun BookDetailsScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
                     Text(text = "Book Details")
                 },
                 navigationIcon = {
-                    IconButton(
-                        onClick = onBack
-                    ) { Text(text = "←") }
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null,
+                        )
+                    }
                 },
             )
         }
-    ) { padding ->
+    ) { screenPadding ->
 
         val book = state.book
 
         Column(
             modifier = Modifier
-                .padding(paddingValues = padding)
+                .padding(top = screenPadding.calculateTopPadding()) // top bar
                 .fillMaxSize()
-                .padding(all = 16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
 

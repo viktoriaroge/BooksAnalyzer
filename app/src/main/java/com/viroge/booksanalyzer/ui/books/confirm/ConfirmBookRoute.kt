@@ -15,6 +15,7 @@ import com.viroge.booksanalyzer.ui.nav.Routes
 @Composable
 fun ConfirmBookRoute(
     navController: NavController,
+    snackbarHostState: SnackbarHostState,
     entry: NavBackStackEntry,
     onBack: () -> Unit,
     onBookSaved: (String) -> Unit,
@@ -24,14 +25,12 @@ fun ConfirmBookRoute(
     val parentEntry = remember(entry) {
         navController.getBackStackEntry(Routes.ADD_BOOK_FLOW)
     }
-    val flowVm: AddBookFlowViewModel = hiltViewModel(parentEntry)
+    val flowVm: AddBookFlowViewModel = hiltViewModel(viewModelStoreOwner = parentEntry)
 
     val candidate by flowVm.selectedCandidate.collectAsState()
     val prefill by flowVm.prefillQuery.collectAsState()
     val isSaving by vm.isSaving.collectAsState()
     val error by vm.error.collectAsState()
-
-    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(key1 = Unit) {
         vm.events.collect { event ->
@@ -53,7 +52,6 @@ fun ConfirmBookRoute(
 
     ConfirmBookScreen(
         candidate = candidate,
-        snackbarHostState = snackbarHostState,
         prefillQuery = prefill,
         isSaving = isSaving,
         error = error,

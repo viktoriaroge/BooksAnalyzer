@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.nav
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -16,6 +17,7 @@ import com.viroge.booksanalyzer.ui.profile.ProfileRoute
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
 ) {
     NavHost(
         navController = navController,
@@ -24,7 +26,6 @@ fun AppNavHost(
 
         composable(Routes.LIBRARY) {
             LibraryRoute(
-                onAddBook = { navController.navigate(Routes.ADD_BOOK_FLOW) },
                 onOpenBook = { bookId ->
                     navController.navigate(route = "${Routes.BOOK_DETAILS}/$bookId")
                 },
@@ -39,7 +40,6 @@ fun AppNavHost(
                 AddBookRoute(
                     navController = navController,
                     entry = entry,
-                    onBack = { navController.popBackStack() },
                     onGoToConfirm = { navController.navigate(Routes.CONFIRM_BOOK) },
                 )
             }
@@ -47,6 +47,7 @@ fun AppNavHost(
             composable(Routes.CONFIRM_BOOK) { entry ->
                 ConfirmBookRoute(
                     navController = navController,
+                    snackbarHostState = snackbarHostState,
                     entry = entry,
                     onBack = { navController.popBackStack() },
                     onBookSaved = { newBookId ->
@@ -64,7 +65,10 @@ fun AppNavHost(
                 type = NavType.StringType
             }),
         ) {
-            BookDetailsRoute(onBack = { navController.popBackStack() })
+            BookDetailsRoute(
+                snackbarHostState = snackbarHostState,
+                onBack = { navController.popBackStack() },
+            )
         }
 
         composable(Routes.PROFILE) {

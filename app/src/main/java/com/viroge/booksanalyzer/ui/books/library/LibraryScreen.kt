@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
@@ -22,7 +21,6 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,7 +41,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -59,7 +56,6 @@ import com.viroge.booksanalyzer.domain.ReadingStatus
 @Composable
 fun LibraryScreen(
     vm: LibraryViewModel,
-    onAddBook: () -> Unit,
     onOpenBook: (String) -> Unit,
 ) {
 
@@ -104,14 +100,11 @@ fun LibraryScreen(
                 },
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onAddBook) { Text(text = "+") }
-        },
-    ) { padding ->
+    ) { screenPadding ->
 
         Column(
             modifier = Modifier
-                .padding(paddingValues = padding)
+                .padding(top = screenPadding.calculateTopPadding()) // top bar
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
         ) {
@@ -178,6 +171,8 @@ fun LibraryScreen(
                             onClick = { onOpenBook(book.bookId) },
                         )
                     }
+
+                    item { Spacer(Modifier.height(height = 8.dp)) }
                 }
             }
         }
