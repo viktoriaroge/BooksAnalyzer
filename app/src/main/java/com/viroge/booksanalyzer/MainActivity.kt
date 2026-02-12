@@ -3,7 +3,7 @@ package com.viroge.booksanalyzer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.viroge.booksanalyzer.ui.nav.AppNavHost
+import com.viroge.booksanalyzer.ui.nav.AppRoot
 import com.viroge.booksanalyzer.ui.theme.BooksAnalyzerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BooksAnalyzerTheme { // TODO: apply theme to screens
-                AppNavHost()
+                AppRoot()
             }
         }
     }

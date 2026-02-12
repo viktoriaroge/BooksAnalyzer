@@ -7,6 +7,7 @@ object Routes {
     const val ADD_BOOK = "addBook"
     const val CONFIRM_BOOK = "confirmBook"
     const val BOOK_DETAILS = "bookDetails"
+    const val PROFILE = "profile"
 
     // args
     const val ARG_BOOK_ID = "bookId"

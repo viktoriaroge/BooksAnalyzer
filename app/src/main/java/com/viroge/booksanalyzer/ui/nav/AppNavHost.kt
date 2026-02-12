@@ -1,33 +1,32 @@
 package com.viroge.booksanalyzer.ui.nav
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.viroge.booksanalyzer.ui.books.add.AddBookRoute
 import com.viroge.booksanalyzer.ui.books.confirm.ConfirmBookRoute
 import com.viroge.booksanalyzer.ui.books.details.BookDetailsRoute
 import com.viroge.booksanalyzer.ui.books.library.LibraryRoute
+import com.viroge.booksanalyzer.ui.profile.ProfileRoute
 
 @Composable
-fun AppNavHost() {
-
-    val navController = rememberNavController()
-
+fun AppNavHost(
+    navController: NavHostController,
+) {
     NavHost(
         navController = navController,
-        startDestination = Routes.LIBRARY,
+        startDestination = Routes.LIBRARY
     ) {
 
         composable(Routes.LIBRARY) {
-
             LibraryRoute(
-                onAddBook = { navController.navigate(Routes.ADD_BOOK) },
+                onAddBook = { navController.navigate(Routes.ADD_BOOK_FLOW) },
                 onOpenBook = { bookId ->
-                    navController.navigate("${Routes.BOOK_DETAILS}/$bookId")
+                    navController.navigate(route = "${Routes.BOOK_DETAILS}/$bookId")
                 },
             )
         }
@@ -36,9 +35,7 @@ fun AppNavHost() {
             startDestination = Routes.ADD_BOOK,
             route = Routes.ADD_BOOK_FLOW
         ) {
-
             composable(Routes.ADD_BOOK) { entry ->
-
                 AddBookRoute(
                     navController = navController,
                     entry = entry,
@@ -48,13 +45,12 @@ fun AppNavHost() {
             }
 
             composable(Routes.CONFIRM_BOOK) { entry ->
-
                 ConfirmBookRoute(
                     navController = navController,
                     entry = entry,
                     onBack = { navController.popBackStack() },
                     onBookSaved = { newBookId ->
-                        navController.navigate("${Routes.BOOK_DETAILS}/$newBookId") {
+                        navController.navigate(route = "${Routes.BOOK_DETAILS}/$newBookId") {
                             popUpTo(Routes.LIBRARY) { inclusive = false }
                         }
                     },
@@ -64,12 +60,15 @@ fun AppNavHost() {
 
         composable(
             route = "${Routes.BOOK_DETAILS}/{${Routes.ARG_BOOK_ID}}",
-            arguments = listOf(navArgument(Routes.ARG_BOOK_ID) { type = NavType.StringType }),
+            arguments = listOf(navArgument(name = Routes.ARG_BOOK_ID) {
+                type = NavType.StringType
+            }),
         ) {
+            BookDetailsRoute(onBack = { navController.popBackStack() })
+        }
 
-            BookDetailsRoute(
-                onBack = { navController.popBackStack() },
-            )
+        composable(Routes.PROFILE) {
+            ProfileRoute()
         }
     }
 }
