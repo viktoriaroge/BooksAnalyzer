@@ -20,7 +20,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.LIBRARY
+        startDestination = Routes.LIBRARY,
     ) {
 
         composable(Routes.LIBRARY) {

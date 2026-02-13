@@ -55,7 +55,6 @@ import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.domain.LibraryFilters
 import com.viroge.booksanalyzer.domain.LibrarySort
 import com.viroge.booksanalyzer.domain.ReadingStatus
-import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -418,7 +417,7 @@ fun CurrentlyReadingCard(
             )
 
             LinearProgressIndicator(
-                progress = { Random.nextDouble(from = 0.0, until = 1.0).toFloat() },
+                progress = { 0.3F },
                 modifier = Modifier.fillMaxWidth(),
             )
 

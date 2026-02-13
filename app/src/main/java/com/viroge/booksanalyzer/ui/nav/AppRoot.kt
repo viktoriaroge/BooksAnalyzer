@@ -1,5 +1,10 @@
 package com.viroge.booksanalyzer.ui.nav
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -36,7 +41,7 @@ fun AppRoot() {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val snackbarController = remember(scope, snackbarHostState) {
+    val snackbarController = remember(key1 = scope, key2 = snackbarHostState) {
         AppSnackbarController(scope, snackbarHostState)
     }
 
@@ -44,7 +49,12 @@ fun AppRoot() {
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             bottomBar = {
-                if (showBottomBar) {
+
+                AnimatedVisibility(
+                    visible = showBottomBar,
+                    enter = slideInVertically { it } + fadeIn(),
+                    exit = slideOutVertically { it } + fadeOut(),
+                ) {
                     AppBottomBar(
                         currentDestination = currentDestination,
                         onNavigate = { route ->
