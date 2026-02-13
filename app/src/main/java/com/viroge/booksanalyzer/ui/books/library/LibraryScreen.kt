@@ -10,10 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
@@ -24,6 +25,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -34,9 +36,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,6 +55,7 @@ import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.domain.LibraryFilters
 import com.viroge.booksanalyzer.domain.LibrarySort
 import com.viroge.booksanalyzer.domain.ReadingStatus
+import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +70,22 @@ fun LibraryScreen(
     var showSearch by rememberSaveable { mutableStateOf(value = false) }
     var showFilters by rememberSaveable { mutableStateOf(value = false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val currentListState = rememberLazyListState()
+    val currentOrderKey = remember(key1 = state.books) {
+        state.currentlyReading.joinToString(separator = "|") { it.bookId }
+    }
+    LaunchedEffect(key1 = currentOrderKey) {
+        currentListState.scrollToItem(index = 0)
+    }
+
+    val fullListState = rememberLazyListState()
+    val fullOrderKey = remember(key1 = state.books) {
+        state.books.joinToString(separator = "|") { it.bookId }
+    }
+    LaunchedEffect(key1 = fullOrderKey) {
+        fullListState.scrollToItem(index = 0)
+    }
 
     if (showFilters) {
         ModalBottomSheet(
@@ -140,6 +161,7 @@ fun LibraryScreen(
             } else {
 
                 LazyColumn(
+                    state = fullListState,
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(space = 8.dp),
                 ) {
@@ -147,6 +169,7 @@ fun LibraryScreen(
                     if (state.currentlyReading.isNotEmpty()) {
                         item {
                             CurrentlyReadingSection(
+                                currentListState = currentListState,
                                 books = state.currentlyReading,
                                 onOpenBook = onOpenBook,
                             )
@@ -154,8 +177,9 @@ fun LibraryScreen(
                     }
 
                     item {
+                        Spacer(Modifier.height(height = 12.dp))
                         Text(
-                            text = "Your collection".uppercase(),
+                            text = "Collection".uppercase(),
                             style = MaterialTheme.typography.labelSmall,
                         )
                     }
@@ -343,8 +367,9 @@ private fun String.pretty(): String = lowercase()
 
 @Composable
 fun CurrentlyReadingSection(
+    currentListState: LazyListState,
     books: List<BookEntity>,
-    onOpenBook: (String) -> Unit
+    onOpenBook: (String) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
         Text(
@@ -352,7 +377,10 @@ fun CurrentlyReadingSection(
             style = MaterialTheme.typography.labelSmall,
         )
 
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(space = 12.dp)) {
+        LazyRow(
+            state = currentListState,
+            horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
+        ) {
             items(
                 items = books,
                 key = { it.bookId },
@@ -373,11 +401,11 @@ fun CurrentlyReadingCard(
 ) {
     Card(
         onClick = onClick,
-        modifier = Modifier.width(width = 260.dp),
+        modifier = Modifier.size(width = 140.dp, height = 300.dp),
     ) {
-        Row(
+        Column(
             modifier = Modifier.padding(all = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(context = LocalContext.current)
@@ -386,7 +414,12 @@ fun CurrentlyReadingCard(
                     .build(),
                 error = painterResource(id = R.drawable.blank_book),
                 contentDescription = null,
-                modifier = Modifier.size(width = 56.dp, height = 84.dp),
+                modifier = Modifier.size(width = 140.dp, height = 170.dp),
+            )
+
+            LinearProgressIndicator(
+                progress = { Random.nextDouble(from = 0.0, until = 1.0).toFloat() },
+                modifier = Modifier.fillMaxWidth(),
             )
 
             Column(modifier = Modifier.weight(weight = 1f)) {

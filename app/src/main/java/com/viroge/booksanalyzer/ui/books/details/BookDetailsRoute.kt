@@ -1,7 +1,6 @@
 package com.viroge.booksanalyzer.ui.books.details
 
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,7 +20,6 @@ fun BookDetailsRoute(
 
     LaunchedEffect(key1 = Unit) {
         vm.events.collect { event ->
-
             when (event) {
                 is BookDetailEvent.Deleted -> {
                     snackbar.show(
@@ -35,6 +33,10 @@ fun BookDetailsRoute(
                 }
             }
         }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        vm.updateLastOpenDelayed()
     }
 
     BookDetailsScreen(
