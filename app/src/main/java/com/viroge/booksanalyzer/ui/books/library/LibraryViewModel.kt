@@ -24,7 +24,7 @@ class LibraryViewModel @Inject constructor(
 
     private val query = MutableStateFlow(value = "")
     private val statusFilter = MutableStateFlow<ReadingStatus?>(value = null) // null == All
-    private val sort = MutableStateFlow(value = LibrarySort.RECENT)
+    private val sort = MutableStateFlow(value = LibrarySort.ADDED)
 
     val filters: StateFlow<LibraryFilters> =
         combine(statusFilter, sort) { status, sort ->
@@ -93,14 +93,14 @@ class LibraryViewModel @Inject constructor(
 
     fun onClearFilters() {
         statusFilter.value = null
-        sort.value = LibrarySort.RECENT
+        sort.value = LibrarySort.ADDED
     }
 }
 
 data class LibraryUiState(
     val query: String = "",
     val selectedStatus: ReadingStatus? = null,
-    val sort: LibrarySort = LibrarySort.RECENT,
+    val sort: LibrarySort = LibrarySort.ADDED,
     val currentlyReading: List<BookEntity> = emptyList(),
     val books: List<BookEntity> = emptyList(),
 )

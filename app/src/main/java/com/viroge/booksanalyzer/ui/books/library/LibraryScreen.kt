@@ -83,7 +83,7 @@ fun LibraryScreen(
         state.books.joinToString(separator = "|") { it.bookId }
     }
     LaunchedEffect(key1 = fullOrderKey) {
-        fullListState.scrollToItem(index = 0)
+        if (state.sort == LibrarySort.RECENT) fullListState.scrollToItem(index = 0)
     }
 
     if (showFilters) {
@@ -260,18 +260,18 @@ fun LibraryFiltersSheet(
             thickness = 1.dp,
         )
         SortRadioRow(
-            label = "By Most Recent",
-            selected = filters.sort == LibrarySort.RECENT,
-            onClick = { onSortChange(LibrarySort.RECENT) },
+            label = "By Added to Collection",
+            selected = filters.sort == LibrarySort.ADDED,
+            onClick = { onSortChange(LibrarySort.ADDED) },
         )
         HorizontalDivider(
             color = MaterialTheme.colorScheme.surfaceBright,
             thickness = 1.dp,
         )
         SortRadioRow(
-            label = "By First Added",
-            selected = filters.sort == LibrarySort.ADDED,
-            onClick = { onSortChange(LibrarySort.ADDED) },
+            label = "By Most Recently Viewed",
+            selected = filters.sort == LibrarySort.RECENT,
+            onClick = { onSortChange(LibrarySort.RECENT) },
         )
         HorizontalDivider(
             color = MaterialTheme.colorScheme.surfaceBright,
@@ -341,8 +341,8 @@ fun ActiveFiltersRow(
     modifier: Modifier = Modifier
 ) {
     val parts = buildList {
-        filters.status?.let { add(it.name.pretty()) }
-        if (filters.sort != LibrarySort.RECENT) add("Sort: ${filters.sort.name.pretty()}")
+        filters.status?.let { add("Status: ${it.name.pretty()}") }
+        if (filters.sort != LibrarySort.ADDED) add("Sort: ${filters.sort.name.pretty()}")
     }
 
     if (parts.isEmpty()) return
@@ -400,11 +400,11 @@ fun CurrentlyReadingCard(
 ) {
     Card(
         onClick = onClick,
-        modifier = Modifier.size(width = 140.dp, height = 300.dp),
+        modifier = Modifier.size(width = 210.dp, height = 360.dp),
     ) {
         Column(
-            modifier = Modifier.padding(all = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 12.dp),
+            modifier = Modifier.padding(all = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 16.dp),
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(context = LocalContext.current)
@@ -413,7 +413,7 @@ fun CurrentlyReadingCard(
                     .build(),
                 error = painterResource(id = R.drawable.blank_book),
                 contentDescription = null,
-                modifier = Modifier.size(width = 140.dp, height = 170.dp),
+                modifier = Modifier.size(width = 170.dp, height = 210.dp),
             )
 
             LinearProgressIndicator(
@@ -421,7 +421,10 @@ fun CurrentlyReadingCard(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Column(modifier = Modifier.weight(weight = 1f)) {
+            Column(
+                modifier = Modifier.weight(weight = 1f),
+                verticalArrangement = Arrangement.spacedBy(space = 8.dp),
+            ) {
                 Text(
                     text = book.title,
                     style = MaterialTheme.typography.titleMedium,
