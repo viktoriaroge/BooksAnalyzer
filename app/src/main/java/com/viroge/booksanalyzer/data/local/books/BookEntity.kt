@@ -52,4 +52,7 @@ data class BookEntity(
 
     @ColumnInfo(name = "createdAtEpochMs")
     val createdAtEpochMs: Long,
+
+    @ColumnInfo(name = "lastOpenAtEpochMs")
+    val lastOpenAtEpochMs: Long,
 )

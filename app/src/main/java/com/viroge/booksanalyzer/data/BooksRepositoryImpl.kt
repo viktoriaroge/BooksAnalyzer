@@ -42,6 +42,14 @@ class BooksRepositoryImpl @Inject constructor(
         bookDao.upsert(book = existing.copy(status = status.name))
     }
 
+    override suspend fun updateOnOpen(
+        bookId: String,
+    ) {
+        val existing = bookDao.getById(bookId) ?: return
+
+        bookDao.upsert(book = existing.copy(lastOpenAtEpochMs = System.currentTimeMillis()))
+    }
+
     override suspend fun deleteBook(
         bookId: String,
     ) {
@@ -127,7 +135,8 @@ class BooksRepositoryImpl @Inject constructor(
                 .takeIf { candidate.source == BookCandidate.Source.GOOGLE_BOOKS },
             coverUrl = candidate.coverUrl,
             status = "NOT_STARTED",
-            createdAtEpochMs = System.currentTimeMillis()
+            createdAtEpochMs = System.currentTimeMillis(),
+            lastOpenAtEpochMs = System.currentTimeMillis(),
         )
         bookDao.upsert(book = entity)
 

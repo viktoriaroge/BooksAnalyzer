@@ -232,19 +232,39 @@ fun LibraryFiltersSheet(
             text = "Sort",
             style = MaterialTheme.typography.titleSmall,
         )
-
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.surfaceBright,
+            thickness = 1.dp,
+        )
         SortRadioRow(
-            label = "Recent",
+            label = "By Most Recent",
             selected = filters.sort == LibrarySort.RECENT,
             onClick = { onSortChange(LibrarySort.RECENT) },
         )
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.surfaceBright,
+            thickness = 1.dp,
+        )
         SortRadioRow(
-            label = "Title",
+            label = "By First Added",
+            selected = filters.sort == LibrarySort.ADDED,
+            onClick = { onSortChange(LibrarySort.ADDED) },
+        )
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.surfaceBright,
+            thickness = 1.dp,
+        )
+        SortRadioRow(
+            label = "By Title",
             selected = filters.sort == LibrarySort.TITLE,
             onClick = { onSortChange(LibrarySort.TITLE) },
         )
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.surfaceBright,
+            thickness = 1.dp,
+        )
         SortRadioRow(
-            label = "Author",
+            label = "By Author",
             selected = filters.sort == LibrarySort.AUTHOR,
             onClick = { onSortChange(LibrarySort.AUTHOR) },
         )
@@ -333,8 +353,10 @@ fun CurrentlyReadingSection(
         )
 
         LazyRow(horizontalArrangement = Arrangement.spacedBy(space = 12.dp)) {
-            items(items = books, key = { it.bookId }) { book ->
-
+            items(
+                items = books,
+                key = { it.bookId },
+            ) { book ->
                 CurrentlyReadingCard(
                     book = book,
                     onClick = { onOpenBook(book.bookId) },

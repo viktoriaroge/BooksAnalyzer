@@ -21,6 +21,10 @@ interface BooksRepository {
         status: ReadingStatus,
     )
 
+    suspend fun updateOnOpen(
+        bookId: String,
+    )
+
     suspend fun deleteBook(
         bookId: String,
     )

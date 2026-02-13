@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,6 +38,7 @@ class BookDetailsViewModel @Inject constructor(
 
     init {
         repo.observeBook(bookId)
+            .onStart { repo.updateOnOpen(bookId) }
             .onEach { book -> _ui.update { it.copy(book = book, error = null) } }
             .catch { e -> _ui.update { it.copy(error = e.message ?: "Failed to load book") } }
             .launchIn(viewModelScope)

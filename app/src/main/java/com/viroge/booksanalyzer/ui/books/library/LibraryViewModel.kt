@@ -55,14 +55,16 @@ class LibraryViewModel @Inject constructor(
             }
 
             val sorted = when (sort) {
-                LibrarySort.RECENT -> filtered.sortedByDescending { it.createdAtEpochMs }
+                LibrarySort.ADDED -> filtered.sortedByDescending { it.createdAtEpochMs }
+                LibrarySort.RECENT -> filtered.sortedByDescending { it.lastOpenAtEpochMs }
                 LibrarySort.TITLE -> filtered.sortedBy { it.title.lowercase() }
                 LibrarySort.AUTHOR -> filtered.sortedBy { it.authors.lowercase() }
             }
 
-            val currentlyReading = sorted
+            val currentlyReading = filtered
+                .sortedByDescending { it.lastOpenAtEpochMs } // always by most recent
                 .filter { it.status == ReadingStatus.READING.name }
-                .take(5) // max 5 books
+                .take(n = 5) // max 5 books
 
             LibraryUiState(
                 query = q,
