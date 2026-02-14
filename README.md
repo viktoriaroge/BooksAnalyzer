@@ -115,8 +115,8 @@ Future sync and backup will be optional and user-controlled.
 ```
 🌰               → Seed, just an idea
 🌱               → Seedling, taking root and developing
-🪴               → Plant, developed but could use more work
-🌳               → Tree, mostly developed (for now)
+🪴               → Plant, developed but could use more growth
+🌳               → Tree, fully developed
 🪾               → Lifeless tree, sad and abandoned (for now)
 ```
 
