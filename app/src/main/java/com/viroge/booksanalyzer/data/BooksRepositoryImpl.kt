@@ -110,6 +110,8 @@ class BooksRepositoryImpl @Inject constructor(
                             wasInserted = false,
                         )
                     }
+
+            BookCandidate.Source.MANUAL -> { /* no sourceId lookup for manual entries */ }
         }
 
         val key = titleKey(candidate.title, candidate.authors, candidate.publishedYear)

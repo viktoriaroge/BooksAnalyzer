@@ -62,7 +62,7 @@ Future sync and backup will be optional and user-controlled.
 
 ### Status : Active development.
 
-### MVP 1 - Personal Library
+### 🌳 MVP 1 - Personal Library
 
 * 🌳 Search books via Google Books and Open Library APIs
 
@@ -82,9 +82,9 @@ Future sync and backup will be optional and user-controlled.
 
 * 🌳 Delete with undo support
 
-* 🌱 Manual book addition
+* 🌳 Manual book addition
 
-### MVP 2 – Reading sessions
+### 🌰 MVP 2 – Reading sessions
 
 * 🌰 Track reading sessions and duration
 
@@ -92,13 +92,13 @@ Future sync and backup will be optional and user-controlled.
 
 * 🌰 Reading habit insights
 
-### MVP 3 – Notes and Analysis
+### 🌰 MVP 3 – Notes and Analysis
 
 * 🌰 Structured notes and private tags
 
 * 🌰 Personal quality and engagement metrics
 
-### Nice-to-have-s (To Be Planned)
+### 🌰 Nice-to-have-s (To Be Planned)
 
 * 🌰 Apply light / dark theme
 
@@ -109,6 +109,8 @@ Future sync and backup will be optional and user-controlled.
 * 🌰 Advanced analytics and insights
 
 * 🌰 Data export
+
+* 🌰 Improve book entry consolidation for manual entries that are later added to any of the source libraries (either through manual edit or direct prefill suggestions).
 
 ### Legend
 

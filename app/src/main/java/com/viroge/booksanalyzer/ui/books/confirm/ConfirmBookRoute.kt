@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.viroge.booksanalyzer.domain.SearchMode
 import com.viroge.booksanalyzer.ui.books.add.AddBookFlowViewModel
 import com.viroge.booksanalyzer.ui.nav.Routes
 import com.viroge.booksanalyzer.ui.snackbar.LocalAppSnackbar
@@ -29,6 +30,7 @@ fun ConfirmBookRoute(
 
     val candidate by flowVm.selectedCandidate.collectAsState()
     val prefill by flowVm.prefillQuery.collectAsState()
+    val prefillMode by flowVm.prefillMode.collectAsState()
     val isSaving by vm.isSaving.collectAsState()
     val error by vm.error.collectAsState()
 
@@ -52,12 +54,19 @@ fun ConfirmBookRoute(
     ConfirmBookScreen(
         candidate = candidate,
         prefillQuery = prefill,
+        prefillMode = prefillMode,
         isSaving = isSaving,
         error = error,
         onBack = onBack,
-        onConfirmSave = {
-            candidate?.let(vm::saveCandidate)
-            // TODO: manual add later
-        }
+        onConfirmSave = { candidate?.let(vm::saveCandidate) },
+        onConfirmSaveManual = { title, authors, year, isbn13, coverUrl ->
+            vm.saveManualBook(
+                title = title,
+                authors = authors,
+                publishedYear = year,
+                isbn13 = isbn13,
+                coverUrl = coverUrl,
+            )
+        },
     )
 }

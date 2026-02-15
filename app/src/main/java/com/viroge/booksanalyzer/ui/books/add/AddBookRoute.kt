@@ -1,6 +1,8 @@
 package com.viroge.booksanalyzer.ui.books.add
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
@@ -15,6 +17,7 @@ fun AddBookRoute(
 ) {
 
     val searchVm: SearchBookViewModel = hiltViewModel()
+    val mode by searchVm.modeState.collectAsState()
 
     val parentEntry = remember(key1 = entry) {
         navController.getBackStackEntry(Routes.ADD_BOOK_FLOW)
@@ -31,7 +34,7 @@ fun AddBookRoute(
             onGoToConfirm()
         },
         onManualAdd = { prefill ->
-            flowVm.setManualPrefill(prefill)
+            flowVm.setManualPrefill(prefill, mode)
             onGoToConfirm()
         },
     )

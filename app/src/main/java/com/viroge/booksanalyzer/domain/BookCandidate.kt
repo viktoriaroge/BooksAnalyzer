@@ -10,5 +10,5 @@ data class BookCandidate(
     val isbn10: String? = null,
     val coverUrl: String? = null
 ) {
-    enum class Source { GOOGLE_BOOKS, OPEN_LIBRARY }
+    enum class Source { GOOGLE_BOOKS, OPEN_LIBRARY, MANUAL }
 }

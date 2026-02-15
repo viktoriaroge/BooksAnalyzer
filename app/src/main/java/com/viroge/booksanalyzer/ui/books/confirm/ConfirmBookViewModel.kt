@@ -46,6 +46,40 @@ class ConfirmBookViewModel @Inject constructor(
             _isSaving.value = false
         }
     }
+
+    fun saveManualBook(
+        title: String,
+        authors: String,
+        publishedYear: Int?,
+        isbn13: String?,
+        coverUrl: String?,
+    ) {
+        if (_isSaving.value) return
+        val trimmedTitle = title.trim()
+        if (trimmedTitle.isBlank()) {
+            _error.value = "Title is required"
+            return
+        }
+
+        val authorList = authors
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .ifEmpty { listOf("") }
+
+        val candidate = BookCandidate(
+            source = BookCandidate.Source.MANUAL,
+            sourceId = "manual",
+            title = trimmedTitle,
+            authors = authorList,
+            publishedYear = publishedYear,
+            isbn13 = isbn13?.takeIf { it.isNotBlank() },
+            isbn10 = null,
+            coverUrl = coverUrl?.takeIf { it.isNotBlank() },
+        )
+
+        saveCandidate(candidate)
+    }
 }
 
 sealed interface ConfirmEvent {
