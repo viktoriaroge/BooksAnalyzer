@@ -104,10 +104,14 @@ class SearchBookViewModel @Inject constructor(
 
             _uiState.value = when {
                 currentItems.isNotEmpty() && lastMessages.isEmpty() ->
-                    SearchUiState.Success(currentItems)
+                    SearchUiState.Success(query = lastQuery, items = currentItems)
 
                 currentItems.isNotEmpty() && lastMessages.isNotEmpty() ->
-                    SearchUiState.Partial(currentItems, lastMessages)
+                    SearchUiState.Partial(
+                        query = lastQuery,
+                        items = currentItems,
+                        messages = lastMessages
+                    )
 
                 else ->
                     SearchUiState.Empty(lastQuery)
@@ -178,8 +182,12 @@ class SearchBookViewModel @Inject constructor(
 
         _uiState.value = when {
             currentItems.isEmpty() -> SearchUiState.Empty(query = q)
-            lastMessages.isEmpty() -> SearchUiState.Success(currentItems)
-            else -> SearchUiState.Partial(currentItems, lastMessages)
+            lastMessages.isEmpty() -> SearchUiState.Success(query = q, items = currentItems)
+            else -> SearchUiState.Partial(
+                query = q,
+                items = currentItems,
+                messages = lastMessages
+            )
         }
     }
 }
@@ -190,10 +198,12 @@ sealed interface SearchUiState {
     data object Loading : SearchUiState
 
     data class Success(
+        val query: String,
         val items: List<BookCandidate>,
     ) : SearchUiState
 
     data class Partial(
+        val query: String,
         val items: List<BookCandidate>,
         val messages: List<String>,
     ) : SearchUiState

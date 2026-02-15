@@ -24,7 +24,7 @@ fun ConfirmBookRoute(
     val vm: ConfirmBookViewModel = hiltViewModel()
 
     val parentEntry = remember(entry) {
-        navController.getBackStackEntry(Routes.ADD_BOOK_FLOW)
+        navController.getBackStackEntry(Routes.ADD_BOOK)
     }
     val flowVm: AddBookFlowViewModel = hiltViewModel(viewModelStoreOwner = parentEntry)
 

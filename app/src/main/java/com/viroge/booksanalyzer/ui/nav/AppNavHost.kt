@@ -1,13 +1,11 @@
 package com.viroge.booksanalyzer.ui.nav
 
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import androidx.navigation.navigation
 import com.viroge.booksanalyzer.ui.books.add.AddBookRoute
 import com.viroge.booksanalyzer.ui.books.confirm.ConfirmBookRoute
 import com.viroge.booksanalyzer.ui.books.details.BookDetailsRoute
@@ -31,30 +29,23 @@ fun AppNavHost(
             )
         }
 
-        navigation(
-            startDestination = Routes.ADD_BOOK,
-            route = Routes.ADD_BOOK_FLOW
-        ) {
-            composable(Routes.ADD_BOOK) { entry ->
-                AddBookRoute(
-                    navController = navController,
-                    entry = entry,
-                    onGoToConfirm = { navController.navigate(Routes.CONFIRM_BOOK) },
-                )
-            }
+        composable(Routes.ADD_BOOK) {
+            AddBookRoute(
+                onGoToConfirm = { navController.navigate(Routes.CONFIRM_BOOK) },
+            )
+        }
 
-            composable(Routes.CONFIRM_BOOK) { entry ->
-                ConfirmBookRoute(
-                    navController = navController,
-                    entry = entry,
-                    onBack = { navController.popBackStack() },
-                    onBookSaved = { newBookId ->
-                        navController.navigate(route = "${Routes.BOOK_DETAILS}/$newBookId") {
-                            popUpTo(Routes.ADD_BOOK) { inclusive = false }
-                        }
-                    },
-                )
-            }
+        composable(Routes.CONFIRM_BOOK) { entry ->
+            ConfirmBookRoute(
+                navController = navController,
+                entry = entry,
+                onBack = { navController.popBackStack() },
+                onBookSaved = { newBookId ->
+                    navController.navigate(route = "${Routes.BOOK_DETAILS}/$newBookId") {
+                        popUpTo(Routes.ADD_BOOK) { inclusive = false }
+                    }
+                },
+            )
         }
 
         composable(

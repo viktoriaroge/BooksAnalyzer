@@ -15,11 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -32,7 +30,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,15 +38,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.SearchMode
+import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
+import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
+import com.viroge.booksanalyzer.ui.common.CommonItemCard
+import com.viroge.booksanalyzer.ui.common.CommonTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,13 +69,8 @@ fun BookSearchScreen(
     val state by vm.uiState.collectAsState()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Find Books")
-                },
-            )
-        }
+        containerColor = MaterialTheme.colorScheme.surface,
+        topBar = { CommonTopAppBar(title = "Find Books") },
     ) { screenPadding ->
 
         Column(
@@ -148,29 +139,36 @@ fun BookSearchScreen(
                 }
 
                 is SearchUiState.Partial -> {
-                    // Results + non-blocking warning
-                    Text(
-                        text = "Some sources failed. Showing available results.",
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
+                    Text(text = "Some sources failed. Showing available results. Not in the list?")
+
+                    Spacer(Modifier.height(height = 8.dp))
+
+                    Button(onClick = { onManualAdd(selectedState.query) }) {
+                        Text(text = "Add manually")
+                    }
+
                     Spacer(Modifier.height(height = 8.dp))
 
                     CandidatesList(
+                        selectedState.query,
                         selectedState.items,
                         onSelectCandidate,
                         canLoadMore,
                         isLoadingMore,
                         onLoadMore,
+                        onManualAdd,
                     )
                 }
 
                 is SearchUiState.Success -> {
                     CandidatesList(
+                        selectedState.query,
                         selectedState.items,
                         onSelectCandidate,
                         canLoadMore,
                         isLoadingMore,
                         onLoadMore,
+                        onManualAdd,
                     )
                 }
             }
@@ -319,33 +317,27 @@ private fun RecentQueryChip(
 
 @Composable
 private fun CandidatesList(
+    query: String,
     items: List<BookCandidate>,
     onSelect: (BookCandidate) -> Unit,
     canLoadMore: Boolean,
     isLoadingMore: Boolean,
     onLoadMore: () -> Unit,
+    onManualAdd: (String) -> Unit,
 ) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
         items(items) { candidate ->
-            Card(
+            CommonItemCard(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onSelect(candidate) },
             ) {
-
                 Row(
                     modifier = Modifier.padding(all = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                 ) {
-
-                    AsyncImage(
-                        model = ImageRequest.Builder(context = LocalContext.current)
-                            .data(data = candidate.coverUrl)
-                            .crossfade(enable = true)
-                            .build(),
-                        error = painterResource(id = R.drawable.blank_book),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(width = 80.dp, height = 120.dp),
+                    CommonAsyncImage(
+                        url = candidate.coverUrl,
+                        size = CommonAsyncImageSize.XSMALL,
                     )
 
                     Column(modifier = Modifier.weight(weight = 1f)) {
@@ -353,10 +345,18 @@ private fun CandidatesList(
                         Text(
                             text = candidate.title,
                             style = MaterialTheme.typography.titleMedium,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                         )
 
                         if (candidate.authors.isNotEmpty()) {
-                            Text(text = candidate.authors.joinToString(separator = ", "))
+                            Spacer(Modifier.height(height = 4.dp))
+                            Text(
+                                text = candidate.authors.joinToString(separator = ", "),
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
                         }
 
                         val meta = listOfNotNull(
@@ -365,9 +365,12 @@ private fun CandidatesList(
                         ).joinToString(separator = " • ")
 
                         if (meta.isNotBlank()) {
+                            Spacer(Modifier.height(height = 4.dp))
                             Text(
                                 text = meta,
                                 style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                     }
@@ -376,7 +379,7 @@ private fun CandidatesList(
         }
         if (canLoadMore) {
             item {
-                Spacer(Modifier.height(height = 12.dp))
+                Spacer(Modifier.height(height = 8.dp))
 
                 Button(
                     onClick = { onLoadMore() },
@@ -384,6 +387,16 @@ private fun CandidatesList(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = if (isLoadingMore) "Loading…" else "Show more")
+                }
+            }
+        } else {
+            item {
+                Spacer(Modifier.height(height = 8.dp))
+                Text(text = "Not in the list?")
+                Spacer(Modifier.height(height = 8.dp))
+
+                Button(onClick = { onManualAdd(query) }) {
+                    Text(text = "Add manually")
                 }
             }
         }

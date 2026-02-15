@@ -3,23 +3,23 @@ package com.viroge.booksanalyzer.ui.books.library
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -33,7 +33,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,16 +44,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.domain.LibraryFilters
 import com.viroge.booksanalyzer.domain.LibrarySort
 import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
+import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
+import com.viroge.booksanalyzer.ui.common.CommonItemCard
+import com.viroge.booksanalyzer.ui.common.CommonTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,7 +89,8 @@ fun LibraryScreen(
     if (showFilters) {
         ModalBottomSheet(
             sheetState = sheetState,
-            onDismissRequest = { showFilters = false }
+            onDismissRequest = { showFilters = false },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
             LibraryFiltersSheet(
                 filters = filters,
@@ -101,9 +102,10 @@ fun LibraryScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            TopAppBar(
-                title = { Text(text = "My Books") },
+            CommonTopAppBar(
+                title = "My Books",
                 actions = {
                     IconButton(onClick = { showSearch = !showSearch }) {
                         Icon(
@@ -125,21 +127,33 @@ fun LibraryScreen(
         Column(
             modifier = Modifier
                 .padding(top = screenPadding.calculateTopPadding()) // top bar
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(space = 8.dp),
         ) {
 
             if (showSearch) {
-                LibrarySearchField(
-                    query = state.query,
-                    onQueryChange = vm::onQueryChange,
-                    onClear = {
-                        showSearch = false
-                        vm.onQueryChange(value = "")
+                OutlinedTextField(
+                    value = state.query,
+                    onValueChange = vm::onQueryChange,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    singleLine = true,
+                    placeholder = { Text(text = "Search your library…") },
+                    trailingIcon = {
+                        if (state.query.isNotBlank()) {
+                            IconButton(onClick = {
+                                showSearch = false
+                                vm.onQueryChange(value = "")
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = null,
+                                )
+                            }
+                        }
                     },
                 )
-
-                Spacer(Modifier.height(height = 8.dp))
             }
 
             ActiveFiltersRow(
@@ -150,52 +164,74 @@ fun LibraryScreen(
 
             if (state.books.isEmpty()) {
                 Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
                     text = "No books yet.",
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-
-                Spacer(Modifier.height(height = 8.dp))
-
-                Text(text = "Tap + to add your first book.")
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = "Tap + to add your first book.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             } else {
-
                 LazyColumn(
                     state = fullListState,
                     modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(space = 8.dp),
                 ) {
                     // Currently Reading section
                     if (state.currentlyReading.isNotEmpty()) {
                         item {
-                            CurrentlyReadingSection(
-                                currentListState = currentListState,
-                                books = state.currentlyReading,
-                                onOpenBook = onOpenBook,
+                            Text(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                text = "Currently reading".uppercase(),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
+                        }
+
+                        item {
+                            LazyRow(
+                                state = currentListState,
+                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
+                            ) {
+                                items(
+                                    items = state.books,
+                                    key = { it.bookId },
+                                ) { book ->
+                                    CurrentlyReadingCard(
+                                        book = book,
+                                        onClick = { onOpenBook(book.bookId) },
+                                    )
+                                }
+                            }
                         }
                     }
 
+
+                    // A list of all saved books
                     item {
-                        Spacer(Modifier.height(height = 12.dp))
                         Text(
+                            modifier = Modifier.padding(horizontal = 16.dp),
                             text = "Collection".uppercase(),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 
-                    // A list of all saved books
                     items(
                         items = state.books,
                         key = { it.bookId },
                     ) { book ->
-
                         BookRow(
                             book = book,
                             onClick = { onOpenBook(book.bookId) },
                         )
                     }
-
-                    item { Spacer(Modifier.height(height = 8.dp)) }
                 }
             }
         }
@@ -313,28 +349,6 @@ private fun SortRadioRow(
 }
 
 @Composable
-fun LibrarySearchField(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onClear: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChange,
-        modifier = modifier.fillMaxWidth(),
-        singleLine = true,
-        placeholder = { Text(text = "Search your library…") },
-        trailingIcon = {
-            if (query.isNotBlank()) {
-                IconButton(onClick = onClear) { Text(text = "✕") }
-            }
-        },
-    )
-}
-
-@Composable
 fun ActiveFiltersRow(
     filters: LibraryFilters,
     onClearFilters: () -> Unit,
@@ -348,7 +362,9 @@ fun ActiveFiltersRow(
     if (parts.isEmpty()) return
 
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -365,55 +381,24 @@ private fun String.pretty(): String = lowercase()
     .replaceFirstChar { it.uppercase() }
 
 @Composable
-fun CurrentlyReadingSection(
-    currentListState: LazyListState,
-    books: List<BookEntity>,
-    onOpenBook: (String) -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
-        Text(
-            text = "Currently reading".uppercase(),
-            style = MaterialTheme.typography.labelSmall,
-        )
-
-        LazyRow(
-            state = currentListState,
-            horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
-        ) {
-            items(
-                items = books,
-                key = { it.bookId },
-            ) { book ->
-                CurrentlyReadingCard(
-                    book = book,
-                    onClick = { onOpenBook(book.bookId) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun CurrentlyReadingCard(
     book: BookEntity,
     onClick: () -> Unit
 ) {
-    Card(
+    CommonItemCard(
+        modifier = Modifier
+//            .padding(horizontal = 16.dp)
+            .width(width = 260.dp),
         onClick = onClick,
-        modifier = Modifier.size(width = 210.dp, height = 360.dp),
     ) {
         Column(
-            modifier = Modifier.padding(all = 16.dp),
+            modifier = Modifier.padding(all = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = 16.dp),
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(data = book.coverUrl)
-                    .crossfade(enable = true)
-                    .build(),
-                error = painterResource(id = R.drawable.blank_book),
-                contentDescription = null,
-                modifier = Modifier.size(width = 170.dp, height = 210.dp),
+            CommonAsyncImage(
+                url = book.coverUrl,
+                size = CommonAsyncImageSize.MEDIUM,
             )
 
             LinearProgressIndicator(
@@ -421,23 +406,24 @@ fun CurrentlyReadingCard(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Column(
-                modifier = Modifier.weight(weight = 1f),
-                verticalArrangement = Arrangement.spacedBy(space = 8.dp),
-            ) {
-                Text(
-                    text = book.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2,
-                )
+            Text(
+                text = book.title,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
 
-                if (book.authors.isNotBlank()) {
-                    Text(
-                        text = book.authors,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                    )
-                }
+            Spacer(modifier = Modifier.weight(weight = 1f))
+
+            if (book.authors.isNotBlank()) {
+                Text(
+                    text = book.authors,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }
@@ -449,26 +435,19 @@ private fun BookRow(
     book: BookEntity,
     onClick: () -> Unit,
 ) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
+    CommonItemCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         onClick = onClick,
     ) {
-
         Row(
-            modifier = Modifier.padding(all = 12.dp),
+            modifier = Modifier.padding(all = 14.dp),
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
-
-            AsyncImage(
-                model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(data = book.coverUrl)
-                    .crossfade(enable = true)
-                    .build(),
-                error = painterResource(id = R.drawable.blank_book),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(width = 80.dp, height = 120.dp),
+            CommonAsyncImage(
+                url = book.coverUrl,
+                size = CommonAsyncImageSize.SMALL,
             )
 
             Column(modifier = Modifier.weight(weight = 1f)) {
@@ -476,10 +455,19 @@ private fun BookRow(
                 Text(
                     text = book.title,
                     style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 if (book.authors.isNotBlank()) {
-                    Text(text = book.authors)
+                    Spacer(Modifier.height(height = 4.dp))
+                    Text(
+                        text = book.authors,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
 
                 val meta = listOfNotNull(
@@ -488,6 +476,7 @@ private fun BookRow(
                 ).joinToString(separator = " • ")
 
                 if (meta.isNotBlank()) {
+                    Spacer(Modifier.height(height = 4.dp))
                     Text(
                         text = meta,
                         style = MaterialTheme.typography.bodySmall,

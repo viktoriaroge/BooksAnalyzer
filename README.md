@@ -98,9 +98,9 @@ Future sync and backup will be optional and user-controlled.
 
 * 🌰 Personal quality and engagement metrics
 
-### 🌰 Nice-to-have-s (To Be Planned)
+### 🌱 Nice-to-have-s (To Be Planned)
 
-* 🌰 Apply light / dark theme
+* 🌳 Apply light / dark theme (follows system)
 
 * 🌰 Backup and restore
 

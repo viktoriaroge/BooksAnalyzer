@@ -3,38 +3,30 @@ package com.viroge.booksanalyzer.ui.books.confirm
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.SearchMode
+import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
+import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
+import com.viroge.booksanalyzer.ui.common.CommonTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,30 +48,25 @@ fun ConfirmBookScreen(
 ) {
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (candidate != null) "Confirm Book" else "Add Book Manually",
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null,
-                        )
-                    }
-                },
+            CommonTopAppBar(
+                title = if (candidate != null) "Confirm Book" else "Add Book Manually",
+                canGoBack = true,
+                onBack = onBack,
             )
         }
     ) { screenPadding ->
 
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
                 .padding(top = screenPadding.calculateTopPadding()) // top bar
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
 
             if (isSaving) {
@@ -102,19 +89,13 @@ fun ConfirmBookScreen(
 
             when {
                 candidate != null -> {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context = LocalContext.current)
-                            .data(data = candidate.coverUrl)
-                            .crossfade(enable = true)
-                            .build(),
-                        error = painterResource(id = R.drawable.blank_book),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(height = 240.dp),
+                    CommonAsyncImage(
+                        modifier = Modifier.fillMaxWidth(),
+                        url = candidate.coverUrl,
+                        size = CommonAsyncImageSize.LARGE,
                     )
 
-                    Spacer(Modifier.height(height = 16.dp))
+                    Spacer(Modifier.height(height = 24.dp))
 
                     Text(
                         text = candidate.title,
@@ -133,6 +114,7 @@ fun ConfirmBookScreen(
                     }
 
                     Spacer(Modifier.height(height = 8.dp))
+
                     Button(
                         onClick = onConfirmSave,
                         enabled = !isSaving,
@@ -140,6 +122,8 @@ fun ConfirmBookScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 48.dp),
                     ) { Text(text = "Save") }
+
+                    Spacer(Modifier.height(height = 16.dp))
                 }
 
                 !prefillQuery.isNullOrBlank() -> {
@@ -191,76 +175,69 @@ private fun ManualBookForm(
     var isbn13 by remember(prefillQuery, prefillMode) { mutableStateOf(initialIsbn13) }
     var coverUrl by remember { mutableStateOf("") }
 
-    val scrollState = rememberScrollState()
+    Text(
+        text = "Enter the book details. Title is required.",
+        style = MaterialTheme.typography.bodyMedium,
+    )
 
-    Column(
+    OutlinedTextField(
+        value = title,
+        onValueChange = { title = it },
+        label = { Text("Title") },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+    )
+
+    OutlinedTextField(
+        value = authors,
+        onValueChange = { authors = it },
+        label = { Text("Authors (comma-separated)") },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+    )
+
+    OutlinedTextField(
+        value = yearText,
+        onValueChange = { yearText = it },
+        label = { Text("Year") },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+    )
+
+    OutlinedTextField(
+        value = isbn13,
+        onValueChange = { isbn13 = it },
+        label = { Text("ISBN-13 (optional)") },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+    )
+
+    OutlinedTextField(
+        value = coverUrl,
+        onValueChange = { coverUrl = it },
+        label = { Text("Cover URL (optional)") },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+    )
+
+    Spacer(Modifier.height(16.dp))
+
+    Button(
+        onClick = {
+            val year = yearText.trim().toIntOrNull()
+            onSave(
+                title.trim(),
+                authors.trim(),
+                year,
+                isbn13.trim().takeIf { it.isNotBlank() },
+                coverUrl.trim().takeIf { it.isNotBlank() },
+            )
+        },
+        enabled = !isSaving && title.isNotBlank(),
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text(
-            text = "Enter the book details. Title is required.",
-            style = MaterialTheme.typography.bodyMedium,
-        )
+            .padding(horizontal = 48.dp),
+    ) { Text(text = "Save") }
 
-        OutlinedTextField(
-            value = title,
-            onValueChange = { title = it },
-            label = { Text("Title") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = authors,
-            onValueChange = { authors = it },
-            label = { Text("Authors (comma-separated)") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = yearText,
-            onValueChange = { yearText = it },
-            label = { Text("Year") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = isbn13,
-            onValueChange = { isbn13 = it },
-            label = { Text("ISBN-13 (optional)") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-
-        OutlinedTextField(
-            value = coverUrl,
-            onValueChange = { coverUrl = it },
-            label = { Text("Cover URL (optional)") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                val year = yearText.trim().toIntOrNull()
-                onSave(
-                    title.trim(),
-                    authors.trim(),
-                    year,
-                    isbn13.trim().takeIf { it.isNotBlank() },
-                    coverUrl.trim().takeIf { it.isNotBlank() },
-                )
-            },
-            enabled = !isSaving && title.isNotBlank(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 48.dp),
-        ) { Text(text = "Save") }
-    }
+    Spacer(Modifier.height(height = 16.dp))
 }

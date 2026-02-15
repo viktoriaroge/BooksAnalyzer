@@ -8,6 +8,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -21,6 +22,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.viroge.booksanalyzer.ui.common.AppBottomBar
 import com.viroge.booksanalyzer.ui.snackbar.AppSnackbarController
 import com.viroge.booksanalyzer.ui.snackbar.LocalAppSnackbar
 
@@ -33,7 +35,7 @@ fun AppRoot() {
 
     val topLevelRoutes = setOf(
         Routes.LIBRARY,
-        Routes.ADD_BOOK_FLOW,
+        Routes.ADD_BOOK,
         Routes.PROFILE,
     )
 
@@ -47,9 +49,9 @@ fun AppRoot() {
 
     CompositionLocalProvider(value = LocalAppSnackbar provides snackbarController) {
         Scaffold(
+            containerColor = MaterialTheme.colorScheme.surface,
             snackbarHost = { SnackbarHost(snackbarHostState) },
             bottomBar = {
-
                 AnimatedVisibility(
                     visible = showBottomBar,
                     enter = slideInVertically { it } + fadeIn(),
