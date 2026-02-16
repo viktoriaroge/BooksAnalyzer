@@ -92,7 +92,7 @@ fun LibraryScreen(
         ModalBottomSheet(
             sheetState = sheetState,
             onDismissRequest = { showFilters = false },
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            containerColor = MaterialTheme.colorScheme.surface,
         ) {
             LibraryFiltersSheet(
                 filters = filters,
@@ -130,39 +130,36 @@ fun LibraryScreen(
             modifier = Modifier
                 .padding(top = screenPadding.calculateTopPadding()) // top bar
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(space = 8.dp),
         ) {
+
+            ActiveFiltersRow(
+                filters = filters,
+                onClearFilters = vm::onClearFilters,
+            )
 
             if (showSearch) {
                 OutlinedTextField(
                     value = state.query,
                     onValueChange = vm::onQueryChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     placeholder = { Text(text = "Search your library…") },
                     trailingIcon = {
-                        if (state.query.isNotBlank()) {
-                            IconButton(onClick = {
+                        IconButton(onClick = {
+                            if (state.query.isBlank()) {
                                 showSearch = false
+                            } else {
                                 vm.onQueryChange(value = "")
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = null,
-                                )
                             }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null,
+                            )
                         }
                     },
                 )
             }
-
-            ActiveFiltersRow(
-                filters = filters,
-                onClearFilters = vm::onClearFilters,
-                modifier = Modifier.padding(vertical = 0.dp),
-            )
 
             if (state.books.isEmpty()) {
                 Text(
@@ -181,7 +178,7 @@ fun LibraryScreen(
                 LazyColumn(
                     state = fullListState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(space = 8.dp),
                 ) {
                     // Currently Reading section
@@ -202,7 +199,7 @@ fun LibraryScreen(
                                 horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
                             ) {
                                 items(
-                                    items = state.books,
+                                    items = state.currentlyReading,
                                     key = { it.bookId },
                                 ) { book ->
                                     CurrentlyReadingCard(
@@ -213,7 +210,6 @@ fun LibraryScreen(
                             }
                         }
                     }
-
 
                     // A list of all saved books
                     item {
@@ -261,6 +257,12 @@ fun LibraryFiltersSheet(
             Text(text = "Filters", style = MaterialTheme.typography.titleLarge)
             TextButton(onClick = onClear) { Text(text = "Clear") }
         }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 16.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            thickness = 1.dp,
+        )
 
         Text(text = "Status", style = MaterialTheme.typography.titleSmall)
 

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -20,11 +20,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -77,15 +75,13 @@ fun BookSearchScreen(
         Column(
             modifier = Modifier
                 .padding(top = screenPadding.calculateTopPadding()) // top bar
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .fillMaxSize(),
         ) {
 
             SearchModeChips(
                 selected = mode,
                 onSelect = { onModeChanged(it) },
             )
-            Spacer(Modifier.height(height = 4.dp))
 
             OutlinedTextField(
                 value = query,
@@ -102,7 +98,6 @@ fun BookSearchScreen(
                     }
                 }
             )
-            Spacer(Modifier.height(height = 12.dp))
 
             when (val selectedState = state) {
                 SearchUiState.Idle -> {
@@ -115,35 +110,49 @@ fun BookSearchScreen(
                 }
 
                 SearchUiState.Loading -> {
+                    Spacer(Modifier.height(height = 4.dp))
                     CommonLinearProgressIndicator()
                 }
 
                 is SearchUiState.Error -> {
+                    Spacer(Modifier.height(height = 16.dp))
                     Text(
+                        modifier = Modifier.padding(horizontal = 16.dp),
                         text = selectedState.message,
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
 
                 is SearchUiState.Empty -> {
-                    Text(text = "No results for “${selectedState.query}”.")
+                    Spacer(Modifier.height(height = 16.dp))
+                    Text(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = "No results for “${selectedState.query}”.",
+                    )
 
                     Spacer(Modifier.height(height = 8.dp))
-                    Button(onClick = { onManualAdd(selectedState.query) }) {
+                    Button(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        onClick = { onManualAdd(selectedState.query) }) {
                         Text(text = "Add manually")
                     }
                 }
 
                 is SearchUiState.Partial -> {
-                    Text(text = "Some sources failed. Showing available results. Not in the list?")
+                    Spacer(Modifier.height(height = 16.dp))
+                    Text(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = "Some sources failed. Showing available results. Not in the list?",
+                    )
 
                     Spacer(Modifier.height(height = 8.dp))
 
-                    Button(onClick = { onManualAdd(selectedState.query) }) {
+                    Button(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        onClick = { onManualAdd(selectedState.query) },
+                    ) {
                         Text(text = "Add manually")
                     }
-
-                    Spacer(Modifier.height(height = 8.dp))
 
                     CandidatesList(
                         selectedState.query,
@@ -202,7 +211,10 @@ fun SearchModeChips(
     selected: SearchMode,
     onSelect: (SearchMode) -> Unit,
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(space = 8.dp)) {
+    Row(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
+    ) {
         FilterChip(
             selected = selected == SearchMode.ALL,
             onClick = { onSelect(SearchMode.ALL) },
@@ -238,7 +250,9 @@ fun RecentSearchesSection(
     if (recent.isEmpty()) return
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(space = 8.dp),
     ) {
 
@@ -314,7 +328,11 @@ private fun CandidatesList(
     onLoadMore: () -> Unit,
     onManualAdd: (String) -> Unit,
 ) {
-    LazyColumn(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
+    LazyColumn(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(space = 8.dp),
+    ) {
         items(items) { candidate ->
             CommonItemCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -389,7 +407,5 @@ private fun CandidatesList(
                 }
             }
         }
-
-        item { Spacer(Modifier.height(height = 8.dp)) }
     }
 }
