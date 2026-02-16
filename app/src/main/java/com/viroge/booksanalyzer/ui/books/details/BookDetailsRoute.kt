@@ -44,6 +44,16 @@ fun BookDetailsRoute(
         onBack = onBack,
         onStatusChange = vm::setStatus,
         onDelete = vm::delete,
+        onEdit = vm::enterEditMode,
+        onSaveEdits = vm::saveEdits,
+        onCancelEdit = vm::exitEditMode,
+        onUpdateEditTitle = vm::updateEditTitle,
+        onUpdateEditAuthors = vm::updateEditAuthors,
+        onUpdateEditPublishedYear = vm::updateEditPublishedYear,
+        onUpdateEditIsbn13 = vm::updateEditIsbn13,
+        onUpdateEditIsbn10 = vm::updateEditIsbn10,
+        onUpdateEditCoverUrl = vm::updateEditCoverUrl,
+        onUpdateEditStatus = vm::updateEditStatus,
     )
 }
 
