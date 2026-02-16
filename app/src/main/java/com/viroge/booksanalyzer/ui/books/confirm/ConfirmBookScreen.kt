@@ -26,6 +26,7 @@ import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.SearchMode
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
+import com.viroge.booksanalyzer.ui.common.CommonLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.common.CommonTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,9 +73,7 @@ fun ConfirmBookScreen(
             if (isSaving) {
                 Spacer(Modifier.height(height = 12.dp))
 
-                LinearProgressIndicator(
-                    Modifier.fillMaxWidth(),
-                )
+                CommonLinearProgressIndicator()
             }
 
             error?.let { msg ->

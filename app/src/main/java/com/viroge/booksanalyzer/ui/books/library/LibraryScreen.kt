@@ -55,6 +55,7 @@ import com.viroge.booksanalyzer.domain.ReadingStatus
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.common.CommonItemCard
+import com.viroge.booksanalyzer.ui.common.CommonLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.common.CommonTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -402,9 +403,8 @@ fun CurrentlyReadingCard(
                 size = CommonAsyncImageSize.MEDIUM,
             )
 
-            LinearProgressIndicator(
+            CommonLinearProgressIndicator(
                 progress = { 0.3F },
-                modifier = Modifier.fillMaxWidth(),
             )
 
             Text(

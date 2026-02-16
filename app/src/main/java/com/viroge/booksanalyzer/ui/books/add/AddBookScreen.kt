@@ -45,6 +45,7 @@ import com.viroge.booksanalyzer.domain.SearchMode
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.common.CommonItemCard
+import com.viroge.booksanalyzer.ui.common.CommonLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.common.CommonTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,7 +120,7 @@ fun BookSearchScreen(
                 }
 
                 SearchUiState.Loading -> {
-                    LinearProgressIndicator(Modifier.fillMaxWidth())
+                    CommonLinearProgressIndicator()
                 }
 
                 is SearchUiState.Error -> {
