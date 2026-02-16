@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -68,9 +70,12 @@ fun BookDetailsScreen(
                 CommonItemCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.extraSmall,
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
                     CommonAsyncImage(
-                        modifier = Modifier.fillMaxWidth().padding(all = 16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(all = 16.dp),
                         url = book.coverUrl,
                         size = CommonAsyncImageSize.LARGE,
                     )

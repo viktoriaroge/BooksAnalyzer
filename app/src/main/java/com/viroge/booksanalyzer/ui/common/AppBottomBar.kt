@@ -39,7 +39,7 @@ fun AppBottomBar(
     )
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        containerColor = MaterialTheme.colorScheme.surface,
     ) {
         items.forEach { item ->
             val selected = currentDestination

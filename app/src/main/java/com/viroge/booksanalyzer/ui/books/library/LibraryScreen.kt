@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -387,8 +388,8 @@ fun CurrentlyReadingCard(
 ) {
     CommonItemCard(
         modifier = Modifier
-//            .padding(horizontal = 16.dp)
-            .width(width = 260.dp),
+            .heightIn(min = 350.dp)
+            .width(width = 210.dp),
         onClick = onClick,
     ) {
         Column(
