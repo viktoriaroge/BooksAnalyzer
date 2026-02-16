@@ -106,11 +106,6 @@ fun BookSearchScreen(
 
             when (val selectedState = state) {
                 SearchUiState.Idle -> {
-                    Text(
-                        text = "Type to search…",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-
                     RecentSearchesSection(
                         recent = recent,
                         onPick = { picked -> vm.changeQuery(newValue = picked) },
@@ -241,13 +236,6 @@ fun RecentSearchesSection(
     modifier: Modifier = Modifier,
 ) {
     if (recent.isEmpty()) return
-
-    Spacer(Modifier.height(height = 8.dp))
-    HorizontalDivider(
-        modifier = Modifier.padding(vertical = 12.dp),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        thickness = 1.dp,
-    )
 
     Column(
         modifier = modifier.fillMaxWidth(),

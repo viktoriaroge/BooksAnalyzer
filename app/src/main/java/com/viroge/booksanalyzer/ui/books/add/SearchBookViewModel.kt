@@ -157,6 +157,8 @@ class SearchBookViewModel @Inject constructor(
     }
 
     private suspend fun searchFirstPage(q: String) {
+        if (q.trim().isEmpty()) return
+
         lastQuery = q
         nextToken = null
         currentItems = emptyList()
