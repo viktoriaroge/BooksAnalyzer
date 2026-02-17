@@ -6,7 +6,6 @@ import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.domain.Book
-import com.viroge.booksanalyzer.domain.BookSource
 import com.viroge.booksanalyzer.domain.BooksPage
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.BooksUtil.titleKey

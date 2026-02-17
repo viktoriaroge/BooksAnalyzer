@@ -25,12 +25,16 @@ fun CommonAsyncImage(
                 CommonAsyncImageSize.SMALL -> 80.dp
                 CommonAsyncImageSize.MEDIUM -> 120.dp
                 CommonAsyncImageSize.LARGE -> 160.dp
+                CommonAsyncImageSize.XLARGE -> 200.dp
+                CommonAsyncImageSize.XXLARGE -> 240.dp
             },
             height = when (size) {
                 CommonAsyncImageSize.XSMALL -> 90.dp
                 CommonAsyncImageSize.SMALL -> 120.dp
                 CommonAsyncImageSize.MEDIUM -> 180.dp
                 CommonAsyncImageSize.LARGE -> 240.dp
+                CommonAsyncImageSize.XLARGE -> 300.dp
+                CommonAsyncImageSize.XXLARGE -> 360.dp
             },
         ),
     model = ImageRequest.Builder(context = LocalContext.current)
@@ -46,4 +50,6 @@ enum class CommonAsyncImageSize {
     SMALL,
     MEDIUM,
     LARGE,
+    XLARGE,
+    XXLARGE,
 }

@@ -115,7 +115,7 @@ fun BookDetailsScreen(
                             .padding(all = 16.dp),
                         url = if (state.isEditMode && state.editCoverUrl.isNotBlank())
                             state.editCoverUrl else book.coverUrl,
-                        size = CommonAsyncImageSize.LARGE,
+                        size = CommonAsyncImageSize.XXLARGE,
                     )
                 }
             }

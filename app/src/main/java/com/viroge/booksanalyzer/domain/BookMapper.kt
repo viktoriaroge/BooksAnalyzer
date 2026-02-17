@@ -28,7 +28,9 @@ object BookMapper {
                     ?: volumeInfo.imageLinks?.small
                     ?: volumeInfo.imageLinks?.thumbnail
                     ?: volumeInfo.imageLinks?.smallThumbnail
-                )?.replace(oldValue = "http://", newValue = "https://")
+                )
+            ?.replace(oldValue = "http://", newValue = "https://")
+            ?.replace(oldValue = "zoom=1", newValue = "zoom=3")
 
         return Book(
             id = "", // not important for network construction
