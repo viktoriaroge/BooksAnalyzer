@@ -2,13 +2,17 @@ package com.viroge.booksanalyzer.domain
 
 object BooksUtil {
 
-    fun cacheKey(mode: String, query: String, limit: Int): String {
-        val normalized = query
-            .trim()
-            .lowercase()
-            .replace(regex = Regex(pattern = """\s+"""), replacement = " ")
+    fun normalizeIsbn(input: String): String = input
+        .replace(oldValue = "-", newValue = "")
+        .replace(oldValue = " ", newValue = "")
+        .trim()
 
-        return "$mode|$limit|$normalized"
+    fun splitIsbns(
+        isbns: List<String>,
+    ): Pair<String?, String?> {
+        val isbn13 = isbns.firstOrNull { it.length == 13 }
+        val isbn10 = isbns.firstOrNull { it.length == 10 }
+        return isbn13 to isbn10
     }
 
     fun titleKey(
@@ -88,8 +92,8 @@ object BooksUtil {
 
     private fun BookCandidate.dedupeKey(): String {
         // strongest identifiers first
-        isbn13?.takeIf { it.isNotBlank() }?.let { return "isbn13:${it.normalizeIsbn()}" }
-        isbn10?.takeIf { it.isNotBlank() }?.let { return "isbn10:${it.normalizeIsbn()}" }
+        isbn13?.takeIf { it.isNotBlank() }?.let { return "isbn13:${normalizeIsbn(it)}" }
+        isbn10?.takeIf { it.isNotBlank() }?.let { return "isbn10:${normalizeIsbn(it)}" }
 
         // source-specific stable IDs
         if (sourceId.isNotBlank()) return "src:${source.name}:${sourceId.trim()}"
@@ -97,9 +101,4 @@ object BooksUtil {
         // fallback: stable titleKey (title + first author + year)
         return "ta:${titleKey(title, authors, publishedYear)}"
     }
-
-    private fun String.normalizeIsbn(): String =
-        replace(oldValue = "-", newValue = "")
-            .replace(oldValue = " ", newValue = "")
-            .trim()
 }

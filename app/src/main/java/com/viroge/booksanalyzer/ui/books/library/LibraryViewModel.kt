@@ -3,15 +3,18 @@ package com.viroge.booksanalyzer.ui.books.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.data.local.books.BookEntity
+import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.BookMapper.toBook
 import com.viroge.booksanalyzer.domain.LibraryFilters
 import com.viroge.booksanalyzer.domain.LibrarySort
 import com.viroge.booksanalyzer.domain.ReadingStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -20,7 +23,8 @@ class LibraryViewModel @Inject constructor(
     booksRepo: BooksRepository,
 ) : ViewModel() {
 
-    private val allBooks = booksRepo.observeLibrary()
+    private val allBooks: Flow<List<Book>> = booksRepo.observeLibrary()
+        .map { it.map { entry -> entry.toBook() } }
 
     private val query = MutableStateFlow(value = "")
     private val statusFilter = MutableStateFlow<ReadingStatus?>(value = null) // null == All
@@ -42,13 +46,13 @@ class LibraryViewModel @Inject constructor(
             var filtered = books
 
             if (status != null) {
-                filtered = filtered.filter { it.status == status.name }
+                filtered = filtered.filter { it.status == status }
             }
 
             if (qq.isNotBlank()) {
                 filtered = filtered.filter {
                     it.title.lowercase().contains(other = qq) ||
-                            it.authors.lowercase().contains(other = qq) ||
+                            it.authors.joinToString(separator = ", ").lowercase().contains(other = qq) ||
                             (it.isbn13?.contains(other = qq) == true) ||
                             (it.isbn10?.contains(other = qq) == true)
                 }
@@ -58,12 +62,12 @@ class LibraryViewModel @Inject constructor(
                 LibrarySort.ADDED -> filtered.sortedByDescending { it.createdAtEpochMs }
                 LibrarySort.RECENT -> filtered.sortedByDescending { it.lastOpenAtEpochMs }
                 LibrarySort.TITLE -> filtered.sortedBy { it.title.lowercase() }
-                LibrarySort.AUTHOR -> filtered.sortedBy { it.authors.lowercase() }
+                LibrarySort.AUTHOR -> filtered.sortedBy { it.authors.getOrNull(0)?.lowercase() }
             }
 
             val currentlyReading = filtered
                 .sortedByDescending { it.lastOpenAtEpochMs } // always by most recent
-                .filter { it.status == ReadingStatus.READING.name }
+                .filter { it.status == ReadingStatus.READING }
                 .take(n = 5) // max 5 books
 
             LibraryUiState(
@@ -101,6 +105,6 @@ data class LibraryUiState(
     val query: String = "",
     val selectedStatus: ReadingStatus? = null,
     val sort: LibrarySort = LibrarySort.ADDED,
-    val currentlyReading: List<BookEntity> = emptyList(),
-    val books: List<BookEntity> = emptyList(),
+    val currentlyReading: List<Book> = emptyList(),
+    val books: List<Book> = emptyList(),
 )

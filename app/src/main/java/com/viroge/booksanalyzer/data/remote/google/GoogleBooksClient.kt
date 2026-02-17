@@ -2,6 +2,8 @@ package com.viroge.booksanalyzer.data.remote.google
 
 import com.viroge.booksanalyzer.data.remote.NetworkErrorMapper
 import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.BookMapper.toCandidate
+import com.viroge.booksanalyzer.domain.BooksUtil.normalizeIsbn
 import com.viroge.booksanalyzer.domain.SearchMode
 
 class GoogleBooksClient(
@@ -41,45 +43,8 @@ class GoogleBooksClient(
         }
     }
 
-    private fun normalizeIsbn(input: String): String = input
-        .replace(oldValue = "-", newValue = "")
-        .replace(oldValue = " ", newValue = "")
-        .trim()
-
     private fun quoteIfNeeded(input: String): String =
         if (input.contains(char = ' ')) "\"$input\"" else input
-
-    private fun VolumeItem.toCandidate(): BookCandidate {
-        val isbn13 = volumeInfo.industryIdentifiers.firstOrNull {
-            it.type.equals(
-                other = "ISBN_13", ignoreCase = true
-            )
-        }?.identifier
-
-        val isbn10 = volumeInfo.industryIdentifiers.firstOrNull {
-            it.type.equals(
-                other = "ISBN_10", ignoreCase = true
-            )
-        }?.identifier
-
-        val year = volumeInfo.publishedDate?.take(4)?.toIntOrNull()
-        val cover = (volumeInfo.imageLinks?.thumbnail
-            ?: volumeInfo.imageLinks?.smallThumbnail)?.replace(
-            oldValue = "http://",
-            newValue = "https://",
-        )
-
-        return BookCandidate(
-            source = BookCandidate.Source.GOOGLE_BOOKS,
-            sourceId = id,
-            title = volumeInfo.title,
-            authors = volumeInfo.authors,
-            publishedYear = year,
-            isbn13 = isbn13,
-            isbn10 = isbn10,
-            coverUrl = cover,
-        )
-    }
 
     private fun <T> Result<T>.mapError(): Result<T> = fold(
         onSuccess = { Result.success(value = it) },

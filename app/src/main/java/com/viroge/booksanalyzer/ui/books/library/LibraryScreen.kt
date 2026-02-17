@@ -26,7 +26,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -48,7 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.data.local.books.BookEntity
+import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.LibraryFilters
 import com.viroge.booksanalyzer.domain.LibrarySort
 import com.viroge.booksanalyzer.domain.ReadingStatus
@@ -74,7 +73,7 @@ fun LibraryScreen(
 
     val currentListState = rememberLazyListState()
     val currentOrderKey = remember(key1 = state.books) {
-        state.currentlyReading.joinToString(separator = "|") { it.bookId }
+        state.currentlyReading.joinToString(separator = "|") { it.id }
     }
     LaunchedEffect(key1 = currentOrderKey) {
         currentListState.scrollToItem(index = 0)
@@ -82,7 +81,7 @@ fun LibraryScreen(
 
     val fullListState = rememberLazyListState()
     val fullOrderKey = remember(key1 = state.books) {
-        state.books.joinToString(separator = "|") { it.bookId }
+        state.books.joinToString(separator = "|") { it.id }
     }
     LaunchedEffect(key1 = fullOrderKey) {
         if (state.sort == LibrarySort.RECENT) fullListState.scrollToItem(index = 0)
@@ -200,11 +199,11 @@ fun LibraryScreen(
                             ) {
                                 items(
                                     items = state.currentlyReading,
-                                    key = { it.bookId },
+                                    key = { it.id },
                                 ) { book ->
                                     CurrentlyReadingCard(
                                         book = book,
-                                        onClick = { onOpenBook(book.bookId) },
+                                        onClick = { onOpenBook(book.id) },
                                     )
                                 }
                             }
@@ -223,11 +222,11 @@ fun LibraryScreen(
 
                     items(
                         items = state.books,
-                        key = { it.bookId },
+                        key = { it.id },
                     ) { book ->
                         BookRow(
                             book = book,
-                            onClick = { onOpenBook(book.bookId) },
+                            onClick = { onOpenBook(book.id) },
                         )
                     }
                 }
@@ -386,7 +385,7 @@ private fun String.pretty(): String = lowercase()
 
 @Composable
 fun CurrentlyReadingCard(
-    book: BookEntity,
+    book: Book,
     onClick: () -> Unit
 ) {
     CommonItemCard(
@@ -419,9 +418,9 @@ fun CurrentlyReadingCard(
 
             Spacer(modifier = Modifier.weight(weight = 1f))
 
-            if (book.authors.isNotBlank()) {
+            if (book.authors.isNotEmpty()) {
                 Text(
-                    text = book.authors,
+                    text = book.authors.joinToString(separator = ", "),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
@@ -435,7 +434,7 @@ fun CurrentlyReadingCard(
 
 @Composable
 private fun BookRow(
-    book: BookEntity,
+    book: Book,
     onClick: () -> Unit,
 ) {
     CommonItemCard(
@@ -462,10 +461,10 @@ private fun BookRow(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                if (book.authors.isNotBlank()) {
+                if (book.authors.isNotEmpty()) {
                     Spacer(Modifier.height(height = 4.dp))
                     Text(
-                        text = book.authors,
+                        text = book.authors.joinToString(separator = ", "),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -490,7 +489,7 @@ private fun BookRow(
                     onClick = {},
                     label = {
                         Text(
-                            text = book.status.replace(oldChar = '_', newChar = ' '),
+                            text = book.status.name.pretty(),
                             style = MaterialTheme.typography.labelSmall,
                         )
                     }

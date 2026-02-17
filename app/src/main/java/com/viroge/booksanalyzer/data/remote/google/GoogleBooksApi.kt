@@ -12,37 +12,37 @@ interface GoogleBooksApi {
         @Query("startIndex") startIndex: Int = 0,
         @Query("maxResults") maxResults: Int = 10,
         @Query("key") apiKey: String,
-    ): VolumesResponse
+    ): GoogleVolumesResponse
 }
 
 @Serializable
-data class VolumesResponse(
-    val items: List<VolumeItem> = emptyList(),
+data class GoogleVolumesResponse(
+    val items: List<GoogleVolumeItem> = emptyList(),
 )
 
 @Serializable
-data class VolumeItem(
+data class GoogleVolumeItem(
     val id: String,
-    val volumeInfo: VolumeInfo = VolumeInfo(),
+    val volumeInfo: GoogleVolumeInfo = GoogleVolumeInfo(),
 )
 
 @Serializable
-data class VolumeInfo(
+data class GoogleVolumeInfo(
     val title: String = "",
     val authors: List<String> = emptyList(),
     val publishedDate: String? = null,
-    val industryIdentifiers: List<IndustryIdentifier> = emptyList(),
-    val imageLinks: ImageLinks? = null,
+    val industryIdentifiers: List<GoogleIndustryIdentifier> = emptyList(),
+    val imageLinks: GoogleImageLinks? = null,
 )
 
 @Serializable
-data class IndustryIdentifier(
+data class GoogleIndustryIdentifier(
     val type: String = "",
     val identifier: String = "",
 )
 
 @Serializable
-data class ImageLinks(
+data class GoogleImageLinks(
     val thumbnail: String? = null,
     val smallThumbnail: String? = null,
 )
