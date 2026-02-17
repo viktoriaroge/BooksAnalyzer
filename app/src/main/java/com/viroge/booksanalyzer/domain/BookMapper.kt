@@ -28,7 +28,7 @@ object BookMapper {
         )
 
         return BookCandidate(
-            source = BookCandidate.Source.GOOGLE_BOOKS,
+            source = BookSource.GOOGLE_BOOKS,
             sourceId = id,
             title = volumeInfo.title,
             authors = volumeInfo.authors,
@@ -51,7 +51,7 @@ object BookMapper {
         }
 
         return BookCandidate(
-            source = BookCandidate.Source.OPEN_LIBRARY,
+            source = BookSource.OPEN_LIBRARY,
             sourceId = id,
             title = title,
             authors = authorName,
@@ -65,9 +65,9 @@ object BookMapper {
     fun BookEntity.toBook(): Book = Book(
         id = this.bookId,
         source = when {
-            this.googleVolumeId != null -> Book.Source.GOOGLE_BOOKS
-            this.openLibraryId != null -> Book.Source.OPEN_LIBRARY
-            else -> Book.Source.MANUAL
+            this.googleVolumeId != null -> BookSource.GOOGLE_BOOKS
+            this.openLibraryId != null -> BookSource.OPEN_LIBRARY
+            else -> BookSource.MANUAL
         },
         sourceId = when {
             this.googleVolumeId != null -> this.googleVolumeId

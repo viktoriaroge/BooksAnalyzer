@@ -1,11 +1,14 @@
 package com.viroge.booksanalyzer.ui.books.library
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -51,6 +53,8 @@ import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.LibraryFilters
 import com.viroge.booksanalyzer.domain.LibrarySort
 import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.ui.common.BookSourceBadge
+import com.viroge.booksanalyzer.ui.common.BookStatusBadge
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.common.CommonItemCard
@@ -185,7 +189,7 @@ fun LibraryScreen(
                         item {
                             Text(
                                 modifier = Modifier.padding(horizontal = 16.dp),
-                                text = "Currently reading".uppercase(),
+                                text = "Currently Absorbing".uppercase(),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -208,13 +212,15 @@ fun LibraryScreen(
                                 }
                             }
                         }
+
+                        item { Spacer(modifier = Modifier.height(height = 16.dp)) }
                     }
 
                     // A list of all saved books
                     item {
                         Text(
                             modifier = Modifier.padding(horizontal = 16.dp),
-                            text = "Collection".uppercase(),
+                            text = "Full Collection".uppercase(),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -379,44 +385,46 @@ fun ActiveFiltersRow(
     }
 }
 
-private fun String.pretty(): String = lowercase()
-    .replace(oldChar = '_', newChar = ' ')
-    .replaceFirstChar { it.uppercase() }
-
 @Composable
 fun CurrentlyReadingCard(
     book: Book,
     onClick: () -> Unit
 ) {
     CommonItemCard(
-        modifier = Modifier
-            .heightIn(min = 350.dp)
-            .width(width = 210.dp),
+        modifier = Modifier.width(width = 210.dp),
         onClick = onClick,
     ) {
         Column(
-            modifier = Modifier.padding(all = 12.dp),
+            modifier = Modifier.padding(all = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
-            CommonAsyncImage(
-                url = book.coverUrl,
-                size = CommonAsyncImageSize.MEDIUM,
-            )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                CommonAsyncImage(
+                    url = book.coverUrl,
+                    size = CommonAsyncImageSize.MEDIUM,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+                BookSourceBadge(
+                    source = book.source,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(all = 2.dp),
+                )
+            }
 
-            CommonLinearProgressIndicator(
-                progress = { 0.3F },
-            )
+            CommonLinearProgressIndicator(progress = { 0.3F })
 
             Text(
                 text = book.title,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleMedium,
+                minLines = 2,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-
-            Spacer(modifier = Modifier.weight(weight = 1f))
 
             if (book.authors.isNotEmpty()) {
                 Text(
@@ -444,7 +452,8 @@ private fun BookRow(
         onClick = onClick,
     ) {
         Row(
-            modifier = Modifier.padding(all = 14.dp),
+            modifier = Modifier.padding(all = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
             CommonAsyncImage(
@@ -453,7 +462,6 @@ private fun BookRow(
             )
 
             Column(modifier = Modifier.weight(weight = 1f)) {
-
                 Text(
                     text = book.title,
                     style = MaterialTheme.typography.titleMedium,
@@ -485,16 +493,23 @@ private fun BookRow(
                     )
                 }
 
-                AssistChip(
-                    onClick = {},
-                    label = {
-                        Text(
-                            text = book.status.name.pretty(),
-                            style = MaterialTheme.typography.labelSmall,
-                        )
-                    }
-                )
+                Spacer(modifier = Modifier.height(height = 8.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    BookStatusBadge(
+                        status = book.status,
+                        modifier = Modifier.padding(all = 2.dp),
+                    )
+                    Spacer(modifier = Modifier.weight(weight = 1f))
+                    BookSourceBadge(
+                        source = book.source,
+                        modifier = Modifier.padding(all = 2.dp),
+                    )
+                }
             }
         }
     }
 }
+
+private fun String.pretty(): String = lowercase()
+    .replace(oldChar = '_', newChar = ' ')
+    .replaceFirstChar { it.uppercase() }

@@ -1,8 +1,6 @@
 package com.viroge.booksanalyzer.ui.common
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

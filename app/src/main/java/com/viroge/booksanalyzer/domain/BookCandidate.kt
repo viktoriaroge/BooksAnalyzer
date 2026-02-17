@@ -1,7 +1,7 @@
 package com.viroge.booksanalyzer.domain
 
 data class BookCandidate(
-    val source: Source,
+    val source: BookSource,
     val sourceId: String,
     val title: String,
     val authors: List<String>,
@@ -9,6 +9,4 @@ data class BookCandidate(
     val isbn13: String? = null,
     val isbn10: String? = null,
     val coverUrl: String? = null,
-) {
-    enum class Source { GOOGLE_BOOKS, OPEN_LIBRARY, MANUAL }
-}
+)

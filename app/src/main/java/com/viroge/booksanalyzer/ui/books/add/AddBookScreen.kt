@@ -40,6 +40,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.domain.BookCandidate
 import com.viroge.booksanalyzer.domain.SearchMode
+import com.viroge.booksanalyzer.ui.common.BookSourceBadge
+import com.viroge.booksanalyzer.ui.common.BookStatusBadge
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.common.CommonItemCard
@@ -340,6 +342,7 @@ private fun CandidatesList(
             ) {
                 Row(
                     modifier = Modifier.padding(all = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                 ) {
                     CommonAsyncImage(
@@ -378,6 +381,26 @@ private fun CandidatesList(
                                 style = MaterialTheme.typography.bodySmall,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(height = 8.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(space = 2.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Spacer(modifier = Modifier.weight(weight = 1f))
+                            Text(
+                                text = "Source:",
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            BookSourceBadge(
+                                source = candidate.source,
+                                modifier = Modifier.padding(all = 2.dp),
+                                showFullSourceName = true,
                             )
                         }
                     }

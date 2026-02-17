@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.BookSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,7 +69,7 @@ class ConfirmBookViewModel @Inject constructor(
             .ifEmpty { listOf("") }
 
         val candidate = BookCandidate(
-            source = BookCandidate.Source.MANUAL,
+            source = BookSource.MANUAL,
             sourceId = "manual",
             title = trimmedTitle,
             authors = authorList,

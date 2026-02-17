@@ -6,6 +6,7 @@ import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.BookSource
 import com.viroge.booksanalyzer.domain.BooksPageResult
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.BooksUtil.titleKey
@@ -93,7 +94,7 @@ class BooksRepositoryImpl @Inject constructor(
         }
 
         when (candidate.source) {
-            BookCandidate.Source.GOOGLE_BOOKS ->
+            BookSource.GOOGLE_BOOKS ->
                 bookDao.findByGoogleId(googleId = candidate.sourceId)
                     ?.let {
                         return InsertBookResult(
@@ -102,7 +103,7 @@ class BooksRepositoryImpl @Inject constructor(
                         )
                     }
 
-            BookCandidate.Source.OPEN_LIBRARY ->
+            BookSource.OPEN_LIBRARY ->
                 bookDao.findByOpenLibraryId(olId = candidate.sourceId)
                     ?.let {
                         return InsertBookResult(
@@ -111,7 +112,8 @@ class BooksRepositoryImpl @Inject constructor(
                         )
                     }
 
-            BookCandidate.Source.MANUAL -> { /* no sourceId lookup for manual entries */ }
+            BookSource.MANUAL -> { /* no sourceId lookup for manual entries */
+            }
         }
 
         val key = titleKey(candidate.title, candidate.authors, candidate.publishedYear)
@@ -132,9 +134,9 @@ class BooksRepositoryImpl @Inject constructor(
             isbn13 = candidate.isbn13,
             isbn10 = candidate.isbn10,
             openLibraryId = candidate.sourceId
-                .takeIf { candidate.source == BookCandidate.Source.OPEN_LIBRARY },
+                .takeIf { candidate.source == BookSource.OPEN_LIBRARY },
             googleVolumeId = candidate.sourceId
-                .takeIf { candidate.source == BookCandidate.Source.GOOGLE_BOOKS },
+                .takeIf { candidate.source == BookSource.GOOGLE_BOOKS },
             coverUrl = candidate.coverUrl,
             status = "NOT_STARTED",
             createdAtEpochMs = System.currentTimeMillis(),

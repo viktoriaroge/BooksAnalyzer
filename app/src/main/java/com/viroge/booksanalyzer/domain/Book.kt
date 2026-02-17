@@ -2,7 +2,7 @@ package com.viroge.booksanalyzer.domain
 
 data class Book(
     val id: String,
-    val source: Source,
+    val source: BookSource,
     val sourceId: String,
     val status: ReadingStatus,
     val title: String,
@@ -13,6 +13,4 @@ data class Book(
     val coverUrl: String? = null,
     val createdAtEpochMs: Long,
     val lastOpenAtEpochMs: Long,
-) {
-    enum class Source { GOOGLE_BOOKS, OPEN_LIBRARY, MANUAL }
-}
+)

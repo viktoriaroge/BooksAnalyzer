@@ -49,7 +49,13 @@ fun AppBottomBar(
             NavigationBarItem(
                 selected = selected,
                 onClick = { onNavigate(item.route) },
-                label = { Text(text = item.label) },
+                label = {
+                    Text(
+                        text = item.label,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    )
+                },
                 icon = {
                     Icon(
                         imageVector = item.icon,
