@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.data.SearchHistoryRepository
-import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.SearchMode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,7 +53,7 @@ class SearchBookViewModel @Inject constructor(
 
     private var nextToken: String? = null
     private var lastQuery: String = ""
-    private var currentItems: List<BookCandidate> = emptyList()
+    private var currentItems: List<Book> = emptyList()
     private var lastMessages: List<String> = emptyList()
 
     init {
@@ -201,12 +201,12 @@ sealed interface SearchUiState {
 
     data class Success(
         val query: String,
-        val items: List<BookCandidate>,
+        val items: List<Book>,
     ) : SearchUiState
 
     data class Partial(
         val query: String,
-        val items: List<BookCandidate>,
+        val items: List<Book>,
         val messages: List<String>,
     ) : SearchUiState
 

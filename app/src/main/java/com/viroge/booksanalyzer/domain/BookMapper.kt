@@ -7,7 +7,7 @@ import com.viroge.booksanalyzer.domain.BooksUtil.splitIsbns
 
 object BookMapper {
 
-    fun GoogleVolumeItem.toCandidate(): BookCandidate {
+    fun GoogleVolumeItem.toBook(): Book {
         val isbn13 = volumeInfo.industryIdentifiers.firstOrNull {
             it.type.equals(
                 other = "ISBN_13", ignoreCase = true
@@ -21,25 +21,32 @@ object BookMapper {
         }?.identifier
 
         val year = volumeInfo.publishedDate?.take(4)?.toIntOrNull()
-        val cover = (volumeInfo.imageLinks?.thumbnail
-            ?: volumeInfo.imageLinks?.smallThumbnail)?.replace(
-            oldValue = "http://",
-            newValue = "https://",
-        )
+        val cover = (
+                volumeInfo.imageLinks?.extraLarge
+                    ?: volumeInfo.imageLinks?.large
+                    ?: volumeInfo.imageLinks?.medium
+                    ?: volumeInfo.imageLinks?.small
+                    ?: volumeInfo.imageLinks?.thumbnail
+                    ?: volumeInfo.imageLinks?.smallThumbnail
+                )?.replace(oldValue = "http://", newValue = "https://")
 
-        return BookCandidate(
-            source = BookSource.GOOGLE_BOOKS,
+        return Book(
+            id = "", // not important for network construction
             sourceId = id,
+            source = BookSource.GOOGLE_BOOKS,
             title = volumeInfo.title,
             authors = volumeInfo.authors,
             publishedYear = year,
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = cover,
+            status = ReadingStatus.NOT_STARTED,
+            createdAtEpochMs = 0, // not important for network construction
+            lastOpenAtEpochMs = 0, // not important for network construction
         )
     }
 
-    fun OpenLibraryDoc.toCandidateOrNull(): BookCandidate? {
+    fun OpenLibraryDoc.toBookOrNull(): Book? {
         val title = this.title?.takeIf { it.isNotBlank() } ?: return null
         val id = key ?: return null
 
@@ -50,29 +57,55 @@ object BookMapper {
             "https://covers.openlibrary.org/b/id/$coverId-L.jpg"
         }
 
-        return BookCandidate(
-            source = BookSource.OPEN_LIBRARY,
+        return Book(
+            id = "", // not important for network construction
             sourceId = id,
+            source = BookSource.OPEN_LIBRARY,
             title = title,
             authors = authorName,
             publishedYear = firstPublishYear,
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = coverUrl,
+            status = ReadingStatus.NOT_STARTED,
+            createdAtEpochMs = 0, // not important for network construction
+            lastOpenAtEpochMs = 0, // not important for network construction
         )
     }
 
+    fun getManualBookEntry(
+        title: String,
+        authors: String,
+        publishedYear: Int?,
+        isbn13: String?,
+        coverUrl: String?,
+    ): Book = Book(
+        id = "", // not important for network construction
+        source = BookSource.MANUAL,
+        sourceId = "",
+        title = title,
+        authors = authors
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .ifEmpty { listOf("") },
+        publishedYear = publishedYear,
+        isbn13 = isbn13?.takeIf { it.isNotBlank() },
+        isbn10 = null,
+        coverUrl = coverUrl?.takeIf { it.isNotBlank() },
+        status = ReadingStatus.NOT_STARTED,
+        createdAtEpochMs = 0, // not important for network construction
+        lastOpenAtEpochMs = 0, // not important for network construction
+    )
+
     fun BookEntity.toBook(): Book = Book(
         id = this.bookId,
+        sourceId = this.sourceId,
         source = when {
-            this.googleVolumeId != null -> BookSource.GOOGLE_BOOKS
-            this.openLibraryId != null -> BookSource.OPEN_LIBRARY
+            this.source.equals(other = "GOOGLE_BOOKS", ignoreCase = true) -> BookSource.GOOGLE_BOOKS
+            this.source.equals(other = "OPEN_LIBRARY", ignoreCase = true) -> BookSource.OPEN_LIBRARY
+
             else -> BookSource.MANUAL
-        },
-        sourceId = when {
-            this.googleVolumeId != null -> this.googleVolumeId
-            this.openLibraryId != null -> this.openLibraryId
-            else -> this.bookId
         },
         status = when {
             this.status.equals(

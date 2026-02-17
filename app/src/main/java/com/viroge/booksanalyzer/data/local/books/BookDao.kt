@@ -24,14 +24,9 @@ interface BookDao {
         isbn10: String,
     ): BookEntity?
 
-    @Query("SELECT * FROM books WHERE googleVolumeId = :googleId LIMIT 1")
-    suspend fun findByGoogleId(
-        googleId: String,
-    ): BookEntity?
-
-    @Query("SELECT * FROM books WHERE openLibraryId = :olId LIMIT 1")
-    suspend fun findByOpenLibraryId(
-        olId: String,
+    @Query("SELECT * FROM books WHERE sourceId = :sourceId LIMIT 1")
+    suspend fun findBySourceId(
+        sourceId: String,
     ): BookEntity?
 
     @Query("SELECT * FROM books WHERE titleKey = :titleKey LIMIT 1")

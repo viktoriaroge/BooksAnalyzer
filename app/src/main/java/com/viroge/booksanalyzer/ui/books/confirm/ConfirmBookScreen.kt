@@ -10,7 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -22,7 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.SearchMode
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
@@ -32,7 +31,7 @@ import com.viroge.booksanalyzer.ui.common.CommonTopAppBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmBookScreen(
-    candidate: BookCandidate?,
+    book: Book?,
     prefillQuery: String?,
     prefillMode: SearchMode?,
     isSaving: Boolean,
@@ -52,7 +51,7 @@ fun ConfirmBookScreen(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             CommonTopAppBar(
-                title = if (candidate != null) "Confirm Book" else "Add Book Manually",
+                title = if (book != null) "Confirm Book" else "Add Book Manually",
                 canGoBack = true,
                 onBack = onBack,
             )
@@ -87,28 +86,28 @@ fun ConfirmBookScreen(
             Spacer(Modifier.height(height = 16.dp))
 
             when {
-                candidate != null -> {
+                book != null -> {
                     CommonAsyncImage(
                         modifier = Modifier.fillMaxWidth(),
-                        url = candidate.coverUrl,
+                        url = book.coverUrl,
                         size = CommonAsyncImageSize.LARGE,
                     )
 
                     Spacer(Modifier.height(height = 24.dp))
 
                     Text(
-                        text = candidate.title,
+                        text = book.title,
                         style = MaterialTheme.typography.titleMedium,
                     )
 
-                    if (candidate.authors.isNotEmpty()) {
+                    if (book.authors.isNotEmpty()) {
                         Text(
-                            text = candidate.authors
+                            text = book.authors
                                 .joinToString(separator = ", "),
                         )
                     }
 
-                    candidate.isbn13?.let {
+                    book.isbn13?.let {
                         Text(text = "ISBN-13: $it")
                     }
 

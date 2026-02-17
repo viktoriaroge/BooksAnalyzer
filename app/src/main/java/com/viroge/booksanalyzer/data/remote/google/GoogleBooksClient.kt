@@ -1,8 +1,8 @@
 package com.viroge.booksanalyzer.data.remote.google
 
 import com.viroge.booksanalyzer.data.remote.NetworkErrorMapper
-import com.viroge.booksanalyzer.domain.BookCandidate
-import com.viroge.booksanalyzer.domain.BookMapper.toCandidate
+import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.BookMapper.toBook
 import com.viroge.booksanalyzer.domain.BooksUtil.normalizeIsbn
 import com.viroge.booksanalyzer.domain.SearchMode
 
@@ -16,7 +16,7 @@ class GoogleBooksClient(
         query: String,
         limit: Int = 10,
         startIndex: Int = 0,
-    ): Result<List<BookCandidate>> = runCatching {
+    ): Result<List<Book>> = runCatching {
 
         val resp = api.searchVolumes(
             query = normalizeQuery(mode = searchMode, rawQuery = query),
@@ -24,7 +24,7 @@ class GoogleBooksClient(
             maxResults = limit,
             apiKey = apiKey,
         )
-        resp.items.map { it.toCandidate() }
+        resp.items.map { it.toBook() }
     }.mapError()
 
     private fun normalizeQuery(

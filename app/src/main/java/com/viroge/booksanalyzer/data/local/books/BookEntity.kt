@@ -10,8 +10,7 @@ import androidx.room.PrimaryKey
     indices = [
         Index(value = ["isbn13"], unique = true),
         Index(value = ["isbn10"], unique = true),
-        Index(value = ["googleVolumeId"], unique = true),
-        Index(value = ["openLibraryId"], unique = true),
+        Index(value = ["sourceId"], unique = true),
         Index(value = ["titleKey"], unique = true),
     ]
 )
@@ -20,11 +19,17 @@ data class BookEntity(
     @ColumnInfo(name = "bookId")
     val bookId: String, // UUID string
 
+    @ColumnInfo(name = "sourceId")
+    val sourceId: String? = null,
+
+    @ColumnInfo(name = "source")
+    val source: String? = null, // MANUAL, GOOGLE_BOOKS, OPEN_LIBRARY
+
     @ColumnInfo(name = "title")
     val title: String,
 
     @ColumnInfo(name = "authors")
-    val authors: String, // comma-separated for MVP
+    val authors: String, // comma-separated
 
     @ColumnInfo(name = "titleKey")
     val titleKey: String, // normalized identity key
@@ -38,17 +43,11 @@ data class BookEntity(
     @ColumnInfo(name = "isbn10")
     val isbn10: String? = null,
 
-    @ColumnInfo(name = "openLibraryId")
-    val openLibraryId: String? = null,
-
-    @ColumnInfo(name = "googleVolumeId")
-    val googleVolumeId: String? = null,
-
     @ColumnInfo(name = "coverUrl")
     val coverUrl: String? = null,
 
     @ColumnInfo(name = "status")
-    val status: String, // store enum as String for now (easy migrations)
+    val status: String, // NOT_STARTED, READING, FINISHED, ABANDONED
 
     @ColumnInfo(name = "createdAtEpochMs")
     val createdAtEpochMs: Long,

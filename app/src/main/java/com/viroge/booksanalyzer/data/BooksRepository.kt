@@ -2,8 +2,8 @@ package com.viroge.booksanalyzer.data
 
 import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.data.local.books.InsertBookResult
-import com.viroge.booksanalyzer.domain.BookCandidate
-import com.viroge.booksanalyzer.domain.BooksPageResult
+import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.BooksPage
 import com.viroge.booksanalyzer.domain.ReadingStatus
 import com.viroge.booksanalyzer.domain.SearchMode
 import kotlinx.coroutines.flow.Flow
@@ -37,8 +37,8 @@ interface BooksRepository {
         bookId: String,
     ): BookEntity?
 
-    suspend fun insertFromCandidate(
-        candidate: BookCandidate,
+    suspend fun insertFromBook(
+        book: Book,
     ): InsertBookResult
 
     suspend fun searchPage(
@@ -46,5 +46,5 @@ interface BooksRepository {
         query: String,
         pageToken: String?, // null = first page
         limit: Int,
-    ): BooksPageResult
+    ): BooksPage
 }

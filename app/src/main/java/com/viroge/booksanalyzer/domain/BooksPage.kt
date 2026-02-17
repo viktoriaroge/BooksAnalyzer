@@ -1,7 +1,7 @@
 package com.viroge.booksanalyzer.domain
 
-data class BooksPageResult(
-    val items: List<BookCandidate>,
+data class BooksPage(
+    val items: List<Book>,
     val errors: List<Throwable>,
     val nextToken: String?, // null => no more
 )

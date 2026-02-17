@@ -1,8 +1,8 @@
 package com.viroge.booksanalyzer.data.remote.openlibrary
 
 import com.viroge.booksanalyzer.data.remote.NetworkErrorMapper
-import com.viroge.booksanalyzer.domain.BookCandidate
-import com.viroge.booksanalyzer.domain.BookMapper.toCandidateOrNull
+import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.BookMapper.toBookOrNull
 import com.viroge.booksanalyzer.domain.BooksUtil.normalizeIsbn
 import com.viroge.booksanalyzer.domain.SearchMode
 
@@ -15,14 +15,14 @@ class OpenLibraryClient(
         query: String,
         limit: Int = 10,
         page: Int = 1,
-    ): Result<List<BookCandidate>> = runCatching {
+    ): Result<List<Book>> = runCatching {
 
         val resp = api.search(
             query = normalizeQuery(mode = searchMode, rawQuery = query),
             page = page,
             limit = limit,
         )
-        resp.docs.mapNotNull { it.toCandidateOrNull() }
+        resp.docs.mapNotNull { it.toBookOrNull() }
     }.mapError()
 
     fun normalizeQuery(mode: SearchMode, rawQuery: String): String {

@@ -19,8 +19,8 @@ fun AddBookRoute(
         onLoadMore = { searchVm.loadMore() },
         onQueryChanged = { searchVm.changeQuery(newValue = it) },
         onModeChanged = { searchVm.changeSearchMode(newMode = it) },
-        onSelectCandidate = { candidate ->
-            flowVm.setCandidate(candidate)
+        onSelectBook = { book ->
+            flowVm.setBook(book)
             onGoToConfirm()
         },
         onManualAdd = { prefill ->

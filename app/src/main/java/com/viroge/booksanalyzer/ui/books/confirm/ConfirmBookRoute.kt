@@ -26,7 +26,7 @@ fun ConfirmBookRoute(
     }
     val flowVm: AddBookFlowViewModel = hiltViewModel(viewModelStoreOwner = parentEntry)
 
-    val candidate by flowVm.selectedCandidate.collectAsState()
+    val book by flowVm.selectedBook.collectAsState()
     val prefill by flowVm.prefillQuery.collectAsState()
     val prefillMode by flowVm.prefillMode.collectAsState()
     val isSaving by vm.isSaving.collectAsState()
@@ -50,13 +50,13 @@ fun ConfirmBookRoute(
     }
 
     ConfirmBookScreen(
-        candidate = candidate,
+        book = book,
         prefillQuery = prefill,
         prefillMode = prefillMode,
         isSaving = isSaving,
         error = error,
         onBack = onBack,
-        onConfirmSave = { candidate?.let(vm::saveCandidate) },
+        onConfirmSave = { book?.let(vm::saveBook) },
         onConfirmSaveManual = { title, authors, year, isbn13, coverUrl ->
             vm.saveManualBook(
                 title = title,

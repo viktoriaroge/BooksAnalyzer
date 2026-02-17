@@ -3,7 +3,8 @@ package com.viroge.booksanalyzer.ui.books.confirm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.BookMapper.getManualBookEntry
 import com.viroge.booksanalyzer.domain.BookSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,14 +28,14 @@ class ConfirmBookViewModel @Inject constructor(
     private val _events = MutableSharedFlow<ConfirmEvent>()
     val events: SharedFlow<ConfirmEvent> = _events
 
-    fun saveCandidate(candidate: BookCandidate) {
+    fun saveBook(book: Book) {
         if (_isSaving.value) return
 
         viewModelScope.launch {
             _isSaving.value = true
             _error.value = null
 
-            runCatching { booksRepo.insertFromCandidate(candidate) }
+            runCatching { booksRepo.insertFromBook(book) }
                 .onSuccess { res ->
                     _events.emit(value = ConfirmEvent.Saved(res.bookId, res.wasInserted))
                 }
@@ -62,24 +63,11 @@ class ConfirmBookViewModel @Inject constructor(
             return
         }
 
-        val authorList = authors
-            .split(",")
-            .map { it.trim() }
-            .filter { it.isNotBlank() }
-            .ifEmpty { listOf("") }
-
-        val candidate = BookCandidate(
-            source = BookSource.MANUAL,
-            sourceId = "manual",
-            title = trimmedTitle,
-            authors = authorList,
-            publishedYear = publishedYear,
-            isbn13 = isbn13?.takeIf { it.isNotBlank() },
-            isbn10 = null,
-            coverUrl = coverUrl?.takeIf { it.isNotBlank() },
+        saveBook(
+            book = getManualBookEntry(
+                title = title, authors = authors, publishedYear = publishedYear, isbn13 = isbn13, coverUrl = coverUrl
+            )
         )
-
-        saveCandidate(candidate)
     }
 }
 

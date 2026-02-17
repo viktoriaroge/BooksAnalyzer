@@ -5,9 +5,9 @@ import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
-import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.BookSource
-import com.viroge.booksanalyzer.domain.BooksPageResult
+import com.viroge.booksanalyzer.domain.BooksPage
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.BooksUtil.titleKey
 import com.viroge.booksanalyzer.domain.PageToken
@@ -72,51 +72,37 @@ class BooksRepositoryImpl @Inject constructor(
         return existing
     }
 
-    override suspend fun insertFromCandidate(
-        candidate: BookCandidate,
+    override suspend fun insertFromBook(
+        book: Book,
     ): InsertBookResult {
 
-        candidate.isbn13?.let { isbn13OfCandidate ->
-            bookDao.findByIsbn13(isbn13 = isbn13OfCandidate)?.let {
+        book.isbn13?.let { isbn13OfBook ->
+            bookDao.findByIsbn13(isbn13 = isbn13OfBook)?.let {
                 return InsertBookResult(
                     it.bookId,
                     wasInserted = false,
                 )
             }
         }
-        candidate.isbn10?.let { isbn10OfCandidate ->
-            bookDao.findByIsbn10(isbn10 = isbn10OfCandidate)?.let {
+        book.isbn10?.let { isbn10OfBook ->
+            bookDao.findByIsbn10(isbn10 = isbn10OfBook)?.let {
                 return InsertBookResult(
                     it.bookId,
                     wasInserted = false,
                 )
             }
         }
-
-        when (candidate.source) {
-            BookSource.GOOGLE_BOOKS ->
-                bookDao.findByGoogleId(googleId = candidate.sourceId)
-                    ?.let {
-                        return InsertBookResult(
-                            it.bookId,
-                            wasInserted = false,
-                        )
-                    }
-
-            BookSource.OPEN_LIBRARY ->
-                bookDao.findByOpenLibraryId(olId = candidate.sourceId)
-                    ?.let {
-                        return InsertBookResult(
-                            it.bookId,
-                            wasInserted = false,
-                        )
-                    }
-
-            BookSource.MANUAL -> { /* no sourceId lookup for manual entries */
-            }
+        book.sourceId?.let { sourceId ->
+            bookDao.findBySourceId(sourceId = sourceId)
+                ?.let {
+                    return InsertBookResult(
+                        it.bookId,
+                        wasInserted = false,
+                    )
+                }
         }
 
-        val key = titleKey(candidate.title, candidate.authors, candidate.publishedYear)
+        val key = titleKey(book.title, book.authors, book.publishedYear)
         bookDao.findByTitleKey(titleKey = key)?.let {
             return InsertBookResult(
                 it.bookId,
@@ -127,18 +113,16 @@ class BooksRepositoryImpl @Inject constructor(
         val id = UUID.randomUUID().toString()
         val entity = BookEntity(
             bookId = id,
-            title = candidate.title,
-            authors = candidate.authors.joinToString(separator = ", "),
+            sourceId = book.sourceId,
+            source = book.source.name,
+            title = book.title,
+            authors = book.authors.joinToString(separator = ", "),
             titleKey = key,
-            publishedYear = candidate.publishedYear,
-            isbn13 = candidate.isbn13,
-            isbn10 = candidate.isbn10,
-            openLibraryId = candidate.sourceId
-                .takeIf { candidate.source == BookSource.OPEN_LIBRARY },
-            googleVolumeId = candidate.sourceId
-                .takeIf { candidate.source == BookSource.GOOGLE_BOOKS },
-            coverUrl = candidate.coverUrl,
-            status = "NOT_STARTED",
+            publishedYear = book.publishedYear,
+            isbn13 = book.isbn13,
+            isbn10 = book.isbn10,
+            coverUrl = book.coverUrl,
+            status = book.status.name,
             createdAtEpochMs = System.currentTimeMillis(),
             lastOpenAtEpochMs = System.currentTimeMillis(),
         )
@@ -156,7 +140,7 @@ class BooksRepositoryImpl @Inject constructor(
         query: String,
         pageToken: String?,
         limit: Int,
-    ): BooksPageResult = coroutineScope {
+    ): BooksPage = coroutineScope {
 
         val token = parseToken(pageToken)
 
@@ -197,7 +181,7 @@ class BooksRepositoryImpl @Inject constructor(
             )
         } else null
 
-        BooksPageResult(
+        BooksPage(
             items = merged,
             errors = errors,
             nextToken = next,

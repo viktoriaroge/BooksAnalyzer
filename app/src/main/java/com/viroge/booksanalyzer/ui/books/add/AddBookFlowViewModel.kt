@@ -1,7 +1,7 @@
 package com.viroge.booksanalyzer.ui.books.add
 
 import androidx.lifecycle.ViewModel
-import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.SearchMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,8 +11,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AddBookFlowViewModel @Inject constructor() : ViewModel() {
 
-    private val _selectedCandidate = MutableStateFlow<BookCandidate?>(value = null)
-    val selectedCandidate: StateFlow<BookCandidate?> = _selectedCandidate
+    private val _selectedBook = MutableStateFlow<Book?>(value = null)
+    val selectedBook: StateFlow<Book?> = _selectedBook
 
     private val _prefillQuery = MutableStateFlow<String?>(value = null)
     val prefillQuery: StateFlow<String?> = _prefillQuery
@@ -20,10 +20,10 @@ class AddBookFlowViewModel @Inject constructor() : ViewModel() {
     private val _prefillMode = MutableStateFlow<SearchMode?>(value = null)
     val prefillMode: StateFlow<SearchMode?> = _prefillMode
 
-    fun setCandidate(
-        candidate: BookCandidate,
+    fun setBook(
+        book: Book,
     ) {
-        _selectedCandidate.value = candidate
+        _selectedBook.value = book
         _prefillQuery.value = null
         _prefillMode.value = null
     }
@@ -34,11 +34,11 @@ class AddBookFlowViewModel @Inject constructor() : ViewModel() {
     ) {
         _prefillQuery.value = query
         _prefillMode.value = mode
-        _selectedCandidate.value = null
+        _selectedBook.value = null
     }
 
     fun clear() {
-        _selectedCandidate.value = null
+        _selectedBook.value = null
         _prefillQuery.value = null
         _prefillMode.value = null
     }

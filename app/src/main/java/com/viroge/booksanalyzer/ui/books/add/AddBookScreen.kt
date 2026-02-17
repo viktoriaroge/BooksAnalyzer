@@ -38,10 +38,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.domain.BookCandidate
+import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.SearchMode
 import com.viroge.booksanalyzer.ui.common.BookSourceBadge
-import com.viroge.booksanalyzer.ui.common.BookStatusBadge
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.common.CommonItemCard
@@ -55,7 +54,7 @@ fun BookSearchScreen(
     onLoadMore: () -> Unit,
     onQueryChanged: (String) -> Unit,
     onModeChanged: (SearchMode) -> Unit,
-    onSelectCandidate: (BookCandidate) -> Unit,
+    onSelectBook: (Book) -> Unit,
     onManualAdd: (String) -> Unit,
 ) {
 
@@ -156,10 +155,10 @@ fun BookSearchScreen(
                         Text(text = "Add manually")
                     }
 
-                    CandidatesList(
+                    BooksList(
                         selectedState.query,
                         selectedState.items,
-                        onSelectCandidate,
+                        onSelectBook,
                         canLoadMore,
                         isLoadingMore,
                         onLoadMore,
@@ -168,10 +167,10 @@ fun BookSearchScreen(
                 }
 
                 is SearchUiState.Success -> {
-                    CandidatesList(
+                    BooksList(
                         selectedState.query,
                         selectedState.items,
-                        onSelectCandidate,
+                        onSelectBook,
                         canLoadMore,
                         isLoadingMore,
                         onLoadMore,
@@ -321,10 +320,10 @@ private fun RecentQueryChip(
 }
 
 @Composable
-private fun CandidatesList(
+private fun BooksList(
     query: String,
-    items: List<BookCandidate>,
-    onSelect: (BookCandidate) -> Unit,
+    items: List<Book>,
+    onSelect: (Book) -> Unit,
     canLoadMore: Boolean,
     isLoadingMore: Boolean,
     onLoadMore: () -> Unit,
@@ -335,10 +334,10 @@ private fun CandidatesList(
         contentPadding = PaddingValues(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(space = 8.dp),
     ) {
-        items(items) { candidate ->
+        items(items) { book ->
             CommonItemCard(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { onSelect(candidate) },
+                onClick = { onSelect(book) },
             ) {
                 Row(
                     modifier = Modifier.padding(all = 12.dp),
@@ -346,23 +345,23 @@ private fun CandidatesList(
                     horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                 ) {
                     CommonAsyncImage(
-                        url = candidate.coverUrl,
+                        url = book.coverUrl,
                         size = CommonAsyncImageSize.XSMALL,
                     )
 
                     Column(modifier = Modifier.weight(weight = 1f)) {
 
                         Text(
-                            text = candidate.title,
+                            text = book.title,
                             style = MaterialTheme.typography.titleMedium,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
 
-                        if (candidate.authors.isNotEmpty()) {
+                        if (book.authors.isNotEmpty()) {
                             Spacer(Modifier.height(height = 4.dp))
                             Text(
-                                text = candidate.authors.joinToString(separator = ", "),
+                                text = book.authors.joinToString(separator = ", "),
                                 style = MaterialTheme.typography.bodyMedium,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -370,8 +369,8 @@ private fun CandidatesList(
                         }
 
                         val meta = listOfNotNull(
-                            candidate.publishedYear?.toString(),
-                            candidate.isbn13,
+                            book.publishedYear?.toString(),
+                            book.isbn13,
                         ).joinToString(separator = " • ")
 
                         if (meta.isNotBlank()) {
@@ -398,7 +397,7 @@ private fun CandidatesList(
                                 overflow = TextOverflow.Ellipsis,
                             )
                             BookSourceBadge(
-                                source = candidate.source,
+                                source = book.source,
                                 modifier = Modifier.padding(all = 2.dp),
                                 showFullSourceName = true,
                             )
