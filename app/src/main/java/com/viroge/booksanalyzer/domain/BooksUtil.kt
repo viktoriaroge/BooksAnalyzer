@@ -2,6 +2,19 @@ package com.viroge.booksanalyzer.domain
 
 object BooksUtil {
 
+    fun normalizeForManualInput(
+        string: String,
+        delimiter: String = " ",
+        separator: String = " ",
+    ): String {
+        return string.split(delimiter)
+            .joinToString(separator = separator) { word ->
+                val lowercaseWord = word.lowercase()
+                if (lowercaseWord.length > 3) lowercaseWord.replaceFirstChar { char -> char.titlecase() } else lowercaseWord
+            }
+            .replaceFirstChar { char -> char.titlecase() } // always have the first word be capitalized
+    }
+
     fun normalizeIsbn(input: String): String = input
         .replace(oldValue = "-", newValue = "")
         .replace(oldValue = " ", newValue = "")

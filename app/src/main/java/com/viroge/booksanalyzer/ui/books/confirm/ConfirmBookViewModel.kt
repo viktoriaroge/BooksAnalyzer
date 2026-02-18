@@ -65,7 +65,11 @@ class ConfirmBookViewModel @Inject constructor(
 
         saveBook(
             book = getManualBookEntry(
-                title = title, authors = authors, publishedYear = publishedYear, isbn13 = isbn13, coverUrl = coverUrl
+                title = title,
+                authors = authors,
+                publishedYear = publishedYear,
+                isbn13 = isbn13,
+                coverUrl = coverUrl,
             )
         )
     }

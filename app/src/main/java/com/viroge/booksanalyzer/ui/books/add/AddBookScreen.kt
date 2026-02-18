@@ -55,6 +55,7 @@ fun BookSearchScreen(
     onQueryChanged: (String) -> Unit,
     onModeChanged: (SearchMode) -> Unit,
     onSelectBook: (Book) -> Unit,
+    onRefresh: () -> Unit,
     onManualAdd: (String) -> Unit,
 ) {
 
@@ -122,6 +123,15 @@ fun BookSearchScreen(
                         text = selectedState.message,
                         color = MaterialTheme.colorScheme.error,
                     )
+
+                    Spacer(Modifier.height(height = 8.dp))
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        onClick = { onRefresh() }) {
+                        Text(text = "Refresh")
+                    }
                 }
 
                 is SearchUiState.Empty -> {
@@ -133,28 +143,15 @@ fun BookSearchScreen(
 
                     Spacer(Modifier.height(height = 8.dp))
                     Button(
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         onClick = { onManualAdd(selectedState.query) }) {
-                        Text(text = "Add manually")
+                        Text(text = "Add Manually")
                     }
                 }
 
                 is SearchUiState.Partial -> {
-                    Spacer(Modifier.height(height = 16.dp))
-                    Text(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        text = "Some sources failed. Showing available results. Not in the list?",
-                    )
-
-                    Spacer(Modifier.height(height = 8.dp))
-
-                    Button(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        onClick = { onManualAdd(selectedState.query) },
-                    ) {
-                        Text(text = "Add manually")
-                    }
-
                     BooksList(
                         selectedState.query,
                         selectedState.items,
@@ -163,6 +160,7 @@ fun BookSearchScreen(
                         isLoadingMore,
                         onLoadMore,
                         onManualAdd,
+                        showingPartialResults = true,
                     )
                 }
 
@@ -328,6 +326,7 @@ private fun BooksList(
     isLoadingMore: Boolean,
     onLoadMore: () -> Unit,
     onManualAdd: (String) -> Unit,
+    showingPartialResults: Boolean = false,
 ) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -399,35 +398,43 @@ private fun BooksList(
                             BookSourceBadge(
                                 source = book.source,
                                 modifier = Modifier.padding(all = 2.dp),
-                                showFullSourceName = true,
+                                showFullSourceName = showingPartialResults,
                             )
                         }
                     }
                 }
             }
         }
-        if (canLoadMore) {
-            item {
-                Spacer(Modifier.height(height = 8.dp))
 
+        item {
+            if (showingPartialResults) {
+                Spacer(Modifier.height(height = 8.dp))
+                Text(text = "Some book sources failed.")
+            }
+
+            Spacer(Modifier.height(height = 8.dp))
+            Text(text = "Not in the list?")
+
+            if (canLoadMore) {
+                Spacer(Modifier.height(height = 8.dp))
                 Button(
                     onClick = { onLoadMore() },
                     enabled = !isLoadingMore,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = if (isLoadingMore) "Loading…" else "Show more")
+                    Text(text = if (isLoadingMore) "Loading…" else "Show More")
                 }
             }
-        } else {
-            item {
-                Spacer(Modifier.height(height = 8.dp))
-                Text(text = "Not in the list?")
-                Spacer(Modifier.height(height = 8.dp))
 
-                Button(onClick = { onManualAdd(query) }) {
-                    Text(text = "Add manually")
-                }
+            Spacer(Modifier.height(height = 8.dp))
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onManualAdd(query) },
+            ) {
+                Text(text = "Add Manually")
             }
+
+            Spacer(Modifier.height(height = 16.dp))
         }
     }
 }

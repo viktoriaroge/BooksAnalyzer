@@ -2,6 +2,7 @@ package com.viroge.booksanalyzer.ui.books.add
 
 import androidx.lifecycle.ViewModel
 import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.BooksUtil.normalizeForManualInput
 import com.viroge.booksanalyzer.domain.SearchMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +33,15 @@ class AddBookFlowViewModel @Inject constructor() : ViewModel() {
         query: String,
         mode: SearchMode,
     ) {
-        _prefillQuery.value = query
+        val normalizedPrefillValue = when (mode) {
+            SearchMode.ALL,
+            SearchMode.TITLE,
+            SearchMode.AUTHOR -> normalizeForManualInput(string = query)
+
+            SearchMode.ISBN -> query
+        }
+
+        _prefillQuery.value = normalizedPrefillValue
         _prefillMode.value = mode
         _selectedBook.value = null
     }

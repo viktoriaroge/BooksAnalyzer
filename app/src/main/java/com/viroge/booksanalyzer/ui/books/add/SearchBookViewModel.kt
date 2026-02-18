@@ -121,6 +121,13 @@ class SearchBookViewModel @Inject constructor(
         }
     }
 
+    fun refresh() {
+        viewModelScope.launch {
+            val currentValueToRefresh = query.value
+            searchFirstPage(currentValueToRefresh)
+        }
+    }
+
     fun changeQuery(newValue: String) {
         query.value = newValue
     }
@@ -183,12 +190,18 @@ class SearchBookViewModel @Inject constructor(
         _canLoadMore.value = nextToken != null
 
         _uiState.value = when {
+            currentItems.isEmpty() && lastMessages.isNotEmpty() -> {
+                val message = lastMessages.first()
+                val normalizedMessage = if (message.lowercase().contains("noconnection")) "Check your Internet connection." else message
+                SearchUiState.Error(message = normalizedMessage)
+            }
+
             currentItems.isEmpty() -> SearchUiState.Empty(query = q)
             lastMessages.isEmpty() -> SearchUiState.Success(query = q, items = currentItems)
             else -> SearchUiState.Partial(
                 query = q,
                 items = currentItems,
-                messages = lastMessages
+                messages = lastMessages,
             )
         }
     }

@@ -116,10 +116,8 @@ fun ConfirmBookScreen(
                     Button(
                         onClick = onConfirmSave,
                         enabled = !isSaving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 48.dp),
-                    ) { Text(text = "Save") }
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text(text = "Save to Collection") }
 
                     Spacer(Modifier.height(height = 16.dp))
                 }
@@ -235,7 +233,7 @@ private fun ManualBookForm(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 48.dp),
-    ) { Text(text = "Save") }
+    ) { Text(text = "Save to Collection") }
 
     Spacer(Modifier.height(height = 16.dp))
 }

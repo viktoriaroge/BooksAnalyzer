@@ -23,6 +23,7 @@ fun AddBookRoute(
             flowVm.setBook(book)
             onGoToConfirm()
         },
+        onRefresh = { searchVm.refresh() },
         onManualAdd = { prefill ->
             flowVm.setManualPrefill(prefill, mode)
             onGoToConfirm()
