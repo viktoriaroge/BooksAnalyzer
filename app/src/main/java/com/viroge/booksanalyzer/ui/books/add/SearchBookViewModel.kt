@@ -89,7 +89,6 @@ class SearchBookViewModel @Inject constructor(
                 searchMode = mode.value,
                 query = lastQuery,
                 pageToken = token,
-                limit = 15,
             )
 
             // append + dedupe
@@ -181,7 +180,6 @@ class SearchBookViewModel @Inject constructor(
             searchMode = mode.value,
             query = q,
             pageToken = null,
-            limit = 15,
         )
 
         currentItems = page.items

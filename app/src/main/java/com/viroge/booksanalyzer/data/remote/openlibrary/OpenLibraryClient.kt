@@ -10,17 +10,20 @@ class OpenLibraryClient(
     private val api: OpenLibraryApi,
 ) {
 
+    companion object {
+        const val ITEMS_PER_PAGE = 100 // max allowed by API
+    }
+
     suspend fun search(
         searchMode: SearchMode,
         query: String,
-        limit: Int = 10,
         page: Int = 1,
     ): Result<List<Book>> = runCatching {
 
         val resp = api.search(
             query = normalizeQuery(mode = searchMode, rawQuery = query),
             page = page,
-            limit = limit,
+            limit = ITEMS_PER_PAGE,
         )
         resp.docs.mapNotNull { it.toBookOrNull() }
     }.mapError()
@@ -30,10 +33,11 @@ class OpenLibraryClient(
         val q = rawQuery.trim()
         if (q.isBlank()) return ""
 
-        // MVP: OL can stay mostly plain text. For ISBN, we help it.
         return when (mode) {
+            SearchMode.ALL -> q
+            SearchMode.TITLE -> "title:$q"
+            SearchMode.AUTHOR -> "author:$q"
             SearchMode.ISBN -> "isbn:${normalizeIsbn(input = q)}"
-            else -> q
         }
     }
 

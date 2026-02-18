@@ -45,6 +45,5 @@ interface BooksRepository {
         searchMode: SearchMode,
         query: String,
         pageToken: String?, // null = first page
-        limit: Int,
     ): BooksPage
 }

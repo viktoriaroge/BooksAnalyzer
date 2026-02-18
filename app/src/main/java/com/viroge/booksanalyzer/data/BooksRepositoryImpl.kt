@@ -138,7 +138,6 @@ class BooksRepositoryImpl @Inject constructor(
         searchMode: SearchMode,
         query: String,
         pageToken: String?,
-        limit: Int,
     ): BooksPage = coroutineScope {
 
         val token = parseToken(pageToken)
@@ -147,7 +146,6 @@ class BooksRepositoryImpl @Inject constructor(
             googleClient.search(
                 searchMode = searchMode,
                 query = query,
-                limit = limit,
                 startIndex = token.googleStart,
             )
         }
@@ -155,7 +153,6 @@ class BooksRepositoryImpl @Inject constructor(
             openLibraryClient.search(
                 searchMode = searchMode,
                 query = query,
-                limit = limit,
                 page = token.olPage,
             )
         }
@@ -170,12 +167,12 @@ class BooksRepositoryImpl @Inject constructor(
         val googleReturned = g.getCompleted().getOrNull().orEmpty().size
         val olReturned = o.getCompleted().getOrNull().orEmpty().size
 
-        val googleHasMore = googleReturned >= limit
-        val olHasMore = olReturned >= limit
+        val googleHasMore = googleReturned >= GoogleBooksClient.ITEMS_PER_PAGE
+        val olHasMore = olReturned >= OpenLibraryClient.ITEMS_PER_PAGE
 
         val next = if (googleHasMore || olHasMore) {
             makeToken(
-                nextGoogleStart = token.googleStart + limit,
+                nextGoogleStart = token.googleStart + GoogleBooksClient.ITEMS_PER_PAGE,
                 nextOlPage = token.olPage + 1
             )
         } else null

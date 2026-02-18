@@ -11,17 +11,20 @@ class GoogleBooksClient(
     private val apiKey: String,
 ) {
 
+    companion object {
+        const val ITEMS_PER_PAGE = 40 // max allowed by API
+    }
+
     suspend fun search(
         searchMode: SearchMode,
         query: String,
-        limit: Int = 10,
         startIndex: Int = 0,
     ): Result<List<Book>> = runCatching {
 
         val resp = api.searchVolumes(
             query = normalizeQuery(mode = searchMode, rawQuery = query),
             startIndex = startIndex,
-            maxResults = limit,
+            maxResults = ITEMS_PER_PAGE,
             apiKey = apiKey,
         )
         resp.items.map { it.toBook() }

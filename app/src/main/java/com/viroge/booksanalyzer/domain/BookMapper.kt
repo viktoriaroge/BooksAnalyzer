@@ -23,7 +23,8 @@ object BookMapper {
         val year = volumeInfo.publishedDate?.take(4)?.toIntOrNull()
         val cover = (volumeInfo.imageLinks?.thumbnail ?: volumeInfo.imageLinks?.smallThumbnail)
             ?.replace(oldValue = "http://", newValue = "https://")
-            ?.replace(oldValue = "zoom=1", newValue = "zoom=3")
+        // This will need to be applied somewhere else and we need to check if it exists:
+//            ?.replace(oldValue = "zoom=1", newValue = "zoom=3")
 
         return Book(
             id = "", // not important for network construction
