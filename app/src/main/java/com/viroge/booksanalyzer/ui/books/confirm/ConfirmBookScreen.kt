@@ -230,9 +230,7 @@ private fun ManualBookForm(
             )
         },
         enabled = !isSaving && title.isNotBlank(),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 48.dp),
+        modifier = Modifier.fillMaxWidth(),
     ) { Text(text = "Save to Collection") }
 
     Spacer(Modifier.height(height = 16.dp))

@@ -78,7 +78,7 @@ object BookMapper {
     ): Book = Book(
         id = "", // not important for network construction
         source = BookSource.MANUAL,
-        sourceId = "",
+        sourceId = null,
         title = title,
         authors = authors
             .split(",")

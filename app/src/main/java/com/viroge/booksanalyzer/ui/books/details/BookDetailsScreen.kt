@@ -247,9 +247,7 @@ fun BookDetailsScreen(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.error,
                         ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 48.dp),
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(text = if (state.isDeleting) "Deleting…" else "Delete book")
                     }
