@@ -22,7 +22,7 @@ fun CommonAsyncImage(
 ) {
     // NOTE: Adding a user email in the header helps us get more allowed requests per second.
     // For Open Library API that raises our requests from 1 to 3 per second.
-    val userEmail = BuildConfig.USER_EMAIL // TODO: later pass from ViewModel down possibly (need to get it from DI)
+    val userEmail = BuildConfig.USER_EMAIL
 
     return AsyncImage(
         modifier = modifier

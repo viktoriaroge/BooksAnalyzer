@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -22,16 +25,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField(
-            "String",
-            "GOOGLE_BOOKS_API_KEY",
-            "\"${project.properties["GOOGLE_BOOKS_API_KEY"] ?: ""}\""
-        )
-        buildConfigField(
-            "String",
-            "USER_EMAIL",
-            "\"${project.properties["USER_EMAIL"] ?: ""}\""
-        )
+        buildConfigField(type = "String", name = "GOOGLE_BOOKS_API_KEY", value = getProperty(propertyName = "GOOGLE_BOOKS_API_KEY"))
+        buildConfigField(type = "String", name = "DEBUG_SHA1", value = getProperty(propertyName = "DEBUG_SHA1"))
+        buildConfigField(type = "String", name = "USER_EMAIL", value = getProperty(propertyName = "USER_EMAIL"))
     }
 
     buildFeatures {
@@ -39,6 +35,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            isDebuggable = true
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -112,4 +115,15 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+fun getProperty(propertyName: String): String {
+    val propsFile = rootProject.file("local.properties")
+    if (propsFile.exists()) {
+        val properties = Properties()
+        properties.load(FileInputStream(propsFile))
+        return "\"${properties[propertyName]}\""
+    } else {
+        throw IllegalStateException("Property $propertyName not found in local.properties.")
+    }
 }

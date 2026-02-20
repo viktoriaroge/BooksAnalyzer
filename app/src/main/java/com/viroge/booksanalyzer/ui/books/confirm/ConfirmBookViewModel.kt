@@ -42,7 +42,7 @@ class ConfirmBookViewModel @Inject constructor(
         _coverPicker.value = _coverPicker.value.copy(isOpen = true, isLoading = true)
 
         viewModelScope.launch {
-            val urls = coverUrlOptimizer.getCoverCandidates(book = book).distinct()
+            val urls = coverUrlOptimizer.getCoverCandidates(book = book)
             _coverPicker.value = CoverPickerUiState(
                 isOpen = true,
                 isLoading = false,

@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.domain
 import android.util.Log
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.collections.distinct
 
 @Singleton
 class CoverUrlOptimizer @Inject constructor() {
@@ -21,24 +22,18 @@ class CoverUrlOptimizer @Inject constructor() {
 
         // OpenLibrary by ISBN if not added already:
         book.isbn13?.trim()?.takeIf { it.isNotBlank() }?.let { isbn ->
-            val xLargeUrl = "https://covers.openlibrary.org/b/isbn/$isbn-XL.jpg"
-            if (!list.contains(xLargeUrl)) list += xLargeUrl
-
-            val largeUrl = "https://covers.openlibrary.org/b/isbn/$isbn-L.jpg"
-            if (!list.contains(largeUrl)) list += largeUrl
-
-            val mediumUrl = "https://covers.openlibrary.org/b/isbn/$isbn-M.jpg"
-            if (!list.contains(mediumUrl)) list += mediumUrl
+            list += "https://covers.openlibrary.org/b/isbn/$isbn-XL.jpg"
+            list += "https://covers.openlibrary.org/b/isbn/$isbn-L.jpg"
+            list += "https://covers.openlibrary.org/b/isbn/$isbn-M.jpg"
         }
 
         // Always include original at the end as fallback:
-        book.coverUrl?.let { original ->
-            if (original.isNotBlank()) list += original
-        }
+        book.coverUrl?.let { original -> if (original.isNotBlank()) list += original }
 
-        Log.println(Log.DEBUG, "CoverUrlOptimizer", "---> CoverCandidates: (${list.size}) $list")
+        val normalizedList = list.distinct()
+        Log.println(Log.DEBUG, "CoverUrlOptimizer", "---> CoverCandidates: (${normalizedList.size}) $normalizedList")
 
-        return list
+        return normalizedList
     }
 
     private fun googleUpgrades(url: String): List<String> {

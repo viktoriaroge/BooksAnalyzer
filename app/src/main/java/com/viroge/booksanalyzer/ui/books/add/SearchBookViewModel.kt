@@ -59,7 +59,7 @@ class SearchBookViewModel @Inject constructor(
     init {
         query
             .map { it.trim() }
-            .debounce(timeoutMillis = 350)
+            .debounce(timeoutMillis = 550)
             .distinctUntilChanged()
             .onEach { q ->
                 if (q.isBlank() || q.length < 2) {
@@ -72,7 +72,7 @@ class SearchBookViewModel @Inject constructor(
 
         mode
             .drop(count = 1)
-            .debounce(timeoutMillis = 350)
+            .debounce(timeoutMillis = 450)
             .distinctUntilChanged()
             .onEach { searchFirstPage(query.value) }
             .launchIn(viewModelScope)
