@@ -4,6 +4,7 @@ import com.viroge.booksanalyzer.data.remote.google.GoogleBooksApi
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryApi
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
+import com.viroge.booksanalyzer.domain.Configurator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,8 +19,8 @@ object ClientsModule {
     @Singleton
     fun provideGoogleBooksClient(
         api: GoogleBooksApi,
-        apiKey: String,
-    ): GoogleBooksClient = GoogleBooksClient(api, apiKey)
+        configurator: Configurator,
+    ): GoogleBooksClient = GoogleBooksClient(api, configurator.getGoogleBooksApiKey())
 
     @Provides
     @Singleton

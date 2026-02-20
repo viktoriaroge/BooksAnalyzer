@@ -1,6 +1,6 @@
 package com.viroge.booksanalyzer.di
 
-import com.viroge.booksanalyzer.BuildConfig
+import com.viroge.booksanalyzer.domain.Configurator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,6 +13,5 @@ object ConfigModule {
 
     @Provides
     @Singleton
-    fun provideGoogleBooksApiKey(): String = BuildConfig.GOOGLE_BOOKS_API_KEY
+    fun provideConfigurator(): Configurator = Configurator()
 }
-

@@ -27,6 +27,11 @@ android {
             "GOOGLE_BOOKS_API_KEY",
             "\"${project.properties["GOOGLE_BOOKS_API_KEY"] ?: ""}\""
         )
+        buildConfigField(
+            "String",
+            "USER_EMAIL",
+            "\"${project.properties["USER_EMAIL"] ?: ""}\""
+        )
     }
 
     buildFeatures {

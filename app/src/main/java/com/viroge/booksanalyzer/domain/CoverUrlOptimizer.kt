@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.domain
 
+import android.util.Log
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,15 +29,14 @@ class CoverUrlOptimizer @Inject constructor() {
 
             val mediumUrl = "https://covers.openlibrary.org/b/isbn/$isbn-M.jpg"
             if (!list.contains(mediumUrl)) list += mediumUrl
-
-            val smallUrl = "https://covers.openlibrary.org/b/isbn/$isbn-S.jpg"
-            if (!list.contains(smallUrl)) list += smallUrl
         }
 
         // Always include original at the end as fallback:
         book.coverUrl?.let { original ->
             if (original.isNotBlank()) list += original
         }
+
+        Log.println(Log.DEBUG, "CoverUrlOptimizer", "---> CoverCandidates: (${list.size}) $list")
 
         return list
     }
@@ -61,7 +61,6 @@ class CoverUrlOptimizer @Inject constructor() {
             baseUrl.replace(Regex("-(S|M|L|XL)\\.jpg$"), "-XL.jpg"),
             baseUrl.replace(Regex("-(S|M|L|XL)\\.jpg$"), "-L.jpg"),
             baseUrl.replace(Regex("-(S|M|L|XL)\\.jpg$"), "-M.jpg"),
-            baseUrl.replace(Regex("-(S|M|L|XL)\\.jpg$"), "-S.jpg"),
         )
     }
 }

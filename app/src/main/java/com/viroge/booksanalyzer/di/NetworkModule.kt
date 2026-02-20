@@ -3,11 +3,13 @@ package com.viroge.booksanalyzer.di
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksApi
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryApi
+import com.viroge.booksanalyzer.domain.Configurator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
+import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -28,12 +30,21 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttp(): OkHttpClient {
+    fun provideOkHttp(
+        configurator: Configurator,
+    ): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BASIC
+            level = HttpLoggingInterceptor.Level.BODY
         }
         return OkHttpClient.Builder()
             .addInterceptor(logging)
+            .addInterceptor(Interceptor { chain ->
+                // NOTE: Adding a user email in the header helps us get more allowed requests per second.
+                // For Open Library API that raises our requests from 1 to 3 per second.
+                val requestBuilder = chain.request().newBuilder()
+                requestBuilder.header("User-Agent", "BooksAnalyzerApp (${configurator.getUserEmail()})")
+                chain.proceed(requestBuilder.build())
+            })
             .build()
     }
 
