@@ -31,6 +31,8 @@ fun ConfirmBookRoute(
     val prefillMode by flowVm.prefillMode.collectAsState()
     val isSaving by vm.isSaving.collectAsState()
     val error by vm.error.collectAsState()
+    val coverPicker by vm.coverPicker.collectAsState()
+    val selectedCoverUrl by vm.selectedCoverUrl.collectAsState()
 
     val snackbar = LocalAppSnackbar.current
 
@@ -51,10 +53,12 @@ fun ConfirmBookRoute(
 
     ConfirmBookScreen(
         book = book,
+        selectedCoverUrl = selectedCoverUrl,
         prefillQuery = prefill,
         prefillMode = prefillMode,
         isSaving = isSaving,
         error = error,
+        onOpenCoverPicker = { book?.let(vm::openCoverPicker) },
         onBack = onBack,
         onConfirmSave = { book?.let(vm::saveBook) },
         onConfirmSaveManual = { title, authors, year, isbn13, coverUrl ->
@@ -66,5 +70,12 @@ fun ConfirmBookRoute(
                 coverUrl = coverUrl,
             )
         },
+    )
+
+    CoverPickerSheet(
+        state = coverPicker,
+        selectedUrl = selectedCoverUrl,
+        onSelect = vm::selectCover,
+        onDismiss = vm::closeCoverPicker,
     )
 }

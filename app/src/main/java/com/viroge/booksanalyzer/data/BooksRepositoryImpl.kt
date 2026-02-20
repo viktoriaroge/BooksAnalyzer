@@ -9,7 +9,8 @@ import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.BooksPage
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.BooksUtil.titleKey
-import com.viroge.booksanalyzer.domain.PageToken
+import com.viroge.booksanalyzer.domain.PageTokenHandler.makePageToken
+import com.viroge.booksanalyzer.domain.PageTokenHandler.parsePageToken
 import com.viroge.booksanalyzer.domain.ReadingStatus
 import com.viroge.booksanalyzer.domain.SearchMode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -140,7 +141,7 @@ class BooksRepositoryImpl @Inject constructor(
         pageToken: String?,
     ): BooksPage = coroutineScope {
 
-        val token = parseToken(pageToken)
+        val token = parsePageToken(pageToken)
 
         val g = async {
             googleClient.search(
@@ -171,9 +172,9 @@ class BooksRepositoryImpl @Inject constructor(
         val olHasMore = olReturned >= OpenLibraryClient.ITEMS_PER_PAGE
 
         val next = if (googleHasMore || olHasMore) {
-            makeToken(
+            makePageToken(
                 nextGoogleStart = token.googleStart + GoogleBooksClient.ITEMS_PER_PAGE,
-                nextOlPage = token.olPage + 1
+                nextOlPage = token.olPage + 1,
             )
         } else null
 
@@ -183,27 +184,4 @@ class BooksRepositoryImpl @Inject constructor(
             nextToken = next,
         )
     }
-
-    private fun parseToken(
-        token: String?,
-    ): PageToken {
-
-        if (token.isNullOrBlank()) return PageToken(googleStart = 0, olPage = 1)
-
-        val parts = token.split("|")
-        val g = parts
-            .firstOrNull { it.startsWith("g:") }
-            ?.removePrefix("g:")
-            ?.toIntOrNull() ?: 0
-        val ol = parts
-            .firstOrNull { it.startsWith("ol:") }
-            ?.removePrefix("ol:")
-            ?.toIntOrNull() ?: 1
-        return PageToken(g, ol)
-    }
-
-    private fun makeToken(
-        nextGoogleStart: Int,
-        nextOlPage: Int,
-    ): String = "g:$nextGoogleStart|ol:$nextOlPage"
 }
