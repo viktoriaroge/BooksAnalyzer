@@ -75,7 +75,7 @@ fun BookDetailsScreen(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             CommonTopAppBar(
-                title = if (state.isEditMode) "Edit book" else "Book Details",
+                title = if (state.isEditMode) "Edit Book" else "Book Details",
                 canGoBack = true,
                 onBack = if (state.isEditMode) onCancelEdit else onBack,
                 actions = {
@@ -296,10 +296,10 @@ fun BookDetailsScreen(
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
                     title = {
-                        Text(text = "Delete book?")
+                        Text(text = "Delete book")
                     },
                     text = {
-                        Text(text = "This will remove the book from your library. This can't be undone.")
+                        Text(text = "Are you sure you want to remove this book from your collection? \nYou will still briefly see it in Recently Deleted in your Profile.")
                     },
                     confirmButton = {
                         TextButton(

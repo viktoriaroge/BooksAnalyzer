@@ -181,10 +181,10 @@ fun BookSearchScreen(
                 AlertDialog(
                     onDismissRequest = { confirmClear = false },
                     title = {
-                        Text(text = "Clear search history?")
+                        Text(text = "Clear search history")
                     },
                     text = {
-                        Text(text = "This will remove all previous search attempts. This can't be undone.")
+                        Text(text = "Are you sure you want to clear your search history? \nThis action can't be undone.")
                     },
                     confirmButton = {
                         TextButton(
