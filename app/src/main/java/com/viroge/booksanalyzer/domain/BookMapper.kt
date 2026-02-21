@@ -3,6 +3,8 @@ package com.viroge.booksanalyzer.domain
 import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.data.remote.google.GoogleVolumeItem
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryDoc
+import com.viroge.booksanalyzer.domain.BookHeaders.getGoogleBooksHeaders
+import com.viroge.booksanalyzer.domain.BookHeaders.getOpenLibraryHeaders
 import com.viroge.booksanalyzer.domain.BooksUtil.splitIsbns
 
 object BookMapper {
@@ -21,8 +23,10 @@ object BookMapper {
         }?.identifier
 
         val year = volumeInfo.publishedDate?.take(4)?.toIntOrNull()
-        val cover = (volumeInfo.imageLinks?.thumbnail ?: volumeInfo.imageLinks?.smallThumbnail)
-            ?.replace(oldValue = "http://", newValue = "https://")
+        val coverUrl = (volumeInfo.imageLinks?.thumbnail ?: volumeInfo.imageLinks?.smallThumbnail)?.replace(
+            oldValue = "http://",
+            newValue = "https://"
+        )
 
         return Book(
             id = "", // not important for network construction
@@ -33,7 +37,8 @@ object BookMapper {
             publishedYear = year,
             isbn13 = isbn13,
             isbn10 = isbn10,
-            coverUrl = cover,
+            coverUrl = coverUrl,
+            coverRequestHeaders = CoverUrlOptimizer.getCoverHeaders(url = coverUrl),
             status = ReadingStatus.NOT_STARTED,
             createdAtEpochMs = 0, // not important for network construction
             lastOpenAtEpochMs = 0, // not important for network construction
@@ -62,6 +67,7 @@ object BookMapper {
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = coverUrl,
+            coverRequestHeaders = CoverUrlOptimizer.getCoverHeaders(url = coverUrl),
             status = ReadingStatus.NOT_STARTED,
             createdAtEpochMs = 0, // not important for network construction
             lastOpenAtEpochMs = 0, // not important for network construction
@@ -79,15 +85,12 @@ object BookMapper {
         source = BookSource.MANUAL,
         sourceId = null,
         title = title,
-        authors = authors
-            .split(",")
-            .map { it.trim() }
-            .filter { it.isNotBlank() }
-            .ifEmpty { listOf("") },
+        authors = authors.split(",").map { it.trim() }.filter { it.isNotBlank() }.ifEmpty { listOf("") },
         publishedYear = publishedYear,
         isbn13 = isbn13?.takeIf { it.isNotBlank() },
         isbn10 = null,
         coverUrl = coverUrl?.takeIf { it.isNotBlank() },
+        coverRequestHeaders = CoverUrlOptimizer.getCoverHeaders(url = coverUrl),
         status = ReadingStatus.NOT_STARTED,
         createdAtEpochMs = 0, // not important for network construction
         lastOpenAtEpochMs = 0, // not important for network construction
@@ -104,8 +107,7 @@ object BookMapper {
         },
         status = when {
             this.status.equals(
-                other = "NOT_STARTED",
-                ignoreCase = true
+                other = "NOT_STARTED", ignoreCase = true
             ) -> ReadingStatus.NOT_STARTED
 
             this.status.equals(other = "READING", ignoreCase = true) -> ReadingStatus.READING
@@ -119,6 +121,7 @@ object BookMapper {
         isbn13 = this.isbn13,
         isbn10 = this.isbn10,
         coverUrl = this.coverUrl,
+        coverRequestHeaders = CoverUrlOptimizer.getCoverHeaders(url = coverUrl),
         createdAtEpochMs = this.createdAtEpochMs,
         lastOpenAtEpochMs = this.lastOpenAtEpochMs,
     )

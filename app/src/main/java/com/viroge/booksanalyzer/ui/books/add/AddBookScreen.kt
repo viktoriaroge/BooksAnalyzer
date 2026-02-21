@@ -345,6 +345,7 @@ private fun BooksList(
                 ) {
                     CommonAsyncImage(
                         url = book.coverUrl,
+                        requestHeaders = book.coverRequestHeaders,
                         size = CommonAsyncImageSize.XSMALL,
                     )
 

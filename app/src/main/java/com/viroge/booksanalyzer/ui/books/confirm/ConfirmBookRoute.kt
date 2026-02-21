@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.viroge.booksanalyzer.domain.CoverUrlOptimizer
 import com.viroge.booksanalyzer.ui.books.add.AddBookFlowViewModel
 import com.viroge.booksanalyzer.ui.nav.Routes
 import com.viroge.booksanalyzer.ui.snackbar.LocalAppSnackbar
@@ -53,6 +54,7 @@ fun ConfirmBookRoute(
 
     ConfirmBookScreen(
         book = book,
+        headersForBookCover = book?.coverUrl?.let { CoverUrlOptimizer.getCoverHeaders(it) } ?: emptyMap(),
         selectedCoverUrl = selectedCoverUrl,
         prefillQuery = prefill,
         prefillMode = prefillMode,

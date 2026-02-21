@@ -404,6 +404,7 @@ fun CurrentlyReadingCard(
             ) {
                 CommonAsyncImage(
                     url = book.coverUrl,
+                    requestHeaders = book.coverRequestHeaders,
                     size = CommonAsyncImageSize.MEDIUM,
                     modifier = Modifier.align(Alignment.Center),
                 )
@@ -458,6 +459,7 @@ private fun BookRow(
         ) {
             CommonAsyncImage(
                 url = book.coverUrl,
+                requestHeaders = book.coverRequestHeaders,
                 size = CommonAsyncImageSize.SMALL,
             )
 

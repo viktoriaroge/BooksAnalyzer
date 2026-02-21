@@ -1,15 +1,17 @@
 package com.viroge.booksanalyzer.domain
 
 import android.util.Log
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlin.collections.distinct
+import com.viroge.booksanalyzer.domain.BookHeaders.getGoogleBooksHeaders
+import com.viroge.booksanalyzer.domain.BookHeaders.getOpenLibraryHeaders
 
-@Singleton
-class CoverUrlOptimizer @Inject constructor() {
+object CoverUrlOptimizer {
 
-    fun getCoverCandidates(book: Book): List<String> {
-        val list = mutableListOf<String>()
+    /**
+     * Get a list of cover candidates. Each candidate contains a pair of data:
+     * First: the url, Second: a map of headers needed to load it.
+     */
+    fun getCoverCandidates(book: Book): List<Pair<String, Map<String, String>>> {
+        val list = mutableListOf<String>() // urls
         val url = book.coverUrl?.trim().orEmpty()
 
         if (url.isNotBlank()) {
@@ -33,7 +35,22 @@ class CoverUrlOptimizer @Inject constructor() {
         val normalizedList = list.distinct()
         Log.println(Log.DEBUG, "CoverUrlOptimizer", "---> CoverCandidates: (${normalizedList.size}) $normalizedList")
 
-        return normalizedList
+        return normalizedList.map { attachCoverHeaders(url = it) }
+    }
+
+    fun attachCoverHeaders(url: String): Pair<String, Map<String, String>> =
+        Pair(first = url, second = getCoverHeaders(url))
+
+    fun getCoverHeaders(url: String?): Map<String, String> = when {
+        url == null -> emptyMap()
+
+        // Case 1: Open Library
+        url.contains("openlibrary.org") -> getOpenLibraryHeaders()
+
+        // Case 2: Google Books
+        url.contains("google.com/books") || url.contains("googleapis.com") -> getGoogleBooksHeaders()
+
+        else -> emptyMap()
     }
 
     private fun googleUpgrades(url: String): List<String> {

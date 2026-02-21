@@ -18,7 +18,6 @@ import javax.inject.Inject
 @HiltViewModel
 class ConfirmBookViewModel @Inject constructor(
     private val booksRepo: BooksRepository,
-    private val coverUrlOptimizer: CoverUrlOptimizer,
 ) : ViewModel() {
 
     private val _coverPicker = MutableStateFlow(CoverPickerUiState())
@@ -42,11 +41,11 @@ class ConfirmBookViewModel @Inject constructor(
         _coverPicker.value = _coverPicker.value.copy(isOpen = true, isLoading = true)
 
         viewModelScope.launch {
-            val urls = coverUrlOptimizer.getCoverCandidates(book = book)
+            val candidates = CoverUrlOptimizer.getCoverCandidates(book = book)
             _coverPicker.value = CoverPickerUiState(
                 isOpen = true,
                 isLoading = false,
-                candidates = urls,
+                candidates = candidates,
             )
         }
     }
@@ -124,5 +123,5 @@ sealed interface ConfirmEvent {
 data class CoverPickerUiState(
     val isOpen: Boolean = false,
     val isLoading: Boolean = false,
-    val candidates: List<String> = emptyList(),
+    val candidates: List<Pair<String, Map<String, String>>> = emptyList(),
 )

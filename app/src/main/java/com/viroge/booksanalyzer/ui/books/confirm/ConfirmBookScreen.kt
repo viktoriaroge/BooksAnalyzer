@@ -42,6 +42,7 @@ import com.viroge.booksanalyzer.ui.common.CommonTopAppBar
 @Composable
 fun ConfirmBookScreen(
     book: Book?,
+    headersForBookCover: Map<String, String>,
     selectedCoverUrl: String?,
     prefillQuery: String?,
     prefillMode: SearchMode?,
@@ -104,6 +105,7 @@ fun ConfirmBookScreen(
                     CommonAsyncImage(
                         modifier = Modifier.fillMaxWidth(),
                         url = coverToShow,
+                        requestHeaders = headersForBookCover,
                         size = CommonAsyncImageSize.LARGE,
                     )
 
@@ -294,11 +296,12 @@ fun CoverPickerSheet(
                     .heightIn(max = 420.dp)
             ) {
                 items(state.candidates.size) { idx ->
-                    val url = state.candidates[idx]
+                    val candidate = state.candidates[idx]
                     CoverChoiceTile(
-                        url = url,
-                        selected = (url == selectedUrl),
-                        onClick = { onSelect(url) }
+                        url = candidate.first,
+                        requestHeaders = candidate.second,
+                        selected = (candidate.first == selectedUrl),
+                        onClick = { onSelect(candidate.first) }
                     )
                 }
             }
@@ -311,8 +314,9 @@ fun CoverPickerSheet(
 @Composable
 private fun CoverChoiceTile(
     url: String,
+    requestHeaders: Map<String, String>,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Card(
         onClick = onClick,
@@ -330,6 +334,7 @@ private fun CoverChoiceTile(
         CommonAsyncImage(
             modifier = Modifier.fillMaxSize(),
             url = url,
+            requestHeaders = requestHeaders,
             size = CommonAsyncImageSize.LARGE,
         )
     }

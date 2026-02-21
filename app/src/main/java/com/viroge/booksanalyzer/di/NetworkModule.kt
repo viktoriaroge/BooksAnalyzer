@@ -1,9 +1,10 @@
 package com.viroge.booksanalyzer.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.viroge.booksanalyzer.BuildConfig
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksApi
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryApi
+import com.viroge.booksanalyzer.domain.BookHeaders.getGoogleBooksHeaders
+import com.viroge.booksanalyzer.domain.BookHeaders.getOpenLibraryHeaders
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -48,12 +49,10 @@ object NetworkModule {
                 // It requires the package name and the SHA1 hash as headers.
                 // And later also the generated API key as a query parameter.
                 val requestBuilder = chain.request().newBuilder()
-                requestBuilder.header("X-Android-Package", BuildConfig.APPLICATION_ID)
-                requestBuilder.header(
-                    "X-Android-Cert",
-                    // Because the legacy parsing on G side is stupid:
-                    BuildConfig.DEBUG_SHA1.replace(":", "").lowercase()
-                )
+                val headersToAdd = getGoogleBooksHeaders()
+                for ((name, value) in headersToAdd) {
+                    requestBuilder.header(name, value)
+                }
                 chain.proceed(requestBuilder.build())
             })
             .addInterceptor(logging)
@@ -80,7 +79,10 @@ object NetworkModule {
                 // NOTE: Adding a user email in the header helps us get more allowed requests per second.
                 // For Open Library API that raises our requests from 1 to 3 per second.
                 val requestBuilder = chain.request().newBuilder()
-                requestBuilder.header("User-Agent", "BooksAnalyzerApp (${BuildConfig.USER_EMAIL})")
+                val headersToAdd = getOpenLibraryHeaders()
+                for ((name, value) in headersToAdd) {
+                    requestBuilder.header(name, value)
+                }
                 chain.proceed(requestBuilder.build())
             })
             .addInterceptor(logging)
