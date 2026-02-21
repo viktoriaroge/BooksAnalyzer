@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.ui.books.details
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,9 +35,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.ui.common.BookSourceBadge
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.common.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.common.CommonItemCard
@@ -46,6 +50,8 @@ import com.viroge.booksanalyzer.ui.common.CommonTopAppBar
 @Composable
 fun BookDetailsScreen(
     state: BookDetailsUiState,
+    headersForBookCover: Map<String, String>,
+    selectedCoverUrl: String?,
     onBack: () -> Unit,
     onStatusChange: (ReadingStatus) -> Unit,
     onDelete: () -> Unit,
@@ -57,8 +63,8 @@ fun BookDetailsScreen(
     onUpdateEditPublishedYear: (String) -> Unit,
     onUpdateEditIsbn13: (String) -> Unit,
     onUpdateEditIsbn10: (String) -> Unit,
-    onUpdateEditCoverUrl: (String) -> Unit,
     onUpdateEditStatus: (ReadingStatus) -> Unit,
+    onOpenCoverPicker: () -> Unit,
 ) {
 
     Log.d("BookDetailsScreen", "state: $state")
@@ -112,16 +118,29 @@ fun BookDetailsScreen(
                     shape = MaterialTheme.shapes.extraSmall,
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
+                    val coverToShow = selectedCoverUrl ?: book.coverUrl
                     CommonAsyncImage(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(all = 16.dp),
-                        url = if (state.isEditMode && state.editCoverUrl.isNotBlank())
-                            state.editCoverUrl else book.coverUrl,
-                        requestHeaders = book.coverRequestHeaders,
+                        url = coverToShow,
+                        requestHeaders = headersForBookCover,
                         size = CommonAsyncImageSize.XXLARGE,
                     )
                 }
+            }
+
+            if (state.isEditMode) {
+                Spacer(Modifier.height(height = 8.dp))
+
+                Button(
+                    onClick = onOpenCoverPicker,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(text = "Choose a better cover")
+                }
+
+                Spacer(Modifier.height(height = 8.dp))
             }
 
             Column(
@@ -185,13 +204,6 @@ fun BookDetailsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
-                    OutlinedTextField(
-                        value = state.editCoverUrl,
-                        onValueChange = onUpdateEditCoverUrl,
-                        label = { Text("Cover URL") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
                     StatusPicker(
                         current = state.editStatus ?: ReadingStatus.NOT_STARTED,
                         onChange = onUpdateEditStatus,
@@ -235,6 +247,27 @@ fun BookDetailsScreen(
                             text = meta,
                             style = MaterialTheme.typography.bodySmall,
                         )
+                    }
+
+                    Spacer(modifier = Modifier.height(height = 8.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(space = 2.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = "Source:",
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        BookSourceBadge(
+                            source = book.source,
+                            modifier = Modifier.padding(all = 2.dp),
+                            showFullSourceName = true,
+                        )
+                        Spacer(modifier = Modifier.weight(weight = 1f))
                     }
 
                     StatusPicker(

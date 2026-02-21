@@ -73,7 +73,6 @@ class BookDetailsViewModel @Inject constructor(
                 editPublishedYear = book.publishedYear?.toString().orEmpty(),
                 editIsbn13 = book.isbn13.orEmpty(),
                 editIsbn10 = book.isbn10.orEmpty(),
-                editCoverUrl = book.coverUrl.orEmpty(),
                 editStatus = book.status,
                 error = null,
             )
@@ -90,7 +89,6 @@ class BookDetailsViewModel @Inject constructor(
                 editPublishedYear = "",
                 editIsbn13 = "",
                 editIsbn10 = "",
-                editCoverUrl = "",
                 editStatus = null,
                 error = null,
             )
@@ -117,15 +115,11 @@ class BookDetailsViewModel @Inject constructor(
         _ui.update { it.copy(editIsbn10 = value) }
     }
 
-    fun updateEditCoverUrl(value: String) {
-        _ui.update { it.copy(editCoverUrl = value) }
-    }
-
     fun updateEditStatus(status: ReadingStatus) {
         _ui.update { it.copy(editStatus = status) }
     }
 
-    fun saveEdits() {
+    fun saveEdits(selectedCoverUrl: String?) {
         val state = _ui.value
         val book = state.book ?: return
 
@@ -144,7 +138,7 @@ class BookDetailsViewModel @Inject constructor(
                 publishedYear = state.editPublishedYear.trim().toIntOrNull(),
                 isbn13 = state.editIsbn13.trim().takeIf { it.isNotEmpty() },
                 isbn10 = state.editIsbn10.trim().takeIf { it.isNotEmpty() },
-                coverUrl = state.editCoverUrl.trim().takeIf { it.isNotEmpty() },
+                coverUrl = selectedCoverUrl ?: book.coverUrl,
                 status = state.editStatus ?: ReadingStatus.NOT_STARTED,
             )
 
@@ -161,7 +155,6 @@ class BookDetailsViewModel @Inject constructor(
                             editPublishedYear = "",
                             editIsbn13 = "",
                             editIsbn10 = "",
-                            editCoverUrl = "",
                             editStatus = null,
                             error = null,
                         )
@@ -191,6 +184,5 @@ data class BookDetailsUiState(
     val editPublishedYear: String = "",
     val editIsbn13: String = "",
     val editIsbn10: String = "",
-    val editCoverUrl: String = "",
     val editStatus: ReadingStatus? = null,
 )

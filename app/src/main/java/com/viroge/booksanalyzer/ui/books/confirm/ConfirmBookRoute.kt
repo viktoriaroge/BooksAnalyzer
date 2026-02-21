@@ -10,6 +10,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.viroge.booksanalyzer.domain.CoverUrlOptimizer
 import com.viroge.booksanalyzer.ui.books.add.AddBookFlowViewModel
+import com.viroge.booksanalyzer.ui.books.cover.CoverPickerSheet
+import com.viroge.booksanalyzer.ui.books.cover.CoverPickerViewModel
 import com.viroge.booksanalyzer.ui.nav.Routes
 import com.viroge.booksanalyzer.ui.snackbar.LocalAppSnackbar
 
@@ -21,6 +23,7 @@ fun ConfirmBookRoute(
     onBookSaved: (String) -> Unit,
 ) {
     val vm: ConfirmBookViewModel = hiltViewModel()
+    val coverPickerVM: CoverPickerViewModel = hiltViewModel()
 
     val parentEntry = remember(entry) {
         navController.getBackStackEntry(Routes.ADD_BOOK)
@@ -32,8 +35,8 @@ fun ConfirmBookRoute(
     val prefillMode by flowVm.prefillMode.collectAsState()
     val isSaving by vm.isSaving.collectAsState()
     val error by vm.error.collectAsState()
-    val coverPicker by vm.coverPicker.collectAsState()
-    val selectedCoverUrl by vm.selectedCoverUrl.collectAsState()
+    val coverPicker by coverPickerVM.coverPicker.collectAsState()
+    val selectedCover by coverPickerVM.selectedCover.collectAsState()
 
     val snackbar = LocalAppSnackbar.current
 
@@ -54,15 +57,26 @@ fun ConfirmBookRoute(
 
     ConfirmBookScreen(
         book = book,
-        headersForBookCover = book?.coverUrl?.let { CoverUrlOptimizer.getCoverHeaders(it) } ?: emptyMap(),
-        selectedCoverUrl = selectedCoverUrl,
+        headersForBookCover =
+            if (selectedCover.isSelected) selectedCover.headers
+            else book?.coverUrl?.let { CoverUrlOptimizer.getCoverHeaders(it) } ?: emptyMap(),
+        selectedCoverUrl =
+            if (selectedCover.isSelected) selectedCover.url
+            else null,
         prefillQuery = prefill,
         prefillMode = prefillMode,
         isSaving = isSaving,
         error = error,
-        onOpenCoverPicker = { book?.let(vm::openCoverPicker) },
+        onOpenCoverPicker = { book?.let(coverPickerVM::openCoverPicker) },
         onBack = onBack,
-        onConfirmSave = { book?.let(vm::saveBook) },
+        onConfirmSave = {
+            book?.let {
+                vm.saveBook(
+                    book = it,
+                    selectedCoverUrl = if (selectedCover.isSelected) selectedCover.url else null,
+                )
+            }
+        },
         onConfirmSaveManual = { title, authors, year, isbn13, coverUrl ->
             vm.saveManualBook(
                 title = title,
@@ -70,14 +84,15 @@ fun ConfirmBookRoute(
                 publishedYear = year,
                 isbn13 = isbn13,
                 coverUrl = coverUrl,
+                selectedCoverUrl = if (selectedCover.isSelected) selectedCover.url else null,
             )
         },
     )
 
     CoverPickerSheet(
         state = coverPicker,
-        selectedUrl = selectedCoverUrl,
-        onSelect = vm::selectCover,
-        onDismiss = vm::closeCoverPicker,
+        selectedUrl = if (selectedCover.isSelected) selectedCover.url else null,
+        onSelect = coverPickerVM::selectCover,
+        onDismiss = coverPickerVM::closeCoverPicker,
     )
 }
