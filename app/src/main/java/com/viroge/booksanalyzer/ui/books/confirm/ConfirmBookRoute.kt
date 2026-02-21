@@ -92,6 +92,8 @@ fun ConfirmBookRoute(
     CoverPickerSheet(
         state = coverPicker,
         selectedUrl = if (selectedCover.isSelected) selectedCover.url else null,
+        onManualUrlChange = coverPickerVM::onManualUrlChange,
+        onAddManualUrl = coverPickerVM::addManualUrl,
         onSelect = coverPickerVM::selectCover,
         onDismiss = coverPickerVM::closeCoverPicker,
     )

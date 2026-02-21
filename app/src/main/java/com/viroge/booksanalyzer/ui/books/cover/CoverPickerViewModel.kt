@@ -20,13 +20,23 @@ class CoverPickerViewModel @Inject constructor() : ViewModel() {
     private val _selectedCover = MutableStateFlow(CoverData())
     val selectedCover = _selectedCover.asStateFlow()
 
+    var pickerAlreadyLoaded: Boolean = false
+
     init {
         Log.d("CoverPickerViewModel", "init")
         _coverPicker.value = CoverPickerUiState()
         _selectedCover.value = CoverData()
+        pickerAlreadyLoaded = false
     }
 
     fun openCoverPicker(book: Book) {
+        if (pickerAlreadyLoaded) {
+            _coverPicker.value = _coverPicker.value.copy(isOpen = true)
+            return
+        }
+
+        _coverPicker.value = _coverPicker.value.copy(isOpen = true, isLoading = true)
+
         if (!_selectedCover.value.isSelected) {
             val preselectCover = book.coverUrl != null
             _selectedCover.value = CoverData(
@@ -36,8 +46,6 @@ class CoverPickerViewModel @Inject constructor() : ViewModel() {
             )
         }
 
-        _coverPicker.value = _coverPicker.value.copy(isOpen = true, isLoading = true)
-
         viewModelScope.launch {
             val candidates = CoverUrlOptimizer.getCoverCandidates(book = book)
             _coverPicker.value = CoverPickerUiState(
@@ -46,10 +54,27 @@ class CoverPickerViewModel @Inject constructor() : ViewModel() {
                 candidates = candidates,
             )
         }
+        pickerAlreadyLoaded = true
     }
 
     fun closeCoverPicker() {
         _coverPicker.value = _coverPicker.value.copy(isOpen = false)
+    }
+
+    fun onManualUrlChange(newUrl: String) {
+        _coverPicker.value = _coverPicker.value.copy(manualUrlInput = newUrl)
+    }
+
+    fun addManualUrl() {
+        val url = _coverPicker.value.manualUrlInput.trim()
+        if (url.isEmpty()) return
+
+        val headers = CoverUrlOptimizer.getCoverHeaders(url)
+        val newCandidate = url to headers
+        _coverPicker.value = _coverPicker.value.copy(
+            candidates = _coverPicker.value.candidates + newCandidate,
+            manualUrlInput = "",
+        )
     }
 
     fun selectCover(url: String) {
@@ -71,5 +96,6 @@ data class CoverData(
 data class CoverPickerUiState(
     val isOpen: Boolean = false,
     val isLoading: Boolean = false,
+    val manualUrlInput: String = "",
     val candidates: List<Pair<String, Map<String, String>>> = emptyList(),
 )
