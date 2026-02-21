@@ -3,8 +3,6 @@ package com.viroge.booksanalyzer.domain
 import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.data.remote.google.GoogleVolumeItem
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryDoc
-import com.viroge.booksanalyzer.domain.BookHeaders.getGoogleBooksHeaders
-import com.viroge.booksanalyzer.domain.BookHeaders.getOpenLibraryHeaders
 import com.viroge.booksanalyzer.domain.BooksUtil.splitIsbns
 
 object BookMapper {

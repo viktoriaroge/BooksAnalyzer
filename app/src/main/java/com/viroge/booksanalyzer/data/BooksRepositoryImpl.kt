@@ -6,6 +6,7 @@ import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.BookMapper.toBook
 import com.viroge.booksanalyzer.domain.BooksPage
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.BooksUtil.titleKey
@@ -17,6 +18,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,11 +30,13 @@ class BooksRepositoryImpl @Inject constructor(
     private val openLibraryClient: OpenLibraryClient,
 ) : BooksRepository {
 
-    override fun observeLibrary(): Flow<List<BookEntity>> = bookDao.observeAll()
+    override fun observeLibrary(): Flow<List<Book>> = bookDao.observeAll()
+        .map { list -> list.filter { entity -> !entity.toBeDeleted } }
+        .map { list -> list.map { entity -> entity.toBook() } }
 
     override fun observeBook(
         bookId: String,
-    ): Flow<BookEntity?> = bookDao.observeById(bookId)
+    ): Flow<Book?> = bookDao.observeById(bookId).map { it?.toBook() }
 
     override suspend fun updateStatus(
         bookId: String,
@@ -51,66 +55,95 @@ class BooksRepositoryImpl @Inject constructor(
         bookDao.upsert(book = existing.copy(lastOpenAtEpochMs = System.currentTimeMillis()))
     }
 
+    override suspend fun markBookToDelete(
+        bookId: String,
+    ): Pair<String, String>? {
+        val existing = bookDao.getById(bookId) ?: return null
+
+        bookDao.upsert(book = existing.copy(toBeDeleted = true, lastMarkedToDelete = System.currentTimeMillis()))
+        return Pair(first = existing.bookId, second = existing.title)
+    }
+
     override suspend fun deleteBook(
         bookId: String,
     ) {
         bookDao.deleteById(bookId)
     }
 
-    override suspend fun upsert(
-        book: BookEntity,
-    ) {
-        bookDao.upsert(book)
-    }
-
-    override suspend fun deleteAndReturn(
+    override suspend fun restore(
         bookId: String,
-    ): BookEntity? {
-        val existing = bookDao.getById(bookId) ?: return null
+    ) {
+        val existing = bookDao.getById(bookId) ?: return
 
-        bookDao.deleteById(bookId)
-        return existing
+        bookDao.upsert(book = existing.copy(toBeDeleted = false))
     }
 
     override suspend fun insertFromBook(
         book: Book,
+        wasEdited: Boolean,
     ): InsertBookResult {
 
-        book.isbn13?.let { isbn13OfBook ->
-            bookDao.findByIsbn13(isbn13 = isbn13OfBook)?.let {
-                return InsertBookResult(
-                    it.bookId,
-                    wasInserted = false,
-                )
-            }
-        }
-        book.isbn10?.let { isbn10OfBook ->
-            bookDao.findByIsbn10(isbn10 = isbn10OfBook)?.let {
-                return InsertBookResult(
-                    it.bookId,
-                    wasInserted = false,
-                )
-            }
-        }
-        book.sourceId?.let { sourceId ->
-            bookDao.findBySourceId(sourceId = sourceId)
-                ?.let {
+        if (!wasEdited) {
+            book.isbn13?.let { isbn13OfBook ->
+                bookDao.findByIsbn13(isbn13 = isbn13OfBook)?.let { existing ->
+                    bookDao.upsert(
+                        book = existing.copy(
+                            toBeDeleted = false,
+                            coverUrl = book.coverUrl,
+                        )
+                    )
                     return InsertBookResult(
-                        it.bookId,
+                        existing.bookId,
                         wasInserted = false,
                     )
                 }
+            }
+            book.isbn10?.let { isbn10OfBook ->
+                bookDao.findByIsbn10(isbn10 = isbn10OfBook)?.let { existing ->
+                    bookDao.upsert(
+                        book = existing.copy(
+                            toBeDeleted = false,
+                            coverUrl = book.coverUrl,
+                        )
+                    )
+                    return InsertBookResult(
+                        existing.bookId,
+                        wasInserted = false,
+                    )
+                }
+            }
+            book.sourceId?.let { sourceId ->
+                bookDao.findBySourceId(sourceId = sourceId)?.let { existing ->
+                    bookDao.upsert(
+                        book = existing.copy(
+                            toBeDeleted = false,
+                            coverUrl = book.coverUrl,
+                        )
+                    )
+                    return InsertBookResult(
+                        existing.bookId,
+                        wasInserted = false,
+                    )
+                }
+            }
+
+            val key = titleKey(book.title, book.authors, book.publishedYear)
+            bookDao.findByTitleKey(titleKey = key)?.let { existing ->
+                bookDao.upsert(
+                    book = existing.copy(
+                        toBeDeleted = false,
+                        coverUrl = book.coverUrl,
+                    )
+                )
+                return InsertBookResult(
+                    existing.bookId,
+                    wasInserted = false,
+                )
+            }
         }
 
+        val id = if (wasEdited) book.id else UUID.randomUUID().toString()
         val key = titleKey(book.title, book.authors, book.publishedYear)
-        bookDao.findByTitleKey(titleKey = key)?.let {
-            return InsertBookResult(
-                it.bookId,
-                wasInserted = false,
-            )
-        }
-
-        val id = UUID.randomUUID().toString()
         val entity = BookEntity(
             bookId = id,
             sourceId = book.sourceId,
@@ -125,6 +158,8 @@ class BooksRepositoryImpl @Inject constructor(
             status = book.status.name,
             createdAtEpochMs = System.currentTimeMillis(),
             lastOpenAtEpochMs = System.currentTimeMillis(),
+            lastMarkedToDelete = 0,
+            toBeDeleted = false,
         )
         bookDao.upsert(book = entity)
 

@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.domain.Book
-import com.viroge.booksanalyzer.domain.BookMapper.toBook
 import com.viroge.booksanalyzer.domain.LibraryFilters
 import com.viroge.booksanalyzer.domain.LibrarySort
 import com.viroge.booksanalyzer.domain.ReadingStatus
@@ -14,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -24,8 +22,6 @@ class LibraryViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val allBooks: Flow<List<Book>> = booksRepo.observeLibrary()
-        .map { it.map { entry -> entry.toBook() } }
-
     private val query = MutableStateFlow(value = "")
     private val statusFilter = MutableStateFlow<ReadingStatus?>(value = null) // null == All
     private val sort = MutableStateFlow(value = LibrarySort.ADDED)

@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.books.details
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -59,6 +60,8 @@ fun BookDetailsScreen(
     onUpdateEditCoverUrl: (String) -> Unit,
     onUpdateEditStatus: (ReadingStatus) -> Unit,
 ) {
+
+    Log.d("BookDetailsScreen", "state: $state")
 
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -214,9 +217,9 @@ fun BookDetailsScreen(
                         style = MaterialTheme.typography.titleLarge,
                     )
 
-                    if (book.authors.isNotBlank()) {
+                    if (book.authors.isNotEmpty()) {
                         Text(
-                            text = book.authors,
+                            text = book.authors.joinToString(separator = ", "),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -235,8 +238,7 @@ fun BookDetailsScreen(
                     }
 
                     StatusPicker(
-                        current = runCatching { ReadingStatus.valueOf(value = book.status) }
-                            .getOrDefault(defaultValue = ReadingStatus.NOT_STARTED),
+                        current = book.status,
                         onChange = onStatusChange,
                     )
 

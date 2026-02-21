@@ -1,11 +1,11 @@
 package com.viroge.booksanalyzer.ui.books.details
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.data.local.books.BookEntity
-import com.viroge.booksanalyzer.domain.BooksUtil
+import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.ReadingStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -35,12 +35,18 @@ class BookDetailsViewModel @Inject constructor(
     private val _events = MutableSharedFlow<BookDetailEvent>()
     val events: SharedFlow<BookDetailEvent> = _events
 
-    private var lastDeleted: BookEntity? = null
+    private var lastDeletedBookId: String? = null
 
     init {
         repo.observeBook(bookId)
-            .onEach { book -> _ui.update { it.copy(book = book, error = null) } }
-            .catch { e -> _ui.update { it.copy(error = e.message ?: "Failed to load book") } }
+            .onEach { book ->
+                Log.d("BookDetailsViewModel", "state: state on book observed changed")
+                _ui.update { it.copy(book = book, error = null) }
+            }
+            .catch { e ->
+                Log.d("BookDetailsViewModel", "state: an error while observing book")
+                _ui.update { it.copy(error = e.message ?: "Failed to load book") }
+            }
             .launchIn(viewModelScope)
     }
 
@@ -50,11 +56,8 @@ class BookDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching { repo.updateStatus(bookId, status) }
                 .onFailure { e ->
-                    _ui.update {
-                        it.copy(
-                            error = e.message ?: "Failed to update status"
-                        )
-                    }
+                    Log.d("BookDetailsViewModel", "state: change status fail")
+                    _ui.update { it.copy(error = e.message ?: "Failed to update status") }
                 }
         }
     }
@@ -63,30 +66,34 @@ class BookDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _ui.update { it.copy(isDeleting = true, error = null) }
 
-            runCatching { repo.deleteAndReturn(bookId) }
-                .onSuccess { deleted ->
-                    lastDeleted = deleted
+            runCatching { repo.markBookToDelete(bookId) }
+                .onSuccess { deletedBookData ->
+                    lastDeletedBookId = deletedBookData?.first // id
+
+                    Log.d("BookDetailsViewModel", "state: mark delete success")
                     _ui.update { it.copy(isDeleting = false) }
-                    if (deleted != null) _events.emit(BookDetailEvent.Deleted(deleted.title))
+
+                    if (deletedBookData != null) {
+                        _events.emit(BookDetailEvent.Deleted(deletedBookData.second)) // title
+                    }
                 }
                 .onFailure { e ->
-                    _ui.update {
-                        it.copy(
-                            isDeleting = false,
-                            error = e.message ?: "Failed to delete"
-                        )
-                    }
+                    Log.d("BookDetailsViewModel", "state: mark delete fail")
+                    _ui.update { it.copy(isDeleting = false, error = e.message ?: "Failed to delete") }
                 }
         }
     }
 
     fun undoDelete() {
-        val restore = lastDeleted ?: return
+        val toRestoreBookId = lastDeletedBookId ?: return
 
         viewModelScope.launch {
-            runCatching { repo.upsert(book = restore) }
-                .onSuccess { lastDeleted = null }
-                .onFailure { e -> _ui.update { it.copy(error = e.message ?: "Failed to undo") } }
+            runCatching { repo.restore(bookId = toRestoreBookId) }
+                .onSuccess { lastDeletedBookId = null }
+                .onFailure { e ->
+                    Log.d("BookDetailsViewModel", "state: failed to undo delete")
+                    _ui.update { it.copy(error = e.message ?: "Failed to undo") }
+                }
         }
     }
 
@@ -98,24 +105,25 @@ class BookDetailsViewModel @Inject constructor(
     }
 
     fun enterEditMode() {
-        val b = _ui.value.book ?: return
+        val book = _ui.value.book ?: return
+        Log.d("BookDetailsViewModel", "state: enter edit mode")
         _ui.update {
             it.copy(
                 isEditMode = true,
-                editTitle = b.title,
-                editAuthors = b.authors,
-                editPublishedYear = b.publishedYear?.toString().orEmpty(),
-                editIsbn13 = b.isbn13.orEmpty(),
-                editIsbn10 = b.isbn10.orEmpty(),
-                editCoverUrl = b.coverUrl.orEmpty(),
-                editStatus = runCatching { ReadingStatus.valueOf(b.status) }
-                    .getOrDefault(ReadingStatus.NOT_STARTED),
+                editTitle = book.title,
+                editAuthors = book.authors.joinToString(separator = ", "),
+                editPublishedYear = book.publishedYear?.toString().orEmpty(),
+                editIsbn13 = book.isbn13.orEmpty(),
+                editIsbn10 = book.isbn10.orEmpty(),
+                editCoverUrl = book.coverUrl.orEmpty(),
+                editStatus = book.status,
                 error = null,
             )
         }
     }
 
     fun exitEditMode() {
+        Log.d("BookDetailsViewModel", "state: exit edit mode")
         _ui.update {
             it.copy(
                 isEditMode = false,
@@ -170,30 +178,24 @@ class BookDetailsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            Log.d("BookDetailsViewModel", "state: save edit started")
             _ui.update { it.copy(isSaving = true, error = null) }
-
-            val authorsList = state.editAuthors
-                .split(',')
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-            val year = state.editPublishedYear.trim().toIntOrNull()
-            val titleKey = BooksUtil.titleKey(title, authorsList, year)
-
             val updated = book.copy(
                 title = title,
-                authors = state.editAuthors.trim(),
-                titleKey = titleKey,
-                publishedYear = year,
+                authors = state.editAuthors.split(",").map { it.trim() }.filter { it.isNotBlank() }.ifEmpty { listOf("") },
+                publishedYear = state.editPublishedYear.trim().toIntOrNull(),
                 isbn13 = state.editIsbn13.trim().takeIf { it.isNotEmpty() },
                 isbn10 = state.editIsbn10.trim().takeIf { it.isNotEmpty() },
                 coverUrl = state.editCoverUrl.trim().takeIf { it.isNotEmpty() },
-                status = (state.editStatus ?: ReadingStatus.NOT_STARTED).name,
+                status = state.editStatus ?: ReadingStatus.NOT_STARTED,
             )
 
-            runCatching { repo.upsert(updated) }
+            runCatching { repo.insertFromBook(book = updated, wasEdited = true) }
                 .onSuccess {
+                    Log.d("BookDetailsViewModel", "state: save edit success")
                     _ui.update {
                         it.copy(
+                            book = updated,
                             isEditMode = false,
                             isSaving = false,
                             editTitle = "",
@@ -208,6 +210,7 @@ class BookDetailsViewModel @Inject constructor(
                     }
                 }
                 .onFailure { e ->
+                    Log.d("BookDetailsViewModel", "state: save edit fail")
                     _ui.update {
                         it.copy(
                             isSaving = false,
@@ -220,7 +223,7 @@ class BookDetailsViewModel @Inject constructor(
 }
 
 data class BookDetailsUiState(
-    val book: BookEntity? = null,
+    val book: Book? = null,
     val isDeleting: Boolean = false,
     val error: String? = null,
     val isEditMode: Boolean = false,

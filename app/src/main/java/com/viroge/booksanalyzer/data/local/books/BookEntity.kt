@@ -54,4 +54,10 @@ data class BookEntity(
 
     @ColumnInfo(name = "lastOpenAtEpochMs")
     val lastOpenAtEpochMs: Long,
+
+    @ColumnInfo(name = "lastMarkedToDelete")
+    val lastMarkedToDelete: Long,
+
+    @ColumnInfo(name = "toBeDeleted")
+    val toBeDeleted: Boolean,
 )
