@@ -118,7 +118,7 @@ fun BookDetailsScreen(
                             .padding(all = 16.dp),
                         url = if (state.isEditMode && state.editCoverUrl.isNotBlank())
                             state.editCoverUrl else book.coverUrl,
-                        requestHeaders = emptyMap(), // TODO: rework this once we use the Book model instead in this screen
+                        requestHeaders = book.coverRequestHeaders,
                         size = CommonAsyncImageSize.XXLARGE,
                     )
                 }

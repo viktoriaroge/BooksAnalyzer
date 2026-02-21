@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -22,6 +24,9 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.viroge.booksanalyzer.ui.AppEvent
+import com.viroge.booksanalyzer.ui.MainSharedViewModel
+import com.viroge.booksanalyzer.ui.activityViewModel
 import com.viroge.booksanalyzer.ui.common.AppBottomBar
 import com.viroge.booksanalyzer.ui.snackbar.AppSnackbarController
 import com.viroge.booksanalyzer.ui.snackbar.LocalAppSnackbar
@@ -29,6 +34,7 @@ import com.viroge.booksanalyzer.ui.snackbar.LocalAppSnackbar
 @Composable
 fun AppRoot() {
 
+    val sharedViewModel: MainSharedViewModel = activityViewModel()
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -73,6 +79,45 @@ fun AppRoot() {
                 }
             },
         ) { rootPadding ->
+
+            val snackbar = LocalAppSnackbar.current
+
+            LaunchedEffect(key1 = Unit) {
+                sharedViewModel.events.collect { event ->
+                    when (event) {
+                        is AppEvent.BookDeleted -> {
+                            snackbar.show(
+                                message = "Book \"${event.title}\" deleted.",
+                                actionLabel = "Undo",
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Long,
+                                onActionPerformed = { sharedViewModel.undoDelete() },
+                            )
+                        }
+
+                        is AppEvent.BookDeletingFailed -> {
+                            snackbar.show(
+                                message = "Deleting book \"${event.title}\" failed.",
+                                duration = SnackbarDuration.Short,
+                            )
+                        }
+
+                        is AppEvent.BookRestoreFailed -> {
+                            snackbar.show(
+                                message = "Restoring book \"${event.title}\" failed.",
+                                duration = SnackbarDuration.Short,
+                            )
+                        }
+
+                        is AppEvent.BookRestoreSuccess -> {
+                            snackbar.show(
+                                message = "Book \"${event.title}\" restored.",
+                                duration = SnackbarDuration.Short,
+                            )
+                        }
+                    }
+                }
+            }
 
             Box(
                 modifier = Modifier

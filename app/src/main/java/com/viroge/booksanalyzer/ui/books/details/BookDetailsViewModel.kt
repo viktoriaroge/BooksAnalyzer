@@ -9,9 +9,7 @@ import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.ReadingStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -31,11 +29,6 @@ class BookDetailsViewModel @Inject constructor(
 
     private val _ui = MutableStateFlow(value = BookDetailsUiState())
     val ui: StateFlow<BookDetailsUiState> = _ui.asStateFlow()
-
-    private val _events = MutableSharedFlow<BookDetailEvent>()
-    val events: SharedFlow<BookDetailEvent> = _events
-
-    private var lastDeletedBookId: String? = null
 
     init {
         repo.observeBook(bookId)
@@ -58,41 +51,6 @@ class BookDetailsViewModel @Inject constructor(
                 .onFailure { e ->
                     Log.d("BookDetailsViewModel", "state: change status fail")
                     _ui.update { it.copy(error = e.message ?: "Failed to update status") }
-                }
-        }
-    }
-
-    fun delete() {
-        viewModelScope.launch {
-            _ui.update { it.copy(isDeleting = true, error = null) }
-
-            runCatching { repo.markBookToDelete(bookId) }
-                .onSuccess { deletedBookData ->
-                    lastDeletedBookId = deletedBookData?.first // id
-
-                    Log.d("BookDetailsViewModel", "state: mark delete success")
-                    _ui.update { it.copy(isDeleting = false) }
-
-                    if (deletedBookData != null) {
-                        _events.emit(BookDetailEvent.Deleted(deletedBookData.second)) // title
-                    }
-                }
-                .onFailure { e ->
-                    Log.d("BookDetailsViewModel", "state: mark delete fail")
-                    _ui.update { it.copy(isDeleting = false, error = e.message ?: "Failed to delete") }
-                }
-        }
-    }
-
-    fun undoDelete() {
-        val toRestoreBookId = lastDeletedBookId ?: return
-
-        viewModelScope.launch {
-            runCatching { repo.restore(bookId = toRestoreBookId) }
-                .onSuccess { lastDeletedBookId = null }
-                .onFailure { e ->
-                    Log.d("BookDetailsViewModel", "state: failed to undo delete")
-                    _ui.update { it.copy(error = e.message ?: "Failed to undo") }
                 }
         }
     }
@@ -236,10 +194,3 @@ data class BookDetailsUiState(
     val editCoverUrl: String = "",
     val editStatus: ReadingStatus? = null,
 )
-
-sealed interface BookDetailEvent {
-
-    data class Deleted(
-        val title: String,
-    ) : BookDetailEvent
-}

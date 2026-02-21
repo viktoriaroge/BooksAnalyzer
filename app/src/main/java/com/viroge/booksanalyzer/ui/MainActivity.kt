@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer
+package com.viroge.booksanalyzer.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,7 +14,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
         setContent {
             BooksAnalyzerTheme {
                 AppRoot()
