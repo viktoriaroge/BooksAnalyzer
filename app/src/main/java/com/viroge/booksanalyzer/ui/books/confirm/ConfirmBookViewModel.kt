@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.domain.Book
-import com.viroge.booksanalyzer.domain.BookMapper.getManualBookEntry
+import com.viroge.booksanalyzer.domain.BookMapper.getBookFromManualInput
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,7 +69,7 @@ class ConfirmBookViewModel @Inject constructor(
 
         saveBook(
             selectedCoverUrl = selectedCoverUrl,
-            book = getManualBookEntry(
+            book = getBookFromManualInput(
                 title = title,
                 authors = authors,
                 publishedYear = publishedYear,

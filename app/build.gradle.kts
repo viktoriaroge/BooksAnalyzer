@@ -96,8 +96,11 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
 
     // DI with Hilt
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.work)
     ksp(libs.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
 
     // DB with Room
     implementation(libs.room.runtime)

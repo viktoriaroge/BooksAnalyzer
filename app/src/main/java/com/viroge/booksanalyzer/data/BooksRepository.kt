@@ -31,11 +31,13 @@ interface BooksRepository {
         bookId: String,
     ): Pair<String, String>?
 
-    suspend fun deleteBook(
+    suspend fun restoreBookMarkedToDelete(
         bookId: String,
     )
 
-    suspend fun restore(
+    suspend fun getPendingDeleteBooks(): List<Book>
+
+    suspend fun deleteBook(
         bookId: String,
     )
 

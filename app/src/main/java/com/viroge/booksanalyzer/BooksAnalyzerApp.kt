@@ -1,7 +1,25 @@
 package com.viroge.booksanalyzer
 
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
-class BooksAnalyzerApp : Application()
+class BooksAnalyzerApp : Application() {
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    override fun onCreate() {
+        super.onCreate()
+
+        val config = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+
+        WorkManager.initialize(context = this, configuration = config)
+    }
+}

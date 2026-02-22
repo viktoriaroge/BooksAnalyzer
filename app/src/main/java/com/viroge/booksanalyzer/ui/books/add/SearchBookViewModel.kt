@@ -8,6 +8,7 @@ import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.SearchMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class SearchBookViewModel @Inject constructor(
     private val booksRepo: BooksRepository,

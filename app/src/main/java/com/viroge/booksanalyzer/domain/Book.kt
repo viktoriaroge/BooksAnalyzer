@@ -14,4 +14,6 @@ data class Book(
     val coverRequestHeaders: Map<String, String>,
     val createdAtEpochMs: Long,
     val lastOpenAtEpochMs: Long,
+    val lastMarkedToDelete: Long,
+    val toBeDeleted: Boolean,
 )

@@ -64,18 +64,22 @@ class BooksRepositoryImpl @Inject constructor(
         return Pair(first = existing.bookId, second = existing.title)
     }
 
-    override suspend fun deleteBook(
-        bookId: String,
-    ) {
-        bookDao.deleteById(bookId)
-    }
-
-    override suspend fun restore(
+    override suspend fun restoreBookMarkedToDelete(
         bookId: String,
     ) {
         val existing = bookDao.getById(bookId) ?: return
 
         bookDao.upsert(book = existing.copy(toBeDeleted = false))
+    }
+
+    override suspend fun getPendingDeleteBooks(): List<Book> {
+        return bookDao.getPendingDeleteBooks().orEmpty().map { it.toBook() }
+    }
+
+    override suspend fun deleteBook(
+        bookId: String,
+    ) {
+        bookDao.deleteById(bookId)
     }
 
     override suspend fun insertFromBook(

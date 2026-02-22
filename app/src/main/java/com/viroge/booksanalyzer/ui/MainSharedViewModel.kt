@@ -1,9 +1,11 @@
 package com.viroge.booksanalyzer.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.delete.DeleteBooksScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -12,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainSharedViewModel @Inject constructor(
-    private val repo: BooksRepository,
+    private val booksRepo: BooksRepository,
+    private val deleteBooksScheduler: DeleteBooksScheduler,
 ) : ViewModel() {
 
     private val _events = MutableSharedFlow<AppEvent>()
@@ -20,9 +23,21 @@ class MainSharedViewModel @Inject constructor(
 
     private var lastDeletedBook: Book? = null
 
-    fun delete(book: Book) {
+    init {
+        deleteStaleMarkedBooks()
+    }
+
+    fun deleteStaleMarkedBooks() {
+        // As soon as the app launches the main activity, attempt to do DB maintenance:
         viewModelScope.launch {
-            runCatching { repo.markBookToDelete(book.id) }
+            Log.d("MainSharedViewModel", "deleteStaleMarkedBooks called")
+            deleteBooksScheduler.enqueueBulkDelete()
+        }
+    }
+
+    fun markToDelete(book: Book) {
+        viewModelScope.launch {
+            runCatching { booksRepo.markBookToDelete(book.id) }
                 .onSuccess { deletedBookData ->
                     lastDeletedBook = book
 
@@ -34,11 +49,11 @@ class MainSharedViewModel @Inject constructor(
         }
     }
 
-    fun undoDelete() {
+    fun undoMarkToDelete() {
         val toRestoreBook = lastDeletedBook ?: return
 
         viewModelScope.launch {
-            runCatching { repo.restore(bookId = toRestoreBook.id) }
+            runCatching { booksRepo.restoreBookMarkedToDelete(bookId = toRestoreBook.id) }
                 .onSuccess {
                     lastDeletedBook = null
                     _events.emit(AppEvent.BookRestoreSuccess(title = toRestoreBook.title))

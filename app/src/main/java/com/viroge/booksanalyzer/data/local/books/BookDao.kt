@@ -47,6 +47,9 @@ interface BookDao {
         bookId: String,
     ): BookEntity?
 
+    @Query("SELECT * FROM books WHERE toBeDeleted = 1")
+    suspend fun getPendingDeleteBooks(): List<BookEntity>?
+
     @Query("DELETE FROM books WHERE bookId = :bookId")
     suspend fun deleteById(
         bookId: String,

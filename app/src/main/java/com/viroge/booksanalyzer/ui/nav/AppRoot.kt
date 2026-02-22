@@ -91,7 +91,7 @@ fun AppRoot() {
                                 actionLabel = "Undo",
                                 withDismissAction = true,
                                 duration = SnackbarDuration.Long,
-                                onActionPerformed = { sharedViewModel.undoDelete() },
+                                onActionPerformed = { sharedViewModel.undoMarkToDelete() },
                             )
                         }
 

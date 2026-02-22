@@ -40,6 +40,8 @@ object BookMapper {
             status = ReadingStatus.NOT_STARTED,
             createdAtEpochMs = 0, // not important for network construction
             lastOpenAtEpochMs = 0, // not important for network construction
+            lastMarkedToDelete = 0, // not important for network construction
+            toBeDeleted = false, // not important for network construction
         )
     }
 
@@ -69,10 +71,12 @@ object BookMapper {
             status = ReadingStatus.NOT_STARTED,
             createdAtEpochMs = 0, // not important for network construction
             lastOpenAtEpochMs = 0, // not important for network construction
+            lastMarkedToDelete = 0, // not important for network construction
+            toBeDeleted = false, // not important for network construction
         )
     }
 
-    fun getManualBookEntry(
+    fun getBookFromManualInput(
         title: String,
         authors: String,
         publishedYear: Int?,
@@ -92,6 +96,8 @@ object BookMapper {
         status = ReadingStatus.NOT_STARTED,
         createdAtEpochMs = 0, // not important for network construction
         lastOpenAtEpochMs = 0, // not important for network construction
+        lastMarkedToDelete = 0, // not important for network construction
+        toBeDeleted = false, // not important for network construction
     )
 
     fun BookEntity.toBook(): Book = Book(
@@ -122,5 +128,7 @@ object BookMapper {
         coverRequestHeaders = CoverUrlOptimizer.getCoverHeaders(url = coverUrl),
         createdAtEpochMs = this.createdAtEpochMs,
         lastOpenAtEpochMs = this.lastOpenAtEpochMs,
+        lastMarkedToDelete = this.lastMarkedToDelete,
+        toBeDeleted = this.toBeDeleted,
     )
 }

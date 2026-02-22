@@ -37,7 +37,7 @@ fun BookDetailsRoute(
         onBack = onBack,
         onStatusChange = vm::setStatus,
         onDelete = {
-            sharedVM.delete(book = state.book ?: return@BookDetailsScreen)
+            sharedVM.markToDelete(book = state.book ?: return@BookDetailsScreen)
             onBack()
         },
         onEdit = vm::enterEditMode,
