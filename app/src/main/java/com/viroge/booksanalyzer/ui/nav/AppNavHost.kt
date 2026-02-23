@@ -6,11 +6,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.viroge.booksanalyzer.ui.books.add.AddBookRoute
-import com.viroge.booksanalyzer.ui.books.confirm.ConfirmBookRoute
-import com.viroge.booksanalyzer.ui.books.details.BookDetailsRoute
-import com.viroge.booksanalyzer.ui.books.library.LibraryRoute
-import com.viroge.booksanalyzer.ui.profile.ProfileRoute
+import androidx.navigation.navigation
+import com.viroge.booksanalyzer.ui.screens.books.add.AddBookRoute
+import com.viroge.booksanalyzer.ui.screens.books.confirm.ConfirmBookRoute
+import com.viroge.booksanalyzer.ui.screens.books.details.BookDetailsRoute
+import com.viroge.booksanalyzer.ui.screens.books.library.LibraryRoute
+import com.viroge.booksanalyzer.ui.screens.settings.SettingsRoute
 
 @Composable
 fun AppNavHost(
@@ -18,49 +19,88 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.LIBRARY,
+        startDestination = Routes.LIBRARY_GRAPH,
     ) {
 
-        composable(Routes.LIBRARY) {
-            LibraryRoute(
-                onOpenBook = { bookId ->
-                    navController.navigate(route = "${Routes.BOOK_DETAILS}/$bookId")
-                },
-            )
-        }
+        // --- LIBRARY TAB --------------------------------------------------------------
 
-        composable(Routes.ADD_BOOK) {
-            AddBookRoute(
-                onGoToConfirm = { navController.navigate(Routes.CONFIRM_BOOK) },
-            )
-        }
-
-        composable(Routes.CONFIRM_BOOK) { entry ->
-            ConfirmBookRoute(
-                navController = navController,
-                entry = entry,
-                onBack = { navController.popBackStack() },
-                onBookSaved = { newBookId ->
-                    navController.navigate(route = "${Routes.BOOK_DETAILS}/$newBookId") {
-                        popUpTo(Routes.ADD_BOOK) { inclusive = false }
-                    }
-                },
-            )
-        }
-
-        composable(
-            route = "${Routes.BOOK_DETAILS}/{${Routes.ARG_BOOK_ID}}",
-            arguments = listOf(navArgument(name = Routes.ARG_BOOK_ID) {
-                type = NavType.StringType
-            }),
+        navigation(
+            route = Routes.LIBRARY_GRAPH,
+            startDestination = Routes.LIBRARY
         ) {
-            BookDetailsRoute(
-                onBack = { navController.popBackStack() },
-            )
+            composable(Routes.LIBRARY) {
+                LibraryRoute(
+                    onOpenBook = { bookId ->
+                        navController.navigate(route = "${Routes.BOOK_DETAILS}/$bookId")
+                    },
+                )
+            }
+
+            composable(
+                route = "${Routes.BOOK_DETAILS}/{${Routes.ARG_BOOK_ID}}",
+                arguments = listOf(navArgument(name = Routes.ARG_BOOK_ID) {
+                    type = NavType.StringType
+                }),
+            ) {
+                BookDetailsRoute(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+
         }
 
-        composable(Routes.PROFILE) {
-            ProfileRoute()
+        // --- ADD BOOK TAB -------------------------------------------------------------
+
+        navigation(
+            route = Routes.ADD_BOOK_GRAPH,
+            startDestination = Routes.ADD_BOOK
+        ) {
+            composable(Routes.ADD_BOOK) {
+                AddBookRoute(
+                    onGoToConfirm = { navController.navigate(Routes.CONFIRM_BOOK) },
+                )
+            }
+
+            composable(Routes.CONFIRM_BOOK) { entry ->
+                ConfirmBookRoute(
+                    navController = navController,
+                    entry = entry,
+                    onBack = { navController.popBackStack() },
+                    onBookSaved = { newBookId ->
+                        navController.navigate(route = "${Routes.BOOK_DETAILS}/$newBookId") {
+                            popUpTo(Routes.ADD_BOOK) { inclusive = false }
+                        }
+                    },
+                )
+            }
+
+            composable(
+                route = "${Routes.BOOK_DETAILS}/{${Routes.ARG_BOOK_ID}}",
+                arguments = listOf(navArgument(name = Routes.ARG_BOOK_ID) {
+                    type = NavType.StringType
+                }),
+            ) {
+                BookDetailsRoute(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+        }
+
+        // --- SETTINGS TAB ------------------------------------------------------------
+
+        navigation(
+            route = Routes.SETTINGS_GRAPH,
+            startDestination = Routes.SETTINGS
+        ) {
+            composable(Routes.SETTINGS) {
+                SettingsRoute(
+                    onOpenEntry = navController::navigate,
+                )
+            }
+
+            composable(Routes.RECENTLY_DELETED_BOOKS) {
+                // TODO
+            }
         }
     }
 }

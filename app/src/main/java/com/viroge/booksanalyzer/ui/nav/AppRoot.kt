@@ -27,9 +27,8 @@ import androidx.navigation.compose.rememberNavController
 import com.viroge.booksanalyzer.ui.AppEvent
 import com.viroge.booksanalyzer.ui.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.activityViewModel
-import com.viroge.booksanalyzer.ui.common.AppBottomBar
-import com.viroge.booksanalyzer.ui.snackbar.AppSnackbarController
-import com.viroge.booksanalyzer.ui.snackbar.LocalAppSnackbar
+import com.viroge.booksanalyzer.ui.components.snackbar.AppSnackbarController
+import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 
 @Composable
 fun AppRoot() {
@@ -42,7 +41,7 @@ fun AppRoot() {
     val topLevelRoutes = setOf(
         Routes.LIBRARY,
         Routes.ADD_BOOK,
-        Routes.PROFILE,
+        Routes.SETTINGS,
     )
 
     val showBottomBar = currentDestination?.hierarchy?.any { it.route in topLevelRoutes } == true

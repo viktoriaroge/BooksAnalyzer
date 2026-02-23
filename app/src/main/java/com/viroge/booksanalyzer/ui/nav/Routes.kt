@@ -3,11 +3,19 @@ package com.viroge.booksanalyzer.ui.nav
 object Routes {
 
     const val LIBRARY = "library"
-    const val ADD_BOOK = "addBook"
-    const val CONFIRM_BOOK = "confirmBook"
-    const val BOOK_DETAILS = "bookDetails"
-    const val PROFILE = "profile"
+    const val LIBRARY_GRAPH = "library_graph"
 
-    // args
-    const val ARG_BOOK_ID = "bookId"
+    const val ADD_BOOK = "add_book"
+    const val ADD_BOOK_GRAPH = "add_book_graph"
+
+    const val SETTINGS = "settings"
+    const val SETTINGS_GRAPH = "settings_graph"
+
+    // Stand-alone screens:
+    const val CONFIRM_BOOK = "confirm_book"
+    const val BOOK_DETAILS = "book_details"
+    const val RECENTLY_DELETED_BOOKS = "recently_deleted_books"
+
+    // Arguments:
+    const val ARG_BOOK_ID = "arg_book_id"
 }
