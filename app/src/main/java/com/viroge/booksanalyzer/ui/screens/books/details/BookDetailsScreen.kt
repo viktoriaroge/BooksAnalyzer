@@ -131,11 +131,11 @@ fun BookDetailsScreen(
             }
 
             if (state.isEditMode) {
-                Spacer(Modifier.height(height = 8.dp))
-
                 Button(
                     onClick = onOpenCoverPicker,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = 16.dp),
                 ) {
                     Text(text = "Choose a better cover")
                 }
