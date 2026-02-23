@@ -162,18 +162,21 @@ fun LibraryScreen(
             }
 
             if (state.books.isEmpty()) {
+                Spacer(Modifier.height(height = 16.dp))
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "No books yet.",
+                    text = "A Fresh Chapter",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
+                Spacer(Modifier.height(height = 8.dp))
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Tap + to add your first book.",
+                    text = "Ready to start reading? Head over to Find Books to add your first title to the shelf.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
+
             } else {
                 LazyColumn(
                     state = fullListState,

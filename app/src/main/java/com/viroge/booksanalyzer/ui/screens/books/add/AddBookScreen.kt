@@ -333,7 +333,10 @@ private fun BooksList(
         contentPadding = PaddingValues(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(space = 8.dp),
     ) {
-        items(items) { book ->
+        items(
+            items = items,
+            key = { it.id },
+        ) { book ->
             CommonItemCard(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onSelect(book) },

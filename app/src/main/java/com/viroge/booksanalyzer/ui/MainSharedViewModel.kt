@@ -31,7 +31,8 @@ class MainSharedViewModel @Inject constructor(
         // As soon as the app launches the main activity, attempt to do DB maintenance:
         viewModelScope.launch {
             Log.d("MainSharedViewModel", "deleteStaleMarkedBooks called")
-            deleteBooksScheduler.enqueueBulkDelete()
+            runCatching { deleteBooksScheduler.enqueueBulkDelete() }
+                .onFailure { e -> Log.d("MainSharedViewModel", "deleteStaleMarkedBooks failed with exception: $e") }
         }
     }
 
