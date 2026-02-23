@@ -7,8 +7,13 @@ import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.delete.DeleteBooksScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,16 +28,32 @@ class MainSharedViewModel @Inject constructor(
 
     private var lastDeletedBook: Book? = null
 
-    init {
-        deleteStaleMarkedBooks()
-    }
+    private val _isSplashTimerFinished = MutableStateFlow(false)
+    private var _isDoneCleaningUp = MutableStateFlow(value = false)
+    val isLoading = combine(_isDoneCleaningUp, _isSplashTimerFinished) { ready, timedOut -> !(ready && timedOut) }
+        .stateIn(
+            scope = viewModelScope,
+            // Eagerly ensures the 'combine' logic runs even before the UI starts listening
+            started = SharingStarted.Eagerly,
+            initialValue = true,
+        )
 
-    fun deleteStaleMarkedBooks() {
+    init {
         // As soon as the app launches the main activity, attempt to do DB maintenance:
         viewModelScope.launch {
             Log.d("MainSharedViewModel", "deleteStaleMarkedBooks called")
-            runCatching { deleteBooksScheduler.enqueueBulkDelete() }
-                .onFailure { e -> Log.d("MainSharedViewModel", "deleteStaleMarkedBooks failed with exception: $e") }
+            runCatching {
+                deleteBooksScheduler.enqueueBulkDelete()
+                _isDoneCleaningUp.value = true
+            }.onFailure { e ->
+                Log.d("MainSharedViewModel", "deleteStaleMarkedBooks failed with exception: $e")
+                _isDoneCleaningUp.value = true
+            }
+        }
+        // Make sure the splash stays onscreen for at least 1 whole second:
+        viewModelScope.launch {
+            delay(1500)
+            _isSplashTimerFinished.value = true
         }
     }
 
