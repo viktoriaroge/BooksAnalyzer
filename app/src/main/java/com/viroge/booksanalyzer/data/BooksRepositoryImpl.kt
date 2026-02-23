@@ -34,6 +34,10 @@ class BooksRepositoryImpl @Inject constructor(
         .map { list -> list.filter { entity -> !entity.toBeDeleted } }
         .map { list -> list.map { entity -> entity.toBook() } }
 
+    override fun observePendingDeleteBooks(): Flow<List<Book>> = bookDao.observeAll()
+        .map { list -> list.filter { entity -> entity.toBeDeleted } }
+        .map { list -> list.map { entity -> entity.toBook() } }
+
     override fun observeBook(
         bookId: String,
     ): Flow<Book?> = bookDao.observeById(bookId).map { it?.toBook() }

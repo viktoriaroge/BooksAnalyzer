@@ -296,10 +296,10 @@ fun BookDetailsScreen(
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
                     title = {
-                        Text(text = "Delete book")
+                        Text(text = "Delete Book")
                     },
                     text = {
-                        Text(text = "Are you sure you want to remove this book from your collection? \nYou will still briefly see it in Recently Deleted in your Profile.")
+                        Text(text = "Are you sure you want to remove this book from your collection? \nYou will still briefly see it in Recently Deleted in Settings.")
                     },
                     confirmButton = {
                         TextButton(

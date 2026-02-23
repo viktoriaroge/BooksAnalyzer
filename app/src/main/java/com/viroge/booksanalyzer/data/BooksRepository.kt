@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface BooksRepository {
 
     fun observeLibrary(): Flow<List<Book>>
+    fun observePendingDeleteBooks(): Flow<List<Book>>
 
     fun observeBook(
         bookId: String,

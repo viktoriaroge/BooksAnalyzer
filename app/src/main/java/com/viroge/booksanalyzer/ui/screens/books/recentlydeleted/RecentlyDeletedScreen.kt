@@ -11,11 +11,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,6 +39,9 @@ fun RecentlyDeletedScreen(
     onRestoreBook: (String) -> Unit,
     onBack: () -> Unit,
 ) {
+
+    var showRestoreBookDialog by remember { mutableStateOf(false) }
+    var selectedBookData by remember { mutableStateOf(Pair("", "")) } // first: id, second: title
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -68,8 +77,6 @@ fun RecentlyDeletedScreen(
                 )
 
             } else {
-                Spacer(Modifier.height(height = 8.dp))
-
                 LazyColumn(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     contentPadding = PaddingValues(vertical = 16.dp),
@@ -83,7 +90,8 @@ fun RecentlyDeletedScreen(
                         CommonItemCard(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
-                                // TODO: restore book
+                                selectedBookData = Pair(book.id, book.title)
+                                showRestoreBookDialog = true
                             },
                         ) {
                             Row(
@@ -155,6 +163,31 @@ fun RecentlyDeletedScreen(
                         }
                     }
                 }
+            }
+
+            if (showRestoreBookDialog) {
+                AlertDialog(
+                    onDismissRequest = { showRestoreBookDialog = false },
+                    title = {
+                        Text(text = "Restore Book")
+                    },
+                    text = {
+                        Text(text = "Would you like to restore \"${selectedBookData.second}\" back to your collection?")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showRestoreBookDialog = false
+                                onRestoreBook(selectedBookData.first)
+                            }) { Text(text = "Restore") }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showRestoreBookDialog = false
+                            }) { Text(text = "Cancel") }
+                    },
+                )
             }
         }
     }

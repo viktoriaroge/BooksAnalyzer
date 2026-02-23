@@ -5,9 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.domain.Book
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,39 +22,37 @@ class RecentlyDeletedViewModel @Inject constructor(
     private val repo: BooksRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(RecentlyDeletedUiState())
-    val state = _state.asStateFlow()
+    private val books: Flow<List<Book>> = repo.observePendingDeleteBooks()
 
-    init {
-        viewModelScope.launch {
-            runCatching {
-                val list = repo.getPendingDeleteBooks()
+    private val _message = MutableSharedFlow<String?>()
+    val message: SharedFlow<String?> = _message
 
-                val now = System.currentTimeMillis()
-                val notExpired = list.filter {
-                    val sevenDaysInMillis = 7 * 24 * 60 * 60 * 1000L
-                    // Leave it in the list if still not expired:
-                    (now - it.lastMarkedToDelete) <= sevenDaysInMillis
-                }
-                _state.update { it.copy(books = notExpired) }
-
-            }.onFailure { e ->
-                _state.update { it.copy(error = e.message ?: "Failed to fetch Books pending deletion") }
+    val state: StateFlow<RecentlyDeletedUiState> = books
+        .map { list ->
+            val now = System.currentTimeMillis()
+            val notExpiredList = list.filter {
+                val sevenDaysInMillis = 7 * 24 * 60 * 60 * 1000L
+                // Leave it in the list if still not expired:
+                (now - it.lastMarkedToDelete) <= sevenDaysInMillis
             }
+            RecentlyDeletedUiState(books = notExpiredList)
         }
+        .distinctUntilChanged()
+        .catch { _ -> _message.emit("Failed to retrieve Books pending deletion.") }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            initialValue = RecentlyDeletedUiState()
+        )
 
-        fun restoreBook(bookId: String) {
-            viewModelScope.launch {
-                runCatching { repo.restoreBookMarkedToDelete(bookId) }
-                    .onFailure { e ->
-                        _state.update { it.copy(error = e.message ?: "Failed to restore book") }
-                    }
-            }
+    fun restoreBook(bookId: String) {
+        viewModelScope.launch {
+            runCatching { repo.restoreBookMarkedToDelete(bookId) }
+                .onFailure { _ -> _message.emit("Failed to restore book.") }
         }
     }
 }
 
 data class RecentlyDeletedUiState(
     val books: List<Book> = emptyList(),
-    val error: String? = null,
 )
