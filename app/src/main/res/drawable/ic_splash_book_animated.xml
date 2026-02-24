@@ -1,0 +1,122 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ic_splash_book">
+
+    <target android:name="book_star_top">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="600"
+                    android:interpolator="@android:anim/accelerate_interpolator"
+                    android:propertyName="translateY"
+                    android:valueFrom="0"
+                    android:valueTo="900" />
+                <objectAnimator
+                    android:duration="600"
+                    android:interpolator="@android:anim/accelerate_interpolator"
+                    android:propertyName="translateX"
+                    android:valueFrom="0"
+                    android:valueTo="300" />
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="book_star_top_inner">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="600"
+                    android:propertyName="scaleX"
+                    android:valueFrom="4.2"
+                    android:valueTo="0" />
+                <objectAnimator
+                    android:duration="600"
+                    android:propertyName="scaleY"
+                    android:valueFrom="4.2"
+                    android:valueTo="0" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="book_star_bottom_left">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="600"
+                    android:propertyName="translateX"
+                    android:valueFrom="0"
+                    android:valueTo="600" />
+                <objectAnimator
+                    android:duration="600"
+                    android:propertyName="translateY"
+                    android:valueFrom="0"
+                    android:valueTo="-600" />
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="book_star_bottom_left_inner">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="600"
+                    android:propertyName="scaleX"
+                    android:valueFrom="2.0"
+                    android:valueTo="0" />
+                <objectAnimator
+                    android:duration="600"
+                    android:propertyName="scaleY"
+                    android:valueFrom="2.0"
+                    android:valueTo="0" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="book_star_bottom_right">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="600"
+                    android:propertyName="translateX"
+                    android:valueFrom="0"
+                    android:valueTo="-400" />
+                <objectAnimator
+                    android:duration="600"
+                    android:propertyName="translateY"
+                    android:valueFrom="0"
+                    android:valueTo="-600" />
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="book_star_bottom_right_inner">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="600"
+                    android:propertyName="scaleX"
+                    android:valueFrom="2.0"
+                    android:valueTo="0" />
+                <objectAnimator
+                    android:duration="600"
+                    android:propertyName="scaleY"
+                    android:valueFrom="2.0"
+                    android:valueTo="0" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="book_single_page">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="2000"
+                    android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+                    android:propertyName="rotation"
+                    android:repeatCount="infinite"
+                    android:repeatMode="restart"
+                    android:startOffset="600"
+                    android:valueFrom="-20"
+                    android:valueTo="20" />
+            </set>
+        </aapt:attr>
+    </target>
+
+</animated-vector>

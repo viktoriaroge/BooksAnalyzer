@@ -16,7 +16,7 @@ import com.viroge.booksanalyzer.R
 fun CommonAsyncImage(
     url: String?,
     requestHeaders: Map<String, String>,
-    @DrawableRes defaultImageRes: Int = R.drawable.default_book,
+    @DrawableRes defaultImageRes: Int = R.drawable.ic_default_book,
     size: CommonAsyncImageSize = CommonAsyncImageSize.SMALL,
     modifier: Modifier = Modifier,
 ) = AsyncImage(

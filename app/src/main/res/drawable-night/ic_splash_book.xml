@@ -1,0 +1,97 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="3000"
+    android:viewportHeight="3000">
+
+    <group
+        android:name="book_group"
+        android:pivotX="1500"
+        android:pivotY="1500"
+        android:scaleX="0.8"
+        android:scaleY="0.8">
+
+        <group
+            android:name="book_single_page"
+            android:pivotX="70"
+            android:pivotY="1200"
+            android:translateX="1460"
+            android:translateY="380">
+
+            <group
+                android:name="book_single_page_inner"
+                android:scaleX="0.8"
+                android:scaleY="18.5">
+                <path
+                    android:fillColor="#FAFFFC"
+                    android:pathData="M20 10 h80 a10 10 0 0 1 10 10 v30 a10 10 0 0 1 -10 10 h-80 a10 10 0 0 1 -10 -10 v-30 a10 10 0 0 1 10 -10 z" />
+            </group>
+        </group>
+
+        <group android:name="book_pages">
+            <group
+                android:name="book_pages_inner"
+                android:scaleX="1.1"
+                android:scaleY="1.9"
+                android:translateX="300"
+                android:translateY="220">
+                <path
+                    android:fillColor="#FAFFFC"
+                    android:pathData="M1884.3,536.8c-1.4,-4.6 -4.9,-8.3 -9.5,-9.8c-31.7,-9.9 -163.2,-46.9 -355.9,-46.9c-15.3,0 -30.1,0.5 -44.5,1.4c167,-49 316.6,-53.9 352.8,-54.3c4.4,-0.1 7.8,-4 7.1,-8.4l-4,-27c-0.5,-3.7 -3.8,-6.4 -7.5,-6.2C1227,412.5 1100,664.2 1100,664.2S973,412.5 377.2,385.6c-3.7,-0.2 -7,2.5 -7.5,6.2l-4,27c-0.6,4.4 2.7,8.3 7.1,8.4c36.3,0.4 185.8,5.3 352.8,54.3c-14.4,-0.9 -29.2,-1.4 -44.5,-1.4c-192.7,0 -324.2,37 -355.9,46.9c-4.6,1.4 -8.2,5.1 -9.5,9.8l-53.5,184.7h1675.6L1884.3,536.8z" />
+            </group>
+        </group>
+
+        <group android:name="book_spine">
+            <group
+                android:name="book_spine_inner"
+                android:scaleX="1.1"
+                android:scaleY="2.2"
+                android:translateX="300"
+                android:translateY="0">
+                <path
+                    android:fillColor="#1f8b75"
+                    android:pathData="M2011.8,760.8h-822.3c-14.2,0 -28.3,2.1 -41.8,6.5c-13.7,4.5 -30.1,7.2 -47.7,7.2s-34,-2.6 -47.7,-7.2c-13.5,-4.5 -27.6,-6.5 -41.8,-6.5H188.2c-11.3,0 -20.5,9.2 -20.5,20.5v42.7c0,11.3 9.2,20.5 20.5,20.5h810.8c19.1,36.2 57.1,60.8 100.9,60.8s81.8,-24.7 100.9,-60.8h810.8c11.3,0 20.5,-9.2 20.5,-20.5v-42.7C2032.2,770 2023.1,760.8 2011.8,760.8z" />
+            </group>
+        </group>
+
+        <group android:name="book_star_top">
+            <group
+                android:name="book_star_top_inner"
+                android:scaleX="4.2"
+                android:scaleY="4.2"
+                android:translateX="1300"
+                android:translateY="500">
+                <path
+                    android:fillColor="#fff"
+                    android:pathData="M50 0 L60 40 L100 50 L60 60 L50 100 L40 60 L0 50 L40 40 Z" />
+            </group>
+        </group>
+
+        <group android:name="book_star_bottom_left">
+            <group
+                android:name="book_star_bottom_left_inner"
+                android:scaleX="2.0"
+                android:scaleY="2.0"
+                android:translateX="900"
+                android:translateY="2100">
+                <path
+                    android:fillColor="#fff"
+                    android:pathData="M50 0 L60 40 L100 50 L60 60 L50 100 L40 60 L0 50 L40 40 Z" />
+            </group>
+        </group>
+
+        <group android:name="book_star_bottom_right">
+            <group
+                android:name="book_star_bottom_right_inner"
+                android:scaleX="2.0"
+                android:scaleY="2.0"
+                android:translateX="1900"
+                android:translateY="2100">
+                <path
+                    android:fillColor="#fff"
+                    android:pathData="M50 0 L60 40 L100 50 L60 60 L50 100 L40 60 L0 50 L40 40 Z" />
+            </group>
+        </group>
+
+    </group>
+</vector>

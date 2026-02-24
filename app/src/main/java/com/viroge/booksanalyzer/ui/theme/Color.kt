@@ -41,7 +41,7 @@ val ScrimLight = Color(0xFF000000)
 val SurfaceTintLight = Color(0xFF4F756C)
 
 // Dark theme — comfortable for reading at night
-val PrimaryDark = Color(0xFFABFFF5)
+val PrimaryDark = Color(0xFF26ac91)
 val OnPrimaryDark = Color(0xFF125245)
 val PrimaryContainerDark = Color(0xFF366961)
 val OnPrimaryContainerDark = Color(0xFFD6FFF7)
