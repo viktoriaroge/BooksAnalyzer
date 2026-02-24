@@ -12,18 +12,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.SearchMode
 import com.viroge.booksanalyzer.ui.components.BookSourceBadge
@@ -58,7 +55,9 @@ fun ConfirmBookScreen(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             CommonTopAppBar(
-                title = if (book != null) "Confirm Book" else "Add Book Manually",
+                title =
+                    if (book != null) stringResource(R.string.confirm_book_screen_name)
+                    else stringResource(R.string.confirm_book_in_manual_mode_screen_name),
                 canGoBack = true,
                 onBack = onBack,
             )
@@ -109,7 +108,7 @@ fun ConfirmBookScreen(
                         onClick = onOpenCoverPicker,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(text = "Choose a better cover")
+                        Text(text = stringResource(R.string.confirm_book_change_book_cover_button_label))
                     }
 
                     Spacer(Modifier.height(height = 24.dp))
@@ -121,13 +120,12 @@ fun ConfirmBookScreen(
 
                     if (book.authors.isNotEmpty()) {
                         Text(
-                            text = book.authors
-                                .joinToString(separator = ", "),
+                            text = book.authors.joinToString(separator = ", "),
                         )
                     }
 
                     book.isbn13?.let {
-                        Text(text = "ISBN-13: $it")
+                        Text(text = stringResource(R.string.confirm_book_screen_isbn13_label, it))
                     }
 
                     Spacer(modifier = Modifier.height(height = 8.dp))
@@ -138,7 +136,7 @@ fun ConfirmBookScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            text = "Source:",
+                            text = stringResource(R.string.confirm_book_screen_source_label),
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -157,7 +155,7 @@ fun ConfirmBookScreen(
                         onClick = onConfirmSave,
                         enabled = !isSaving,
                         modifier = Modifier.fillMaxWidth(),
-                    ) { Text(text = "Save to Collection") }
+                    ) { Text(text = stringResource(R.string.confirm_book_screen_save_button_label)) }
 
                     Spacer(Modifier.height(height = 16.dp))
                 }
@@ -171,107 +169,9 @@ fun ConfirmBookScreen(
                     )
                 }
 
-                else -> {
-                    Text(text = "Nothing to confirm.")
+                else -> { /* noop */
                 }
             }
         }
     }
-}
-
-@Composable
-private fun ManualBookForm(
-    prefillQuery: String,
-    prefillMode: SearchMode,
-    isSaving: Boolean,
-    onSave: (
-        title: String,
-        authors: String,
-        publishedYear: Int?,
-        isbn13: String?,
-        coverUrl: String?,
-    ) -> Unit,
-) {
-    val initialTitle = when (prefillMode) {
-        SearchMode.ALL, SearchMode.TITLE -> prefillQuery
-        else -> ""
-    }
-    val initialAuthors = when (prefillMode) {
-        SearchMode.AUTHOR -> prefillQuery
-        else -> ""
-    }
-    val initialIsbn13 = when (prefillMode) {
-        SearchMode.ISBN -> prefillQuery
-        else -> ""
-    }
-
-    var title by remember(prefillQuery, prefillMode) { mutableStateOf(initialTitle) }
-    var authors by remember(prefillQuery, prefillMode) { mutableStateOf(initialAuthors) }
-    var yearText by remember { mutableStateOf("") }
-    var isbn13 by remember(prefillQuery, prefillMode) { mutableStateOf(initialIsbn13) }
-    var coverUrl by remember { mutableStateOf("") }
-
-    Text(
-        text = "Enter the book details. Title is required.",
-        style = MaterialTheme.typography.bodyMedium,
-    )
-
-    OutlinedTextField(
-        value = title,
-        onValueChange = { title = it },
-        label = { Text("Title") },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-    )
-
-    OutlinedTextField(
-        value = authors,
-        onValueChange = { authors = it },
-        label = { Text("Authors (comma-separated)") },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-    )
-
-    OutlinedTextField(
-        value = yearText,
-        onValueChange = { yearText = it },
-        label = { Text("Year") },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-    )
-
-    OutlinedTextField(
-        value = isbn13,
-        onValueChange = { isbn13 = it },
-        label = { Text("ISBN-13 (optional)") },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-    )
-
-    OutlinedTextField(
-        value = coverUrl,
-        onValueChange = { coverUrl = it },
-        label = { Text("Cover URL (optional)") },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-    )
-
-    Spacer(Modifier.height(16.dp))
-
-    Button(
-        onClick = {
-            val year = yearText.trim().toIntOrNull()
-            onSave(
-                title.trim(),
-                authors.trim(),
-                year,
-                isbn13.trim().takeIf { it.isNotBlank() },
-                coverUrl.trim().takeIf { it.isNotBlank() },
-            )
-        },
-        enabled = !isSaving && title.isNotBlank(),
-        modifier = Modifier.fillMaxWidth(),
-    ) { Text(text = "Save to Collection") }
-
-    Spacer(Modifier.height(height = 16.dp))
 }

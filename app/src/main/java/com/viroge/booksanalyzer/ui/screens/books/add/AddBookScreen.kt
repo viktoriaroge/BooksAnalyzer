@@ -2,15 +2,12 @@ package com.viroge.booksanalyzer.ui.screens.books.add
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,7 +19,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -36,8 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.SearchMode
 import com.viroge.booksanalyzer.ui.components.BookSourceBadge
@@ -46,6 +44,7 @@ import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.components.CommonItemCard
 import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
+import com.viroge.booksanalyzer.ui.screens.books.SearchModeMapper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,7 +70,7 @@ fun BookSearchScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
-        topBar = { CommonTopAppBar(title = "Find Books") },
+        topBar = { CommonTopAppBar(title = stringResource(R.string.search_screen_name)) },
     ) { screenPadding ->
 
         Column(
@@ -89,7 +88,7 @@ fun BookSearchScreen(
                 value = query,
                 onValueChange = { onQueryChanged(it) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(text = "Search by title, author, or ISBN") },
+                label = { Text(text = stringResource(R.string.search_screen_search_field_hint)) },
                 singleLine = true,
                 trailingIcon = {
                     IconButton(onClick = { vm.changeQuery(newValue = "") }) {
@@ -130,7 +129,7 @@ fun BookSearchScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         onClick = { onRefresh() }) {
-                        Text(text = "Refresh")
+                        Text(text = stringResource(R.string.search_screen_refresh_button))
                     }
                 }
 
@@ -138,7 +137,7 @@ fun BookSearchScreen(
                     Spacer(Modifier.height(height = 16.dp))
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        text = "No results for “${selectedState.query}”.",
+                        text = stringResource(R.string.search_screen_no_results_error_text, selectedState.query),
                     )
 
                     Spacer(Modifier.height(height = 8.dp))
@@ -147,7 +146,7 @@ fun BookSearchScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         onClick = { onManualAdd(selectedState.query) }) {
-                        Text(text = "Add Manually")
+                        Text(text = stringResource(R.string.search_screen_add_manually_button))
                     }
                 }
 
@@ -181,23 +180,23 @@ fun BookSearchScreen(
                 AlertDialog(
                     onDismissRequest = { confirmClear = false },
                     title = {
-                        Text(text = "Clear search history")
+                        Text(text = stringResource(R.string.search_screen_clear_history_dialog_title))
                     },
                     text = {
-                        Text(text = "Are you sure you want to clear your search history? \nThis action can't be undone.")
+                        Text(text = stringResource(R.string.search_screen_clear_history_dialog_text))
                     },
                     confirmButton = {
                         TextButton(
                             onClick = {
                                 confirmClear = false
                                 vm.clearRecents()
-                            }) { Text(text = "Clear") }
+                            }) { Text(text = stringResource(R.string.search_screen_clear_history_clear_button)) }
                     },
                     dismissButton = {
                         TextButton(
                             onClick = {
                                 confirmClear = false
-                            }) { Text(text = "Cancel") }
+                            }) { Text(text = stringResource(R.string.search_screen_clear_history_cancel_button)) }
                     },
                 )
             }
@@ -214,107 +213,14 @@ fun SearchModeChips(
         modifier = Modifier.padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
     ) {
-        FilterChip(
-            selected = selected == SearchMode.ALL,
-            onClick = { onSelect(SearchMode.ALL) },
-            label = { Text(text = "All") },
-        )
-        FilterChip(
-            selected = selected == SearchMode.TITLE,
-            onClick = { onSelect(SearchMode.TITLE) },
-            label = { Text(text = "Title") },
-        )
-        FilterChip(
-            selected = selected == SearchMode.AUTHOR,
-            onClick = { onSelect(SearchMode.AUTHOR) },
-            label = { Text(text = "Author") },
-        )
-        FilterChip(
-            selected = selected == SearchMode.ISBN,
-            onClick = { onSelect(SearchMode.ISBN) },
-            label = { Text(text = "ISBN") },
-        )
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-fun RecentSearchesSection(
-    recent: List<String>,
-    onPick: (String) -> Unit,
-    onDeleteOne: (String) -> Unit,
-    onClearAll: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    if (recent.isEmpty()) return
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(space = 8.dp),
-    ) {
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-
-            Text(
-                text = "Recent searches",
-                style = MaterialTheme.typography.titleSmall,
+        for (mode in SearchMode.entries) {
+            FilterChip(
+                selected = selected == mode,
+                onClick = { onSelect(mode) },
+                label = { Text(text = SearchModeMapper.getUiModel(mode).text) },
             )
-
-            TextButton(onClick = onClearAll) { Text(text = "Clear all") }
-        }
-
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 8.dp),
-        ) {
-
-            recent.forEach { q ->
-                RecentQueryChip(
-                    query = q,
-                    onPick = { onPick(q) },
-                    onDelete = { onDeleteOne(q) },
-                )
-            }
         }
     }
-}
-
-@Composable
-private fun RecentQueryChip(
-    query: String,
-    onPick: () -> Unit,
-    onDelete: () -> Unit,
-) {
-    InputChip(
-        selected = false,
-        onClick = onPick,
-        label = {
-            Row(
-                modifier = Modifier.heightIn(min = 48.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = query,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        },
-        trailingIcon = {
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = null,
-                )
-            }
-        },
-    )
 }
 
 @Composable
@@ -391,7 +297,7 @@ private fun BooksList(
                         ) {
                             Spacer(modifier = Modifier.weight(weight = 1f))
                             Text(
-                                text = "Source:",
+                                text = stringResource(R.string.search_screen_source_label),
                                 style = MaterialTheme.typography.bodySmall,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -410,11 +316,11 @@ private fun BooksList(
         item {
             if (showingPartialResults) {
                 Spacer(Modifier.height(height = 8.dp))
-                Text(text = "Some book sources failed.")
+                Text(text = stringResource(R.string.search_screen_partial_results_error_text))
             }
 
             Spacer(Modifier.height(height = 8.dp))
-            Text(text = "Not in the list?")
+            Text(text = stringResource(R.string.search_screen_load_more_suggestion_text))
 
             if (canLoadMore) {
                 Spacer(Modifier.height(height = 8.dp))
@@ -423,7 +329,11 @@ private fun BooksList(
                     enabled = !isLoadingMore,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = if (isLoadingMore) "Loading…" else "Show More")
+                    Text(
+                        text =
+                            if (isLoadingMore) stringResource(R.string.search_screen_load_more_button_in_progress_text)
+                            else stringResource(R.string.search_screen_load_more_button_default_text)
+                    )
                 }
             }
 
@@ -432,7 +342,7 @@ private fun BooksList(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onManualAdd(query) },
             ) {
-                Text(text = "Add Manually")
+                Text(text = stringResource(R.string.search_screen_add_manually_button))
             }
 
             Spacer(Modifier.height(height = 16.dp))

@@ -24,8 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.components.BookSourceBadge
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
@@ -47,7 +49,7 @@ fun RecentlyDeletedScreen(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             CommonTopAppBar(
-                title = "Recently Deleted",
+                title = stringResource(R.string.recently_deleted_screen_name),
                 canGoBack = true,
                 onBack = onBack,
             )
@@ -64,14 +66,14 @@ fun RecentlyDeletedScreen(
                 Spacer(Modifier.height(height = 16.dp))
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "No Recently Deleted Books",
+                    text = stringResource(R.string.recently_deleted_screen_empty_state_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.height(height = 8.dp))
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Books you delete will appear here for 7 days before being permanently removed.",
+                    text = stringResource(R.string.recently_deleted_screen_empty_state_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -147,7 +149,7 @@ fun RecentlyDeletedScreen(
                                     ) {
                                         Spacer(modifier = Modifier.weight(weight = 1f))
                                         Text(
-                                            text = "Source:",
+                                            text = stringResource(R.string.recently_deleted_screen_source_label),
                                             style = MaterialTheme.typography.bodySmall,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
@@ -169,23 +171,23 @@ fun RecentlyDeletedScreen(
                 AlertDialog(
                     onDismissRequest = { showRestoreBookDialog = false },
                     title = {
-                        Text(text = "Restore Book")
+                        Text(text = stringResource(R.string.recently_deleted_screen_restore_dialog_title))
                     },
                     text = {
-                        Text(text = "Would you like to restore \"${selectedBookData.second}\" back to your collection?")
+                        Text(text = stringResource(R.string.recently_deleted_screen_restore_dialog_text, selectedBookData.second))
                     },
                     confirmButton = {
                         TextButton(
                             onClick = {
                                 showRestoreBookDialog = false
                                 onRestoreBook(selectedBookData.first)
-                            }) { Text(text = "Restore") }
+                            }) { Text(text = stringResource(R.string.recently_deleted_screen_restore_dialog_restore_button_label)) }
                     },
                     dismissButton = {
                         TextButton(
                             onClick = {
                                 showRestoreBookDialog = false
-                            }) { Text(text = "Cancel") }
+                            }) { Text(text = stringResource(R.string.recently_deleted_screen_restore_dialog_cancel_button_label)) }
                     },
                 )
             }

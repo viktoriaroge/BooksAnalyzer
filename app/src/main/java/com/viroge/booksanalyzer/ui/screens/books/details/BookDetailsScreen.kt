@@ -37,14 +37,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.ReadingStatus
 import com.viroge.booksanalyzer.ui.components.BookSourceBadge
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.components.CommonItemCard
+import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
+import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +79,9 @@ fun BookDetailsScreen(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             CommonTopAppBar(
-                title = if (state.isEditMode) "Edit Book" else "Book Details",
+                title =
+                    if (state.isEditMode) stringResource(R.string.book_details_in_edit_screen_name)
+                    else stringResource(R.string.book_details_screen_name),
                 canGoBack = true,
                 onBack = if (state.isEditMode) onCancelEdit else onBack,
                 actions = {
@@ -84,14 +90,14 @@ fun BookDetailsScreen(
                             IconButton(onClick = onSaveEdits) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
-                                    contentDescription = "Save",
+                                    contentDescription = "",
                                 )
                             }
                         } else {
                             IconButton(onClick = onEdit) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
-                                    contentDescription = "Edit",
+                                    contentDescription = "",
                                 )
                             }
                         }
@@ -137,7 +143,7 @@ fun BookDetailsScreen(
                         .fillMaxWidth()
                         .padding(all = 16.dp),
                 ) {
-                    Text(text = "Choose a better cover")
+                    Text(text = stringResource(R.string.book_details_in_edit_change_book_cover_button_label))
                 }
 
                 Spacer(Modifier.height(height = 8.dp))
@@ -158,11 +164,7 @@ fun BookDetailsScreen(
                 }
 
                 if (book == null) {
-                    Text(
-                        text = "Loading…",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    CommonLinearProgressIndicator()
                     return@Column
                 }
 
@@ -170,37 +172,37 @@ fun BookDetailsScreen(
                     OutlinedTextField(
                         value = state.editTitle,
                         onValueChange = onUpdateEditTitle,
-                        label = { Text("Title") },
+                        label = { Text(stringResource(R.string.book_details_in_edit_title_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
                     OutlinedTextField(
                         value = state.editAuthors,
                         onValueChange = onUpdateEditAuthors,
-                        label = { Text("Authors") },
+                        label = { Text(stringResource(R.string.book_details_in_edit_author_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        placeholder = { Text("e.g.: Jane Doe, John Smith") },
+                        placeholder = { Text(stringResource(R.string.book_details_in_edit_author_hint)) },
                     )
                     OutlinedTextField(
                         value = state.editPublishedYear,
                         onValueChange = onUpdateEditPublishedYear,
-                        label = { Text("Year") },
+                        label = { Text(stringResource(R.string.book_details_in_edit_year_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        placeholder = { Text("e.g.: 2020") },
+                        placeholder = { Text(stringResource(R.string.book_details_in_edit_year_hint)) },
                     )
                     OutlinedTextField(
                         value = state.editIsbn13,
                         onValueChange = onUpdateEditIsbn13,
-                        label = { Text("ISBN-13") },
+                        label = { Text(stringResource(R.string.book_details_in_edit_isbn13_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
                     OutlinedTextField(
                         value = state.editIsbn10,
                         onValueChange = onUpdateEditIsbn10,
-                        label = { Text("ISBN-10") },
+                        label = { Text(stringResource(R.string.book_details_in_edit_isbn10_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -215,13 +217,17 @@ fun BookDetailsScreen(
                         enabled = !state.isSaving,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(text = if (state.isSaving) "Saving…" else "Save changes")
+                        Text(
+                            text =
+                                if (state.isSaving) stringResource(R.string.book_details_in_edit_save_in_progress_button)
+                                else stringResource(R.string.book_details_in_edit_save_default_button)
+                        )
                     }
                     TextButton(
                         onClick = onCancelEdit,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.book_details_in_edit_cancel_button))
                     }
                 } else {
                     Text(
@@ -257,7 +263,7 @@ fun BookDetailsScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            text = "Source:",
+                            text = stringResource(R.string.book_details_source_label),
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -285,7 +291,11 @@ fun BookDetailsScreen(
                         ),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(text = if (state.isDeleting) "Deleting…" else "Delete book")
+                        Text(
+                            text =
+                                if (state.isDeleting) stringResource(R.string.book_details_delete_in_progress_button)
+                                else stringResource(R.string.book_details_delete_default_button)
+                        )
                     }
                 }
             }
@@ -293,26 +303,35 @@ fun BookDetailsScreen(
             Spacer(Modifier.height(height = 16.dp))
 
             if (showDeleteDialog) {
+                val settingsTabName = stringResource(R.string.settings_screen_name)
+                val recentlyDeletedSectionName = stringResource(R.string.recently_deleted_screen_name)
+
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
                     title = {
-                        Text(text = "Delete Book")
+                        Text(text = stringResource(R.string.book_details_delete_book_dialog_title))
                     },
                     text = {
-                        Text(text = "Are you sure you want to remove this book from your collection? \nYou will still briefly see it in Recently Deleted in Settings.")
+                        Text(
+                            text = stringResource(
+                                R.string.book_details_delete_book_dialog_text,
+                                recentlyDeletedSectionName,
+                                settingsTabName
+                            )
+                        )
                     },
                     confirmButton = {
                         TextButton(
                             onClick = {
                                 showDeleteDialog = false
                                 onDelete()
-                            }) { Text(text = "Delete") }
+                            }) { Text(text = stringResource(R.string.book_details_delete_book_dialog_delete_button)) }
                     },
                     dismissButton = {
                         TextButton(
                             onClick = {
                                 showDeleteDialog = false
-                            }) { Text(text = "Cancel") }
+                            }) { Text(text = stringResource(R.string.book_details_delete_book_dialog_cancel_button)) }
                     },
                 )
             }
@@ -333,7 +352,7 @@ private fun StatusPicker(
 
         Spacer(Modifier.height(height = 24.dp))
         Text(
-            text = "Status",
+            text = stringResource(R.string.book_details_status_label),
             style = MaterialTheme.typography.titleSmall,
         )
         Spacer(Modifier.height(height = 8.dp))
@@ -344,10 +363,7 @@ private fun StatusPicker(
         ) {
 
             OutlinedTextField(
-                value = current.name
-                    .replace(oldChar = '_', newChar = ' ')
-                    .lowercase()
-                    .replaceFirstChar { it.uppercase() },
+                value = StatusMapper.getUiModel(current).text,
                 onValueChange = {},
                 readOnly = true,
                 modifier = Modifier
@@ -367,13 +383,7 @@ private fun StatusPicker(
                 ReadingStatus.entries.forEach { status ->
 
                     DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = status.name
-                                    .replace(oldChar = '_', newChar = ' ')
-                                    .lowercase()
-                                    .replaceFirstChar { it.uppercase() })
-                        },
+                        text = { Text(text = StatusMapper.getUiModel(status).text) },
                         onClick = {
                             expanded = false
                             onChange(status)

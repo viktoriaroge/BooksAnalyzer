@@ -11,9 +11,11 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
+import com.viroge.booksanalyzer.R
 
 @Composable
 fun AppBottomBar(
@@ -23,17 +25,17 @@ fun AppBottomBar(
     val items = listOf(
         BottomItem(
             route = Routes.LIBRARY,
-            label = "My Books",
+            label = stringResource(R.string.library_screen_name),
             icon = Icons.Default.LocalLibrary,
         ),
         BottomItem(
             route = Routes.ADD_BOOK,
-            label = "Find Books",
+            label = stringResource(R.string.search_screen_name),
             icon = Icons.Default.Search,
         ),
         BottomItem(
             route = Routes.SETTINGS,
-            label = "Settings",
+            label = stringResource(R.string.settings_screen_name),
             icon = Icons.Default.Settings,
         ),
     )

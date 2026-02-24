@@ -1,3 +1,105 @@
 <resources>
     <string name="app_name">PageVow</string>
+    <string name="empty_text"> </string>
+
+    <string name="reading_status_not_started">Awaiting</string>
+    <string name="reading_status_reading">Engaged</string>
+    <string name="reading_status_finished">Conquered</string>
+    <string name="reading_status_abandoned">Forsaken</string>
+
+    <string name="search_mode_all">All</string>
+    <string name="search_mode_title">Title</string>
+    <string name="search_mode_author">Author</string>
+    <string name="search_mode_isbn">ISBN</string>
+
+    <string name="library_screen_name">My PageVows</string>
+    <string name="library_screen_search_placeholder">Seek a title within your PageVows…</string>
+    <string name="library_screen_filter_status_text">Bond: %1$s</string>
+    <string name="library_screen_filter_sort_text">Arrangement: %1$s</string>
+    <string name="library_screen_filter_button_clear_label">Purge</string>
+    <string name="library_screen_empty_state_title">A Fresh Page</string>
+    <string name="library_screen_empty_state_subtitle">Your shelf is a blank slate. Ready to make it official? Discover Stories to pledge your first PageVow.</string>
+    <string name="library_screen_currently_reading_section_title">Now Engaged</string>
+    <string name="library_screen_all_section_title">The Whole Record</string>
+
+    <string name="library_filters_sheet_title">Order of the Tome</string>
+    <string name="library_filters_sheet_status_title">Nature of the Bond</string>
+    <string name="library_filters_sheet_sort_title">Arrange by Decree</string>
+    <string name="library_filters_sheet_sort_by_added_label">By the Date of the Pledge</string>
+    <string name="library_filters_sheet_sort_by_recent_label">By the Last Touched</string>
+    <string name="library_filters_sheet_sort_by_title_label">By Title</string>
+    <string name="library_filters_sheet_sort_by_author_label">By Author</string>
+    <string name="library_filters_sheet_button_clear_label">Purge</string>
+
+    <string name="book_details_screen_name">The Book\'s Essence</string>
+    <string name="book_details_source_label">Origin:</string>
+    <string name="book_details_status_label">Nature of the Bond</string>
+    <string name="book_details_delete_default_button">Banish Book</string>
+    <string name="book_details_delete_in_progress_button">Banishing…</string>
+    <string name="book_details_delete_book_dialog_title">Banish Book?</string>
+    <string name="book_details_delete_book_dialog_text">Shall this book be cast out of your collection? \nIt will remain within the \"%1$s\" chamber in the \"%2$s\" for a week\'s grace before the record is purged.</string>
+    <string name="book_details_delete_book_dialog_delete_button">Banish</string>
+    <string name="book_details_delete_book_dialog_cancel_button">Keep</string>
+    <string name="book_details_in_edit_screen_name">Alter the Record</string>
+    <string name="book_details_in_edit_change_book_cover_button_label">Change the Visage</string>
+    <string name="book_details_in_edit_title_label">Title</string>
+    <string name="book_details_in_edit_author_label">Authors</string>
+    <string name="book_details_in_edit_author_hint">e.g.: Jane Doe, John Smith</string>
+    <string name="book_details_in_edit_year_label">Year of Origin</string>
+    <string name="book_details_in_edit_year_hint">e.g.: 2020</string>
+    <string name="book_details_in_edit_isbn13_label">ISBN-13</string>
+    <string name="book_details_in_edit_isbn10_label">ISBN-10</string>
+    <string name="book_details_in_edit_save_default_button">Seal Changes</string>
+    <string name="book_details_in_edit_save_in_progress_button">Sealing…</string>
+    <string name="book_details_in_edit_cancel_button">Discard</string>
+
+    <string name="search_screen_name">Discover Stories</string>
+    <string name="search_screen_search_field_hint">Seek by title, author, or ISBN</string>
+    <string name="search_screen_refresh_button">Re-Invoke</string>
+    <string name="search_screen_no_results_error_text">The Oracles are silent for \"%1$s\".</string>
+    <string name="search_screen_add_manually_button">Inscribe Manually</string>
+    <string name="search_screen_clear_history_dialog_title">Purge Inquiries?</string>
+    <string name="search_screen_clear_history_dialog_text">Shall we strike the echoes of your past searches? \nThis memory cannot be restored.</string>
+    <string name="search_screen_clear_history_clear_button">Purge</string>
+    <string name="search_screen_clear_history_cancel_button">Retain</string>
+    <string name="search_screen_source_label">Origin:</string>
+    <string name="search_screen_partial_results_error_text">Some archives remain closed to us.</string>
+    <string name="search_screen_load_more_suggestion_text">Does the title elude you?</string>
+    <string name="search_screen_load_more_button_default_text">Seek Further</string>
+    <string name="search_screen_load_more_button_in_progress_text">Seeking…</string>
+    <string name="search_screen_recent_searches_section_text">Past Inquiries</string>
+    <string name="search_screen_recent_searches_clear_button">Strike All</string>
+
+    <string name="confirm_book_screen_name">Finalize the PageVow</string>
+    <string name="confirm_book_in_manual_mode_screen_name">Inscribe Manually</string>
+    <string name="confirm_book_change_book_cover_button_label">Change the Visage</string>
+    <string name="confirm_book_screen_isbn13_label">ISBN-13: %1$s</string>
+    <string name="confirm_book_screen_source_label">Origin:</string>
+    <string name="confirm_book_screen_save_button_label">Commit to Chronicle</string>
+    <string name="confirm_book_screen_manual_form_instruction_text">Provide the Book\'s Essence. The Title is required.</string>
+    <string name="confirm_book_screen_manual_form_title_label">Title</string>
+    <string name="confirm_book_screen_manual_form_author_label">Authors (separated by commas)</string>
+    <string name="confirm_book_screen_manual_form_year_label">Year of Origin</string>
+    <string name="confirm_book_screen_manual_form_isbn13_label">ISBN-13 (optional)</string>
+    <string name="confirm_book_screen_manual_form_cover_url_label">Visage Link (optional)</string>
+    <string name="confirm_book_screen_manual_form_save_button_label">Commit to Chronicle</string>
+
+    <string name="settings_screen_name">Scriptorium</string>
+    <string name="settings_screen_profile_section_title">The Soul-Bearer</string>
+    <string name="settings_screen_item_account_title">Communion &amp; Sync (Coming Soon)</string>
+    <string name="settings_screen_item_account_subtitle">Bind your account to carry your PageVows across all realms.</string>
+    <string name="settings_screen_books_section_title">The Great Archive</string>
+    <string name="settings_screen_item_recently_deleted_subtitle">Severed Vows rest here for 7 days, awaiting a second chance before being cast into the abyss.</string>
+    <string name="settings_screen_application_section_title">The Foundation</string>
+    <string name="settings_screen_item_version_title">Era of the Build</string>
+    <string name="settings_screen_item_version_subtitle">1.0.0</string>
+
+    <string name="recently_deleted_screen_name">Books in Exile</string>
+    <string name="recently_deleted_screen_empty_state_title">The Exile is Empty</string>
+    <string name="recently_deleted_screen_empty_state_subtitle">No stories currently dwell in the shadows. If you sever a PageVow, the book will wait here for 7 days… just in case you change your heart.</string>
+    <string name="recently_deleted_screen_source_label">Origin:</string>
+    <string name="recently_deleted_screen_restore_dialog_title">End the Exile?</string>
+    <string name="recently_deleted_screen_restore_dialog_text">Do you wish to reclaim \"%1$s\" and return it to your chronicle?</string>
+    <string name="recently_deleted_screen_restore_dialog_restore_button_label">Reclaim</string>
+    <string name="recently_deleted_screen_restore_dialog_cancel_button_label">Leave in Exile</string>
 </resources>
