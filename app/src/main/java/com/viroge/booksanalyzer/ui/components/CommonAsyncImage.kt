@@ -5,6 +5,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -18,6 +19,7 @@ fun CommonAsyncImage(
     requestHeaders: Map<String, String>,
     @DrawableRes defaultImageRes: Int = R.drawable.ic_default_book,
     size: CommonAsyncImageSize = CommonAsyncImageSize.SMALL,
+    contentScale: ContentScale = ContentScale.Fit,
     modifier: Modifier = Modifier,
 ) = AsyncImage(
     modifier = modifier
@@ -55,6 +57,7 @@ fun CommonAsyncImage(
         )
         .build(),
     error = painterResource(id = defaultImageRes),
+    contentScale = contentScale,
     contentDescription = null,
 )
 
