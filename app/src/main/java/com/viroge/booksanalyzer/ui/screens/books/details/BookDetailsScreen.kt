@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -50,8 +51,8 @@ import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.ReadingStatus
 import com.viroge.booksanalyzer.ui.components.BookSourceBadge
-import com.viroge.booksanalyzer.ui.components.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
+import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
 import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
@@ -331,7 +332,9 @@ fun BookDetailsScreen(
 
 @Composable
 fun BookCoverHeader(
-    imageUrl: String, modifier: Modifier = Modifier, headersForBookCover: Map<String, String>
+    imageUrl: String,
+    headersForBookCover: Map<String, String>,
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
@@ -340,7 +343,7 @@ fun BookCoverHeader(
     ) {
         // Hazy background:
         val isDarkTheme = isSystemInDarkTheme()
-        CommonAsyncImage(
+        CommonCoverAsyncImage(
             modifier = Modifier
                 .fillMaxSize()
                 .blur(radius = 30.dp)
@@ -359,11 +362,11 @@ fun BookCoverHeader(
         )
 
         // Cover image:
-        CommonAsyncImage(
+        CommonCoverAsyncImage(
             modifier = Modifier
                 .align(Alignment.Center)
                 .padding(vertical = 32.dp)
-                .shadow(12.dp),
+                .shadow(12.dp, RoundedCornerShape(12.dp)),
             url = imageUrl,
             requestHeaders = headersForBookCover,
             size = CommonAsyncImageSize.XXLARGE,

@@ -3,8 +3,10 @@ package com.viroge.booksanalyzer.ui.components
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -14,12 +16,12 @@ import coil.request.ImageRequest
 import com.viroge.booksanalyzer.R
 
 @Composable
-fun CommonAsyncImage(
+fun CommonCoverAsyncImage(
     url: String?,
     requestHeaders: Map<String, String>,
-    @DrawableRes defaultImageRes: Int = R.drawable.ic_default_book,
+    @DrawableRes defaultImageRes: Int = R.drawable.ic_empty_book_cover,
     size: CommonAsyncImageSize = CommonAsyncImageSize.SMALL,
-    contentScale: ContentScale = ContentScale.Fit,
+    contentScale: ContentScale = ContentScale.Crop,
     modifier: Modifier = Modifier,
 ) = AsyncImage(
     modifier = modifier
@@ -40,7 +42,8 @@ fun CommonAsyncImage(
                 CommonAsyncImageSize.XLARGE -> 300.dp
                 CommonAsyncImageSize.XXLARGE -> 360.dp
             },
-        ),
+        )
+        .clip(RoundedCornerShape(12.dp)),
     model = ImageRequest.Builder(context = LocalContext.current)
         .data(data = url)
         .let { chain ->

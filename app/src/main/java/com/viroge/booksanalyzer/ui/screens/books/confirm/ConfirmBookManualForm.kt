@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -19,7 +20,7 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.SearchMode
 
 @Composable
-fun ManualBookForm(
+fun ConfirmBookManualForm(
     prefillQuery: String,
     prefillMode: SearchMode,
     isSaving: Boolean,
@@ -51,53 +52,73 @@ fun ManualBookForm(
     var coverUrl by remember { mutableStateOf("") }
 
     Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         text = stringResource(R.string.confirm_book_screen_manual_form_instruction_text),
         style = MaterialTheme.typography.bodyMedium,
     )
+    Spacer(Modifier.height(height = 12.dp))
 
     OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         value = title,
         onValueChange = { title = it },
         label = { Text(stringResource(R.string.confirm_book_screen_manual_form_title_label)) },
-        modifier = Modifier.fillMaxWidth(),
         singleLine = true,
     )
+    Spacer(Modifier.height(height = 12.dp))
 
     OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         value = authors,
         onValueChange = { authors = it },
         label = { Text(stringResource(R.string.confirm_book_screen_manual_form_author_label)) },
-        modifier = Modifier.fillMaxWidth(),
         singleLine = true,
     )
+    Spacer(Modifier.height(height = 12.dp))
 
     OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         value = yearText,
         onValueChange = { yearText = it },
         label = { Text(stringResource(R.string.confirm_book_screen_manual_form_year_label)) },
-        modifier = Modifier.fillMaxWidth(),
         singleLine = true,
     )
+    Spacer(Modifier.height(height = 12.dp))
 
     OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         value = isbn13,
         onValueChange = { isbn13 = it },
         label = { Text(stringResource(R.string.confirm_book_screen_manual_form_isbn13_label)) },
-        modifier = Modifier.fillMaxWidth(),
         singleLine = true,
     )
+    Spacer(Modifier.height(height = 12.dp))
 
     OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         value = coverUrl,
         onValueChange = { coverUrl = it },
         label = { Text(stringResource(R.string.confirm_book_screen_manual_form_cover_url_label)) },
-        modifier = Modifier.fillMaxWidth(),
         singleLine = true,
     )
-
     Spacer(Modifier.height(16.dp))
 
     Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         onClick = {
             val year = yearText.trim().toIntOrNull()
             onSave(
@@ -109,8 +130,7 @@ fun ManualBookForm(
             )
         },
         enabled = !isSaving && title.isNotBlank(),
-        modifier = Modifier.fillMaxWidth(),
     ) { Text(text = stringResource(R.string.confirm_book_screen_manual_form_save_button_label)) }
 
-    Spacer(Modifier.height(height = 16.dp))
+    Spacer(Modifier.height(height = 24.dp))
 }

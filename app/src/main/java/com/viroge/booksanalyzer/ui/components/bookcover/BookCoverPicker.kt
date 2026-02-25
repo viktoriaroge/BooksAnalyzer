@@ -32,7 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.ui.components.CommonAsyncImage
+import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,7 +132,7 @@ private fun CoverChoiceTile(
                 else Modifier
             )
     ) {
-        CommonAsyncImage(
+        CommonCoverAsyncImage(
             modifier = Modifier.fillMaxSize(),
             url = url,
             requestHeaders = requestHeaders,

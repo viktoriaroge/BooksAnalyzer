@@ -39,7 +39,7 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.SearchMode
 import com.viroge.booksanalyzer.ui.components.BookSourceBadge
-import com.viroge.booksanalyzer.ui.components.CommonAsyncImage
+import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.components.CommonItemCard
 import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
@@ -250,7 +250,7 @@ private fun BooksList(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                 ) {
-                    CommonAsyncImage(
+                    CommonCoverAsyncImage(
                         url = book.coverUrl,
                         requestHeaders = book.coverRequestHeaders,
                         size = CommonAsyncImageSize.XSMALL,

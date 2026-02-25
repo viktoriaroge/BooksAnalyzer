@@ -48,10 +48,12 @@ class CoverPickerViewModel @Inject constructor() : ViewModel() {
 
         viewModelScope.launch {
             val candidates = CoverUrlOptimizer.getCoverCandidates(book = book)
+            // Add an empty url just in case the user wants to reset to empty:
+            val emptyElement: Pair<String, Map<String, String>> = Pair("", emptyMap())
             _coverPicker.value = CoverPickerUiState(
                 isOpen = true,
                 isLoading = false,
-                candidates = candidates,
+                candidates = listOf(emptyElement) + candidates,
             )
         }
         pickerAlreadyLoaded = true

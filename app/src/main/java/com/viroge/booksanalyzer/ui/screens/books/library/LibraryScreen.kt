@@ -48,7 +48,7 @@ import com.viroge.booksanalyzer.domain.Book
 import com.viroge.booksanalyzer.domain.LibraryFilters
 import com.viroge.booksanalyzer.domain.LibrarySort
 import com.viroge.booksanalyzer.ui.components.BookSourceBadge
-import com.viroge.booksanalyzer.ui.components.CommonAsyncImage
+import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.components.CommonItemCard
 import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
@@ -292,7 +292,7 @@ fun CurrentlyReadingCard(
             Box(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                CommonAsyncImage(
+                CommonCoverAsyncImage(
                     url = book.coverUrl,
                     requestHeaders = book.coverRequestHeaders,
                     size = CommonAsyncImageSize.MEDIUM,
@@ -346,7 +346,7 @@ private fun BookRowCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
-            CommonAsyncImage(
+            CommonCoverAsyncImage(
                 url = book.coverUrl,
                 requestHeaders = book.coverRequestHeaders,
                 size = CommonAsyncImageSize.SMALL,
