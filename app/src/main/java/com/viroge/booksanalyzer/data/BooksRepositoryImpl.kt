@@ -151,23 +151,22 @@ class BooksRepositoryImpl @Inject constructor(
         }
 
         val id = if (wasEdited) book.id else UUID.randomUUID().toString()
-        val key = titleKey(book.title, book.authors, book.publishedYear)
         val entity = BookEntity(
             bookId = id,
+            titleKey = titleKey(book.title, book.authors, book.publishedYear),
             sourceId = book.sourceId,
             source = book.source.name,
             title = book.title,
             authors = book.authors.joinToString(separator = ", "),
-            titleKey = key,
             publishedYear = book.publishedYear,
             isbn13 = book.isbn13,
             isbn10 = book.isbn10,
             coverUrl = book.coverUrl,
             status = book.status.name,
-            createdAtEpochMs = System.currentTimeMillis(),
-            lastOpenAtEpochMs = System.currentTimeMillis(),
-            lastMarkedToDelete = 0,
-            toBeDeleted = false,
+            createdAtEpochMs = if (wasEdited) book.createdAtEpochMs else System.currentTimeMillis(),
+            lastOpenAtEpochMs = if (wasEdited) book.lastOpenAtEpochMs else System.currentTimeMillis(),
+            lastMarkedToDelete = if (wasEdited) book.lastMarkedToDelete else 0,
+            toBeDeleted = if (wasEdited) book.toBeDeleted else false,
         )
         bookDao.upsert(book = entity)
 
