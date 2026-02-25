@@ -29,6 +29,7 @@ import com.viroge.booksanalyzer.ui.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.activityViewModel
 import com.viroge.booksanalyzer.ui.components.snackbar.AppSnackbarController
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
+import com.viroge.booksanalyzer.ui.screens.truncate
 
 @Composable
 fun AppRoot() {
@@ -83,10 +84,13 @@ fun AppRoot() {
 
             LaunchedEffect(key1 = Unit) {
                 sharedViewModel.events.collect { event ->
+                    val titleLimit = 44
+
                     when (event) {
                         is AppEvent.BookDeleted -> {
+                            val normalizedTitle = event.title.truncate(limit = titleLimit)
                             snackbar.show(
-                                message = "Book \"${event.title}\" deleted.",
+                                message = "Book \"$normalizedTitle\" deleted.",
                                 actionLabel = "Undo",
                                 withDismissAction = true,
                                 duration = SnackbarDuration.Long,
@@ -95,22 +99,25 @@ fun AppRoot() {
                         }
 
                         is AppEvent.BookDeletingFailed -> {
+                            val normalizedTitle = event.title.truncate(limit = titleLimit)
                             snackbar.show(
-                                message = "Deleting book \"${event.title}\" failed.",
+                                message = "Deleting book \"$normalizedTitle\" failed.",
                                 duration = SnackbarDuration.Short,
                             )
                         }
 
                         is AppEvent.BookRestoreFailed -> {
+                            val normalizedTitle = event.title.truncate(limit = titleLimit)
                             snackbar.show(
-                                message = "Restoring book \"${event.title}\" failed.",
+                                message = "Restoring book \"$normalizedTitle\" failed.",
                                 duration = SnackbarDuration.Short,
                             )
                         }
 
                         is AppEvent.BookRestoreSuccess -> {
+                            val normalizedTitle = event.title.truncate(limit = titleLimit)
                             snackbar.show(
-                                message = "Book \"${event.title}\" restored.",
+                                message = "Book \"$normalizedTitle\" restored.",
                                 duration = SnackbarDuration.Short,
                             )
                         }

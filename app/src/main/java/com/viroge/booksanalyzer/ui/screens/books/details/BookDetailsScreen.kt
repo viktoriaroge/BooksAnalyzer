@@ -1,6 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
 import android.util.Log
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,12 +83,10 @@ fun BookDetailsScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface,
-        topBar = {
+        containerColor = MaterialTheme.colorScheme.surface, topBar = {
             CommonTopAppBar(
-                title =
-                    if (state.isEditMode) stringResource(R.string.book_details_screen_in_edit_screen_name)
-                    else stringResource(R.string.book_details_screen_name),
+                title = if (state.isEditMode) stringResource(R.string.book_details_screen_in_edit_screen_name)
+                else stringResource(R.string.book_details_screen_name),
                 canGoBack = true,
                 onBack = if (state.isEditMode) onCancelEdit else onBack,
                 actions = {
@@ -110,8 +109,7 @@ fun BookDetailsScreen(
                     }
                 },
             )
-        }
-    ) { screenPadding ->
+        }) { screenPadding ->
 
         val book = state.book
         val scrollState = rememberScrollState()
@@ -215,9 +213,8 @@ fun BookDetailsScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            text =
-                                if (state.isSaving) stringResource(R.string.book_details_screen_in_edit_save_in_progress_button)
-                                else stringResource(R.string.book_details_screen_in_edit_save_default_button)
+                            text = if (state.isSaving) stringResource(R.string.book_details_screen_in_edit_save_in_progress_button)
+                            else stringResource(R.string.book_details_screen_in_edit_save_default_button)
                         )
                     }
                     TextButton(
@@ -241,8 +238,7 @@ fun BookDetailsScreen(
                     }
 
                     val meta = listOfNotNull(
-                        book.publishedYear?.toString(),
-                        book.isbn13
+                        book.publishedYear?.toString(), book.isbn13
                     ).joinToString(separator = " • ")
 
                     if (meta.isNotBlank()) {
@@ -289,9 +285,8 @@ fun BookDetailsScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            text =
-                                if (state.isDeleting) stringResource(R.string.book_details_screen_delete_in_progress_button)
-                                else stringResource(R.string.book_details_screen_delete_default_button)
+                            text = if (state.isDeleting) stringResource(R.string.book_details_screen_delete_in_progress_button)
+                            else stringResource(R.string.book_details_screen_delete_default_button)
                         )
                     }
                 }
@@ -311,9 +306,7 @@ fun BookDetailsScreen(
                     text = {
                         Text(
                             text = customAnnotatedString(
-                                R.string.book_details_screen_delete_book_dialog_text,
-                                recentlyDeletedSectionName,
-                                settingsTabName
+                                R.string.book_details_screen_delete_book_dialog_text, recentlyDeletedSectionName, settingsTabName
                             )
                         )
                     },
@@ -338,9 +331,7 @@ fun BookDetailsScreen(
 
 @Composable
 fun BookCoverHeader(
-    imageUrl: String,
-    modifier: Modifier = Modifier,
-    headersForBookCover: Map<String, String>
+    imageUrl: String, modifier: Modifier = Modifier, headersForBookCover: Map<String, String>
 ) {
     Box(
         modifier = modifier
@@ -348,14 +339,18 @@ fun BookCoverHeader(
             .clipToBounds() // Prevents the blur from bleeding out
     ) {
         // Hazy background:
+        val isDarkTheme = isSystemInDarkTheme()
         CommonAsyncImage(
             modifier = Modifier
                 .fillMaxSize()
                 .blur(radius = 30.dp)
                 .drawWithContent {
                     drawContent()
-                    // Darken it slightly so the foreground pops
-                    drawRect(Color.Black.copy(alpha = 0.3f))
+                    // Adjust slightly so the foreground pops
+                    drawRect(
+                        if (isDarkTheme) Color.Black.copy(alpha = 0.3f)
+                        else Color.White.copy(alpha = 0.3f)
+                    )
                 },
             contentScale = ContentScale.Crop,
             url = imageUrl,
@@ -419,13 +414,10 @@ private fun StatusPicker(
 
                 ReadingStatus.entries.forEach { status ->
 
-                    DropdownMenuItem(
-                        text = { Text(text = StatusMapper.getUiModel(status).text) },
-                        onClick = {
-                            expanded = false
-                            onChange(status)
-                        }
-                    )
+                    DropdownMenuItem(text = { Text(text = StatusMapper.getUiModel(status).text) }, onClick = {
+                        expanded = false
+                        onChange(status)
+                    })
                 }
             }
         }

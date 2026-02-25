@@ -73,3 +73,13 @@ fun customAnnotatedString(id: Int, vararg formatArgs: Any): AnnotatedString {
         }
     }
 }
+
+fun String.truncate(
+    limit: Int,
+    appendDots: Boolean = true,
+): String =
+    if (this.length <= limit) this
+    else {
+        val suffix = if (appendDots) "..." else ""
+        this.take(limit).removeSuffix(" ") + suffix
+    }
