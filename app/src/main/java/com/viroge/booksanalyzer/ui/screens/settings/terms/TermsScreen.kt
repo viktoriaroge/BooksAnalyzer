@@ -25,7 +25,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.components.CommonItemCard
@@ -130,14 +129,12 @@ private fun TermEntry(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 text = it,
                 color = textColor,
-                textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
             )
         } ?: Text(
             modifier = Modifier.padding(horizontal = 20.dp),
             text = customAnnotatedString(entry.titleRes),
             color = textColor,
-            textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
         )
     }
@@ -151,14 +148,12 @@ private fun TermEntry(
                 modifier = Modifier.padding(horizontal = 20.dp),
                 text = it,
                 color = textColor,
-                textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
             )
         } ?: Text(
             modifier = Modifier.padding(horizontal = 20.dp),
             text = customAnnotatedString(entry.subtitleRes),
             color = textColor,
-            textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyMedium,
         )
     }

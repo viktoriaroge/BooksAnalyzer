@@ -12,6 +12,12 @@
     <string name="search_mode_author">Author</string>
     <string name="search_mode_isbn">ISBN</string>
 
+    <string name="library_sort_explanation_prefix">By: %1$s</string>
+    <string name="library_sort_by_added">Date of Pledge</string>
+    <string name="library_sort_by_recent">Last Touched</string>
+    <string name="library_sort_by_title">Title</string>
+    <string name="library_sort_by_author">Author</string>
+
     <string name="book_source_full_google_books">Google Books</string>
     <string name="book_source_full_open_library">Open Library</string>
     <string name="book_source_full_added_manually">Inscribed by Hand</string>
@@ -24,8 +30,6 @@
 
     <string name="library_screen_name">My PageVows</string>
     <string name="library_screen_search_placeholder">Seek a title within your PageVows…</string>
-    <string name="library_screen_filter_status_text">Bond: %1$s</string>
-    <string name="library_screen_filter_sort_text">Arrangement: %1$s</string>
     <string name="library_screen_filter_button_clear_label">Purge</string>
     <string name="library_screen_empty_state_title">A Fresh Page</string>
     <string name="library_screen_empty_state_subtitle">Your shelf is a blank slate. Ready to make it official? Discover Stories to pledge your first PageVow.</string>
@@ -35,10 +39,6 @@
     <string name="library_filters_sheet_title">Order of the Tome</string>
     <string name="library_filters_sheet_status_title">Nature of the Bond</string>
     <string name="library_filters_sheet_sort_title">Arrange by Decree</string>
-    <string name="library_filters_sheet_sort_by_added_label">By the Date of the Pledge</string>
-    <string name="library_filters_sheet_sort_by_recent_label">By the Last Touched</string>
-    <string name="library_filters_sheet_sort_by_title_label">By Title</string>
-    <string name="library_filters_sheet_sort_by_author_label">By Author</string>
     <string name="library_filters_sheet_button_clear_label">Purge</string>
 
     <string name="book_details_screen_name">The Book\'s Essence</string>
@@ -99,7 +99,7 @@
     <string name="settings_screen_item_account_title">Communion &amp; Sync (Coming Soon)</string>
     <string name="settings_screen_item_account_subtitle">Bind your account to carry your PageVows across all realms.</string>
     <string name="settings_screen_books_section_title">The Great Archive</string>
-    <string name="settings_screen_item_recently_deleted_subtitle">Severed Vows rest here for 7 days, awaiting a second chance before being cast into the abyss.</string>
+    <string name="settings_screen_item_recently_deleted_subtitle">Severed PageVows rest here for 7 days, awaiting a second chance before being cast into the abyss.</string>
     <string name="settings_screen_application_section_title">The Foundation</string>
     <string name="settings_screen_item_version_title">Era of the Build</string>
     <string name="settings_screen_item_version_subtitle">1.0.0</string>
@@ -119,7 +119,7 @@
     <string name="terms_screen_name">The Lexicon</string>
     <string name="terms_screen_intro">…to walk the path of the {bol}PageVow{/bol} is to speak a different tongue…</string>
     <string name="terms_screen_pagevow_title">{spe}The PageVow{/spe}</string>
-    <string name="terms_screen_pagevow_desc">A {spe}Sacred Commitment{/spe} between reader and story. \nTo make a PageVow is to pledge your focus to a book until its journey is complete or its bond is honorably severed.</string>
+    <string name="terms_screen_pagevow_desc">A {spe}Sacred Commitment{/spe} between reader and story. \nTo make a PageVow is to pledge your focus to a book until its journey is complete or your bond with it is honorably severed.</string>
     <string name="terms_screen_visage_title">{spe}The Visage{/spe}</string>
     <string name="terms_screen_visage_desc">The {spe}Book Cover{/spe}. \nThe face the story wears to greet the world.</string>
     <string name="terms_screen_chronicle_title">{spe}The Chronicle{/spe}</string>

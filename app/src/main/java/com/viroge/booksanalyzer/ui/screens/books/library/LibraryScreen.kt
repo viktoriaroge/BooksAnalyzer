@@ -53,6 +53,7 @@ import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.components.CommonItemCard
 import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
+import com.viroge.booksanalyzer.ui.screens.books.LibrarySortMapper
 import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -238,7 +239,6 @@ fun LibraryScreen(
     }
 }
 
-
 @Composable
 fun ActiveFiltersRow(
     filters: LibraryFilters,
@@ -247,13 +247,15 @@ fun ActiveFiltersRow(
 ) {
     val parts = buildList {
         filters.status?.let {
-            add(stringResource(R.string.library_screen_filter_status_text, StatusMapper.getUiModel(status = it).text))
+            StatusMapper.getUiModel(status = it).text
+                .also { statusText -> add(statusText) }
         }
+
         if (filters.sort != LibrarySort.ADDED) {
-            add(stringResource(R.string.library_screen_filter_sort_text, filters.sort.name.pretty()))
+            stringResource(R.string.library_sort_explanation_prefix, LibrarySortMapper.getUiModel(filters.sort).text)
+                .also { add(it) }
         }
     }
-
     if (parts.isEmpty()) return
 
     Row(
@@ -267,7 +269,9 @@ fun ActiveFiltersRow(
             text = parts.joinToString(separator = " • "),
             style = MaterialTheme.typography.bodySmall
         )
-        TextButton(onClick = onClearFilters) { Text(text = stringResource(R.string.library_screen_filter_button_clear_label)) }
+        TextButton(onClick = onClearFilters) {
+            Text(text = stringResource(R.string.library_screen_filter_button_clear_label))
+        }
     }
 }
 
@@ -325,7 +329,6 @@ fun CurrentlyReadingCard(
         }
     }
 }
-
 
 @Composable
 private fun BookRowCard(
@@ -397,7 +400,3 @@ private fun BookRowCard(
         }
     }
 }
-
-private fun String.pretty(): String = lowercase()
-    .replace(oldChar = '_', newChar = ' ')
-    .replaceFirstChar { it.uppercase() }

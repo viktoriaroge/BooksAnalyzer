@@ -44,29 +44,31 @@ fun SettingsScreen(
 
                 HorizontalDivider(thickness = 1.dp)
 
-                val textColor =
-                    if (item.isEnabled) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-
                 ListItem(
                     tonalElevation = if (item.isHeader) 2.dp else 0.dp,
-                    leadingContent = { item.icon?.let { Icon(it, contentDescription = null) } },
+                    leadingContent =
+                        if (item.icon != null) {
+                            { Icon(item.icon, contentDescription = null) }
+                        } else null,
                     headlineContent = {
                         if (item.showTitle) {
                             Text(
+                                modifier = Modifier.padding(vertical = 4.dp),
                                 text = item.title ?: stringResource(item.titleRes),
-                                color = textColor,
+                                style = MaterialTheme.typography.titleMedium,
                             )
                         }
                     },
-                    supportingContent = {
+                    supportingContent =
                         if (item.showSubtitle) {
-                            Text(
-                                text = item.subtitle ?: stringResource(item.subtitleRes),
-                                color = textColor,
-                            )
-                        }
-                    },
+                            {
+                                Text(
+                                    modifier = Modifier.padding(vertical = 4.dp),
+                                    text = item.subtitle ?: stringResource(item.subtitleRes),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+                        } else null,
                     modifier = Modifier.clickable { item.route?.let { onOpenEntry(it) } }
                 )
             }

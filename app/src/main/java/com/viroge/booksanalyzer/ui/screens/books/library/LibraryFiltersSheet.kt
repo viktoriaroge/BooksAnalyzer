@@ -4,10 +4,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.LowPriority
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -21,6 +30,7 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.LibraryFilters
 import com.viroge.booksanalyzer.domain.LibrarySort
 import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.ui.screens.books.LibrarySortMapper
 import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
 
 @Composable
@@ -33,28 +43,44 @@ fun LibraryFiltersSheet(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(all = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(space = 16.dp)
+            .verticalScroll(rememberScrollState()),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = stringResource(R.string.library_filters_sheet_title), style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = stringResource(R.string.library_filters_sheet_title),
+                style = MaterialTheme.typography.titleLarge,
+            )
             TextButton(onClick = onClear) { Text(text = stringResource(R.string.library_filters_sheet_button_clear_label)) }
         }
+        Spacer(modifier = Modifier.height(16.dp))
 
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 16.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            thickness = 1.dp,
+        // --- Status selection: ----------------------------------------
+        HorizontalDivider(thickness = 1.dp)
+        ListItem(
+            tonalElevation = 2.dp,
+            leadingContent = { Icon(Icons.Default.FavoriteBorder, contentDescription = null) },
+            headlineContent = {
+                Text(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    text = stringResource(R.string.library_filters_sheet_status_title),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            },
         )
-
-        Text(text = stringResource(R.string.library_filters_sheet_status_title), style = MaterialTheme.typography.titleSmall)
+        HorizontalDivider(thickness = 1.dp)
+        Spacer(modifier = Modifier.height(16.dp))
 
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(space = 20.dp),
             verticalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
             FilterChip(
@@ -71,68 +97,59 @@ fun LibraryFiltersSheet(
                 )
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
 
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 16.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            thickness = 1.dp,
+        // --- Sort selection: -------------------------------------------------
+        HorizontalDivider(thickness = 1.dp)
+        ListItem(
+            tonalElevation = 2.dp,
+            leadingContent = { Icon(Icons.Default.LowPriority, contentDescription = null) },
+            headlineContent = {
+                Text(
+                    text = stringResource(R.string.library_filters_sheet_sort_title),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            },
         )
+        HorizontalDivider(thickness = 1.dp)
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = stringResource(R.string.library_filters_sheet_sort_title),
-            style = MaterialTheme.typography.titleSmall,
-        )
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.surfaceBright,
-            thickness = 1.dp,
-        )
-        SortRadioRow(
-            label = stringResource(R.string.library_filters_sheet_sort_by_added_label),
-            selected = filters.sort == LibrarySort.ADDED,
-            onClick = { onSortChange(LibrarySort.ADDED) },
-        )
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.surfaceBright,
-            thickness = 1.dp,
-        )
-        SortRadioRow(
-            label = stringResource(R.string.library_filters_sheet_sort_by_recent_label),
-            selected = filters.sort == LibrarySort.RECENT,
-            onClick = { onSortChange(LibrarySort.RECENT) },
-        )
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.surfaceBright,
-            thickness = 1.dp,
-        )
-        SortRadioRow(
-            label = stringResource(R.string.library_filters_sheet_sort_by_title_label),
-            selected = filters.sort == LibrarySort.TITLE,
-            onClick = { onSortChange(LibrarySort.TITLE) },
-        )
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.surfaceBright,
-            thickness = 1.dp,
-        )
-        SortRadioRow(
-            label = stringResource(R.string.library_filters_sheet_sort_by_author_label),
-            selected = filters.sort == LibrarySort.AUTHOR,
-            onClick = { onSortChange(LibrarySort.AUTHOR) },
-        )
+        LibrarySort.entries.forEachIndexed { index, sort ->
+            if (index != 0) {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    color = MaterialTheme.colorScheme.surfaceBright,
+                    thickness = 1.dp,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+            SortRadioRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                label = LibrarySortMapper.getUiModel(sort).text,
+                selected = filters.sort == sort,
+                onClick = { onSortChange(sort) },
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
 @Composable
 private fun SortRadioRow(
+    modifier: Modifier = Modifier,
     label: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(text = label)
         RadioButton(selected = selected, onClick = onClick)
