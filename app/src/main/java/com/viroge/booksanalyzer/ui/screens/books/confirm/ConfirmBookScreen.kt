@@ -57,7 +57,7 @@ fun ConfirmBookScreen(
             CommonTopAppBar(
                 title =
                     if (book != null) stringResource(R.string.confirm_book_screen_name)
-                    else stringResource(R.string.confirm_book_in_manual_mode_screen_name),
+                    else stringResource(R.string.confirm_book_screen_in_manual_mode_name),
                 canGoBack = true,
                 onBack = onBack,
             )
@@ -108,7 +108,7 @@ fun ConfirmBookScreen(
                         onClick = onOpenCoverPicker,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(text = stringResource(R.string.confirm_book_change_book_cover_button_label))
+                        Text(text = stringResource(R.string.confirm_book_screen_change_book_cover_button_label))
                     }
 
                     Spacer(Modifier.height(height = 24.dp))

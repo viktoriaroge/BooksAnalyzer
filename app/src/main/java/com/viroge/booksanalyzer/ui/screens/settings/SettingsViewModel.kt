@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.ui.screens.settings
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Adb
+import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.LocalLibrary
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -52,6 +53,21 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
                     showSubtitle = true,
                     subtitleRes = R.string.settings_screen_item_recently_deleted_subtitle,
                     route = Routes.RECENTLY_DELETED_BOOKS,
+                ),
+
+                // --- Guide ----------------------
+                SettingsEntry(
+                    icon = Icons.Default.AutoStories,
+                    isHeader = true,
+                    showTitle = true,
+                    titleRes = R.string.settings_screen_guide_section_title,
+                ),
+                SettingsEntry(
+                    showTitle = true,
+                    titleRes = R.string.settings_screen_item_terms_title,
+                    showSubtitle = true,
+                    subtitleRes = R.string.settings_screen_item_terms_subtitle,
+                    route = Routes.APP_TERMS,
                 ),
 
                 // --- App ----------------------

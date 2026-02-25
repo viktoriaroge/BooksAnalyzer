@@ -13,6 +13,7 @@ import com.viroge.booksanalyzer.ui.screens.books.details.BookDetailsRoute
 import com.viroge.booksanalyzer.ui.screens.books.library.LibraryRoute
 import com.viroge.booksanalyzer.ui.screens.books.recentlydeleted.RecentlyDeletedRoute
 import com.viroge.booksanalyzer.ui.screens.settings.SettingsRoute
+import com.viroge.booksanalyzer.ui.screens.settings.terms.TermsRoute
 
 @Composable
 fun AppNavHost(
@@ -101,6 +102,12 @@ fun AppNavHost(
 
             composable(Routes.RECENTLY_DELETED_BOOKS) {
                 RecentlyDeletedRoute(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+
+            composable(Routes.APP_TERMS) {
+                TermsRoute(
                     onBack = { navController.popBackStack() },
                 )
             }

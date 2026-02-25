@@ -29,7 +29,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
 
@@ -54,7 +56,7 @@ fun CoverPickerSheet(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text("Choose a cover", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.book_cover_picker_name), style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(12.dp))
 
             // Manual url input:
@@ -68,12 +70,12 @@ fun CoverPickerSheet(
                     value = state.manualUrlInput,
                     onValueChange = onManualUrlChange,
                     modifier = Modifier.weight(1f),
-                    label = { Text("Paste Image URL here") },
+                    label = { Text(stringResource(R.string.book_cover_picker_input_field_label)) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
                 )
                 IconButton(onClick = onAddManualUrl) {
-                    Icon(Icons.Default.Check, contentDescription = "Display it")
+                    Icon(Icons.Default.Check, contentDescription = "")
                 }
             }
 

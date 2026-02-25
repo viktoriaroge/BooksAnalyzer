@@ -33,6 +33,7 @@ import com.viroge.booksanalyzer.ui.components.CommonAsyncImage
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.components.CommonItemCard
 import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
+import com.viroge.booksanalyzer.ui.screens.customAnnotatedString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -174,7 +175,7 @@ fun RecentlyDeletedScreen(
                         Text(text = stringResource(R.string.recently_deleted_screen_restore_dialog_title))
                     },
                     text = {
-                        Text(text = stringResource(R.string.recently_deleted_screen_restore_dialog_text, selectedBookData.second))
+                        Text(text = customAnnotatedString(R.string.recently_deleted_screen_restore_dialog_text, selectedBookData.second))
                     },
                     confirmButton = {
                         TextButton(

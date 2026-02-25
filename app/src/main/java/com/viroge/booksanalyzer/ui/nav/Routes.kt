@@ -15,6 +15,7 @@ object Routes {
     const val CONFIRM_BOOK = "confirm_book"
     const val BOOK_DETAILS = "book_details"
     const val RECENTLY_DELETED_BOOKS = "recently_deleted_books"
+    const val APP_TERMS = "app_terms"
 
     // Arguments:
     const val ARG_BOOK_ID = "arg_book_id"

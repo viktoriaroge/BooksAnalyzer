@@ -45,6 +45,7 @@ import com.viroge.booksanalyzer.ui.components.CommonItemCard
 import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
 import com.viroge.booksanalyzer.ui.screens.books.SearchModeMapper
+import com.viroge.booksanalyzer.ui.screens.customAnnotatedString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,7 +138,7 @@ fun BookSearchScreen(
                     Spacer(Modifier.height(height = 16.dp))
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        text = stringResource(R.string.search_screen_no_results_error_text, selectedState.query),
+                        text = customAnnotatedString(R.string.search_screen_no_results_error_text, selectedState.query),
                     )
 
                     Spacer(Modifier.height(height = 8.dp))

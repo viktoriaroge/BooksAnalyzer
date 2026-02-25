@@ -49,6 +49,7 @@ import com.viroge.booksanalyzer.ui.components.CommonItemCard
 import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
 import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
+import com.viroge.booksanalyzer.ui.screens.customAnnotatedString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,7 +81,7 @@ fun BookDetailsScreen(
         topBar = {
             CommonTopAppBar(
                 title =
-                    if (state.isEditMode) stringResource(R.string.book_details_in_edit_screen_name)
+                    if (state.isEditMode) stringResource(R.string.book_details_screen_in_edit_screen_name)
                     else stringResource(R.string.book_details_screen_name),
                 canGoBack = true,
                 onBack = if (state.isEditMode) onCancelEdit else onBack,
@@ -143,7 +144,7 @@ fun BookDetailsScreen(
                         .fillMaxWidth()
                         .padding(all = 16.dp),
                 ) {
-                    Text(text = stringResource(R.string.book_details_in_edit_change_book_cover_button_label))
+                    Text(text = stringResource(R.string.book_details_screen_in_edit_change_book_cover_button_label))
                 }
 
                 Spacer(Modifier.height(height = 8.dp))
@@ -172,37 +173,37 @@ fun BookDetailsScreen(
                     OutlinedTextField(
                         value = state.editTitle,
                         onValueChange = onUpdateEditTitle,
-                        label = { Text(stringResource(R.string.book_details_in_edit_title_label)) },
+                        label = { Text(stringResource(R.string.book_details_screen_in_edit_title_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
                     OutlinedTextField(
                         value = state.editAuthors,
                         onValueChange = onUpdateEditAuthors,
-                        label = { Text(stringResource(R.string.book_details_in_edit_author_label)) },
+                        label = { Text(stringResource(R.string.book_details_screen_in_edit_author_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        placeholder = { Text(stringResource(R.string.book_details_in_edit_author_hint)) },
+                        placeholder = { Text(stringResource(R.string.book_details_screen_in_edit_author_hint)) },
                     )
                     OutlinedTextField(
                         value = state.editPublishedYear,
                         onValueChange = onUpdateEditPublishedYear,
-                        label = { Text(stringResource(R.string.book_details_in_edit_year_label)) },
+                        label = { Text(stringResource(R.string.book_details_screen_in_edit_year_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        placeholder = { Text(stringResource(R.string.book_details_in_edit_year_hint)) },
+                        placeholder = { Text(stringResource(R.string.book_details_screen_in_edit_year_hint)) },
                     )
                     OutlinedTextField(
                         value = state.editIsbn13,
                         onValueChange = onUpdateEditIsbn13,
-                        label = { Text(stringResource(R.string.book_details_in_edit_isbn13_label)) },
+                        label = { Text(stringResource(R.string.book_details_screen_in_edit_isbn13_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
                     OutlinedTextField(
                         value = state.editIsbn10,
                         onValueChange = onUpdateEditIsbn10,
-                        label = { Text(stringResource(R.string.book_details_in_edit_isbn10_label)) },
+                        label = { Text(stringResource(R.string.book_details_screen_in_edit_isbn10_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -219,15 +220,15 @@ fun BookDetailsScreen(
                     ) {
                         Text(
                             text =
-                                if (state.isSaving) stringResource(R.string.book_details_in_edit_save_in_progress_button)
-                                else stringResource(R.string.book_details_in_edit_save_default_button)
+                                if (state.isSaving) stringResource(R.string.book_details_screen_in_edit_save_in_progress_button)
+                                else stringResource(R.string.book_details_screen_in_edit_save_default_button)
                         )
                     }
                     TextButton(
                         onClick = onCancelEdit,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(stringResource(R.string.book_details_in_edit_cancel_button))
+                        Text(stringResource(R.string.book_details_screen_in_edit_cancel_button))
                     }
                 } else {
                     Text(
@@ -263,7 +264,7 @@ fun BookDetailsScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            text = stringResource(R.string.book_details_source_label),
+                            text = stringResource(R.string.book_details_screen_source_label),
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -293,8 +294,8 @@ fun BookDetailsScreen(
                     ) {
                         Text(
                             text =
-                                if (state.isDeleting) stringResource(R.string.book_details_delete_in_progress_button)
-                                else stringResource(R.string.book_details_delete_default_button)
+                                if (state.isDeleting) stringResource(R.string.book_details_screen_delete_in_progress_button)
+                                else stringResource(R.string.book_details_screen_delete_default_button)
                         )
                     }
                 }
@@ -309,12 +310,12 @@ fun BookDetailsScreen(
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
                     title = {
-                        Text(text = stringResource(R.string.book_details_delete_book_dialog_title))
+                        Text(text = stringResource(R.string.book_details_screen_delete_book_dialog_title))
                     },
                     text = {
                         Text(
-                            text = stringResource(
-                                R.string.book_details_delete_book_dialog_text,
+                            text = customAnnotatedString(
+                                R.string.book_details_screen_delete_book_dialog_text,
                                 recentlyDeletedSectionName,
                                 settingsTabName
                             )
@@ -325,13 +326,13 @@ fun BookDetailsScreen(
                             onClick = {
                                 showDeleteDialog = false
                                 onDelete()
-                            }) { Text(text = stringResource(R.string.book_details_delete_book_dialog_delete_button)) }
+                            }) { Text(text = stringResource(R.string.book_details_screen_delete_book_dialog_delete_button)) }
                     },
                     dismissButton = {
                         TextButton(
                             onClick = {
                                 showDeleteDialog = false
-                            }) { Text(text = stringResource(R.string.book_details_delete_book_dialog_cancel_button)) }
+                            }) { Text(text = stringResource(R.string.book_details_screen_delete_book_dialog_cancel_button)) }
                     },
                 )
             }
@@ -352,7 +353,7 @@ private fun StatusPicker(
 
         Spacer(Modifier.height(height = 24.dp))
         Text(
-            text = stringResource(R.string.book_details_status_label),
+            text = stringResource(R.string.book_details_screen_status_label),
             style = MaterialTheme.typography.titleSmall,
         )
         Spacer(Modifier.height(height = 8.dp))
