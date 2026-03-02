@@ -1,103 +1,99 @@
 package com.viroge.booksanalyzer.ui.screens.bookcover
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.Book
-import com.viroge.booksanalyzer.domain.CoverUrlOptimizer
+import com.viroge.booksanalyzer.domain.usecase.GetBookCoverCandidatesUseCase
+import com.viroge.booksanalyzer.domain.usecase.GetBookCoverHeadersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CoverPickerViewModel @Inject constructor() : ViewModel() {
+class CoverPickerViewModel @Inject constructor(
+    private val getCoverCandidates: GetBookCoverCandidatesUseCase,
+    private val getCoverHeaders: GetBookCoverHeadersUseCase,
+    private val mapper: BookCoverMapper,
+) : ViewModel() {
 
-    private val _coverPicker = MutableStateFlow(CoverPickerUiState())
-    val coverPicker = _coverPicker.asStateFlow()
-
-    private val _selectedCover = MutableStateFlow(CoverData())
-    val selectedCover = _selectedCover.asStateFlow()
-
-    var pickerAlreadyLoaded: Boolean = false
+    private val _state = MutableStateFlow(BookCoverPickerUiState())
+    val state = _state.asStateFlow()
 
     init {
-        Log.d("CoverPickerViewModel", "init")
-        _coverPicker.value = CoverPickerUiState()
-        _selectedCover.value = CoverData()
-        pickerAlreadyLoaded = false
+        _state.update { it.copy(initialized = false) }
     }
 
     fun openCoverPicker(book: Book) {
-        if (pickerAlreadyLoaded) {
-            _coverPicker.value = _coverPicker.value.copy(isOpen = true)
+        if (_state.value.initialized) {
+            _state.update { it.copy(isOpen = true) }
             return
         }
 
-        _coverPicker.value = _coverPicker.value.copy(isOpen = true, isLoading = true)
+        _state.update { it.copy(isOpen = true, isLoading = true) }
 
-        if (!_selectedCover.value.isSelected) {
-            val preselectCover = book.coverUrl != null
-            _selectedCover.value = CoverData(
-                url = book.coverUrl ?: "",
-                headers = book.coverRequestHeaders,
-                isSelected = preselectCover,
-            )
-        }
+        val selected = BookCoverState(
+            url = book.coverUrl ?: "",
+            headers = book.coverRequestHeaders,
+        )
 
         viewModelScope.launch {
-            val candidates = CoverUrlOptimizer.getCoverCandidates(book = book)
-            // Add an empty url just in case the user wants to reset to empty:
-            val emptyElement: Pair<String, Map<String, String>> = Pair("", emptyMap())
-            _coverPicker.value = CoverPickerUiState(
-                isOpen = true,
-                isLoading = false,
-                candidates = listOf(emptyElement) + candidates,
-            )
+            _state.update {
+                it.copy(
+                    initialized = true,
+                    isLoading = false,
+                    selectedCover = selected,
+                    bookCovers = getCoverCandidates(book)
+                        .map { candidate ->
+                            mapper.map(candidate = candidate)
+                        },
+                )
+            }
         }
-        pickerAlreadyLoaded = true
     }
 
     fun closeCoverPicker() {
-        _coverPicker.value = _coverPicker.value.copy(isOpen = false)
+        _state.update { it.copy(isOpen = false) }
     }
 
     fun onManualUrlChange(newUrl: String) {
-        _coverPicker.value = _coverPicker.value.copy(manualUrlInput = newUrl)
+        _state.update { it.copy(manualUrlInput = newUrl) }
     }
 
     fun addManualUrl() {
-        val url = _coverPicker.value.manualUrlInput.trim()
+        val url = _state.value.manualUrlInput.trim()
         if (url.isEmpty()) return
 
-        val headers = CoverUrlOptimizer.getCoverHeaders(url)
-        val newCandidate = url to headers
-        _coverPicker.value = _coverPicker.value.copy(
-            candidates = _coverPicker.value.candidates + newCandidate,
-            manualUrlInput = "",
+        val currentCandidates = _state.value.bookCovers
+        if (currentCandidates.any { it.url == url }) {
+            _state.update { it.copy(manualUrlInput = "") }
+            return
+        }
+
+        val newCandidate = BookCoverState(
+            url = url,
+            headers = getCoverHeaders(url),
         )
+        _state.update {
+            it.copy(
+                bookCovers = listOf(newCandidate) + _state.value.bookCovers,
+                manualUrlInput = "",
+            )
+        }
     }
 
     fun selectCover(url: String) {
-        _selectedCover.value = CoverData(
-            url = url,
-            headers = CoverUrlOptimizer.getCoverHeaders(url),
-            isSelected = true,
-        )
+        _state.update {
+            it.copy(
+                isOpen = true,
+                selectedCover = BookCoverState(
+                    url = url,
+                    headers = getCoverHeaders(url),
+                ),
+            )
+        }
         closeCoverPicker()
     }
 }
-
-data class CoverData(
-    val url: String = "",
-    val headers: Map<String, String> = emptyMap(),
-    val isSelected: Boolean = false,
-)
-
-data class CoverPickerUiState(
-    val isOpen: Boolean = false,
-    val isLoading: Boolean = false,
-    val manualUrlInput: String = "",
-    val candidates: List<Pair<String, Map<String, String>>> = emptyList(),
-)

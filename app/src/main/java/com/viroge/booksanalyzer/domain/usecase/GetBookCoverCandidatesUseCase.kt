@@ -1,18 +1,35 @@
-package com.viroge.booksanalyzer.domain
+package com.viroge.booksanalyzer.domain.usecase
 
 import android.util.Log
-import com.viroge.booksanalyzer.domain.BookHeaders.getGoogleBooksHeaders
-import com.viroge.booksanalyzer.domain.BookHeaders.getOpenLibraryHeaders
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
+import javax.inject.Inject
 
-object CoverUrlOptimizer {
+class GetBookCoverCandidatesUseCase @Inject constructor(
+    private val getCoverHeaders: GetBookCoverHeadersUseCase,
+) {
+
+    operator fun invoke(book: Book): List<BookCoverCandidate> {
+        val candidates = getCoverCandidates(book)
+
+        return if (containsDefaultCover(candidates)) candidates
+        else listOf(getDefaultCover()) + candidates
+    }
+
+    private fun containsDefaultCover(list: List<BookCoverCandidate>): Boolean = list.any {
+        it.url.isEmpty() && it.headers.isEmpty()
+    }
+
+    private fun getDefaultCover(): BookCoverCandidate = BookCoverCandidate(
+        url = "",
+        headers = emptyMap(),
+    )
 
     /**
      * Get a list of cover candidates. Each candidate contains a pair of data:
      * First: the url, Second: a map of headers needed to load it.
      */
-    fun getCoverCandidates(book: Book): List<Pair<String, Map<String, String>>> {
+    private fun getCoverCandidates(book: Book): List<BookCoverCandidate> {
         val list = mutableListOf<String>() // urls
         val url = book.coverUrl?.trim().orEmpty()
 
@@ -40,20 +57,8 @@ object CoverUrlOptimizer {
         return normalizedList.map { attachCoverHeaders(url = it) }
     }
 
-    fun attachCoverHeaders(url: String): Pair<String, Map<String, String>> =
-        Pair(first = url, second = getCoverHeaders(url))
-
-    fun getCoverHeaders(url: String?): Map<String, String> = when {
-        url == null -> emptyMap()
-
-        // Case 1: Open Library
-        url.contains("openlibrary.org") -> getOpenLibraryHeaders()
-
-        // Case 2: Google Books
-        url.contains("google.com/books") || url.contains("googleapis.com") -> getGoogleBooksHeaders()
-
-        else -> emptyMap()
-    }
+    fun attachCoverHeaders(url: String): BookCoverCandidate =
+        BookCoverCandidate(url = url, headers = getCoverHeaders(url))
 
     private fun googleUpgrades(url: String): List<String> {
         val baseUrl = url.replace("http://", "https://")
@@ -78,3 +83,8 @@ object CoverUrlOptimizer {
         )
     }
 }
+
+data class BookCoverCandidate(
+    val url: String,
+    val headers: Map<String, String>,
+)

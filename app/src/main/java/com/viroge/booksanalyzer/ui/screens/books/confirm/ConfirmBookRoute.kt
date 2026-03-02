@@ -8,11 +8,11 @@ import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import com.viroge.booksanalyzer.domain.CoverUrlOptimizer
-import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerSheet
-import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerViewModel
+import com.viroge.booksanalyzer.domain.BookMapper.getCoverHeaders
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.nav.Routes
+import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerSheet
+import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerViewModel
 import com.viroge.booksanalyzer.ui.screens.books.add.AddBookFlowViewModel
 
 @Composable
@@ -35,8 +35,8 @@ fun ConfirmBookRoute(
     val prefillMode by flowVm.prefillMode.collectAsState()
     val isSaving by vm.isSaving.collectAsState()
     val error by vm.error.collectAsState()
-    val coverPicker by coverPickerVM.coverPicker.collectAsState()
-    val selectedCover by coverPickerVM.selectedCover.collectAsState()
+    val coverPickerState by coverPickerVM.state.collectAsState()
+    val usePickerCover = coverPickerState.initialized
 
     val snackbar = LocalAppSnackbar.current
 
@@ -58,10 +58,10 @@ fun ConfirmBookRoute(
     ConfirmBookScreen(
         book = book,
         headersForBookCover =
-            if (selectedCover.isSelected) selectedCover.headers
-            else book?.coverUrl?.let { CoverUrlOptimizer.getCoverHeaders(it) } ?: emptyMap(),
+            if (usePickerCover) coverPickerState.selectedCover.headers
+            else book?.coverUrl?.let { getCoverHeaders(it) } ?: emptyMap(),
         selectedCoverUrl =
-            if (selectedCover.isSelected) selectedCover.url
+            if (usePickerCover) coverPickerState.selectedCover.url
             else null,
         prefillQuery = prefill,
         prefillMode = prefillMode,
@@ -73,7 +73,7 @@ fun ConfirmBookRoute(
             book?.let {
                 vm.saveBook(
                     book = it,
-                    selectedCoverUrl = if (selectedCover.isSelected) selectedCover.url else null,
+                    selectedCoverUrl = if (usePickerCover) coverPickerState.selectedCover.url else null,
                 )
             }
         },
@@ -84,14 +84,14 @@ fun ConfirmBookRoute(
                 publishedYear = year,
                 isbn13 = isbn13,
                 coverUrl = coverUrl,
-                selectedCoverUrl = if (selectedCover.isSelected) selectedCover.url else null,
+                selectedCoverUrl = if (usePickerCover) coverPickerState.selectedCover.url else null,
             )
         },
     )
 
     CoverPickerSheet(
-        state = coverPicker,
-        selectedUrl = if (selectedCover.isSelected) selectedCover.url else null,
+        state = coverPickerState,
+        selectedUrl = if (usePickerCover) coverPickerState.selectedCover.url else null,
         onManualUrlChange = coverPickerVM::onManualUrlChange,
         onAddManualUrl = coverPickerVM::addManualUrl,
         onSelect = coverPickerVM::selectCover,

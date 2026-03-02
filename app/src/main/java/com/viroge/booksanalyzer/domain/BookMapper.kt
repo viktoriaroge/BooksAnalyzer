@@ -3,6 +3,8 @@ package com.viroge.booksanalyzer.domain
 import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.data.remote.google.GoogleVolumeItem
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryDoc
+import com.viroge.booksanalyzer.domain.BookHeaders.getGoogleBooksHeaders
+import com.viroge.booksanalyzer.domain.BookHeaders.getOpenLibraryHeaders
 import com.viroge.booksanalyzer.domain.BooksUtil.splitIsbns
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
@@ -39,7 +41,7 @@ object BookMapper {
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = coverUrl,
-            coverRequestHeaders = CoverUrlOptimizer.getCoverHeaders(url = coverUrl),
+            coverRequestHeaders = getCoverHeaders(url = coverUrl),
             status = ReadingStatus.NOT_STARTED,
             createdAtEpochMs = 0, // not important for network construction
             lastOpenAtEpochMs = 0, // not important for network construction
@@ -70,7 +72,7 @@ object BookMapper {
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = coverUrl,
-            coverRequestHeaders = CoverUrlOptimizer.getCoverHeaders(url = coverUrl),
+            coverRequestHeaders = getCoverHeaders(url = coverUrl),
             status = ReadingStatus.NOT_STARTED,
             createdAtEpochMs = 0, // not important for network construction
             lastOpenAtEpochMs = 0, // not important for network construction
@@ -95,7 +97,7 @@ object BookMapper {
         isbn13 = isbn13?.takeIf { it.isNotBlank() },
         isbn10 = null,
         coverUrl = coverUrl?.takeIf { it.isNotBlank() },
-        coverRequestHeaders = CoverUrlOptimizer.getCoverHeaders(url = coverUrl),
+        coverRequestHeaders = getCoverHeaders(url = coverUrl),
         status = ReadingStatus.NOT_STARTED,
         createdAtEpochMs = 0, // not important for network construction
         lastOpenAtEpochMs = 0, // not important for network construction
@@ -128,10 +130,23 @@ object BookMapper {
         isbn13 = this.isbn13,
         isbn10 = this.isbn10,
         coverUrl = this.coverUrl,
-        coverRequestHeaders = CoverUrlOptimizer.getCoverHeaders(url = coverUrl),
+        coverRequestHeaders = getCoverHeaders(url = coverUrl),
         createdAtEpochMs = this.createdAtEpochMs,
         lastOpenAtEpochMs = this.lastOpenAtEpochMs,
         lastMarkedToDelete = this.lastMarkedToDelete,
         toBeDeleted = this.toBeDeleted,
     )
+
+    @Deprecated("Use GetBookCoverHeadersUseCase instead")
+    fun getCoverHeaders(url: String?): Map<String, String> = when {
+        url == null -> emptyMap()
+
+        // Case 1: Open Library
+        url.contains("openlibrary.org") -> getOpenLibraryHeaders()
+
+        // Case 2: Google Books
+        url.contains("google.com/books") || url.contains("googleapis.com") -> getGoogleBooksHeaders()
+
+        else -> emptyMap()
+    }
 }

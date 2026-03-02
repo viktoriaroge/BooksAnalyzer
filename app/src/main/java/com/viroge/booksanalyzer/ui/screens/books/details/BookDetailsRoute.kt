@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.viroge.booksanalyzer.domain.CoverUrlOptimizer
+import com.viroge.booksanalyzer.domain.BookMapper.getCoverHeaders
 import com.viroge.booksanalyzer.ui.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.activityViewModel
 import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerSheet
@@ -21,8 +21,8 @@ fun BookDetailsRoute(
     val coverPickerVM: CoverPickerViewModel = hiltViewModel()
 
     val state by vm.ui.collectAsState()
-    val coverPicker by coverPickerVM.coverPicker.collectAsState()
-    val selectedCover by coverPickerVM.selectedCover.collectAsState()
+    val coverPickerState by coverPickerVM.state.collectAsState()
+    val usePickerCover = coverPickerState.initialized
 
     LaunchedEffect(key1 = Unit) {
         vm.updateLastOpenDelayed()
@@ -31,9 +31,9 @@ fun BookDetailsRoute(
     BookDetailsScreen(
         state = state,
         headersForBookCover =
-            if (selectedCover.isSelected) selectedCover.headers
-            else state.book?.coverUrl?.let { CoverUrlOptimizer.getCoverHeaders(it) } ?: emptyMap(),
-        selectedCoverUrl = if (selectedCover.isSelected) selectedCover.url else null,
+            if (usePickerCover) coverPickerState.selectedCover.headers
+            else state.book?.coverUrl?.let { getCoverHeaders(it) } ?: emptyMap(),
+        selectedCoverUrl = if (usePickerCover) coverPickerState.selectedCover.url else null,
         onBack = onBack,
         onStatusChange = vm::setStatus,
         onDelete = {
@@ -41,7 +41,7 @@ fun BookDetailsRoute(
             onBack()
         },
         onEdit = vm::enterEditMode,
-        onSaveEdits = { vm.saveEdits(selectedCoverUrl = if (selectedCover.isSelected) selectedCover.url else null) },
+        onSaveEdits = { vm.saveEdits(selectedCoverUrl = if (usePickerCover) coverPickerState.selectedCover.url else null) },
         onCancelEdit = vm::exitEditMode,
         onUpdateEditTitle = vm::updateEditTitle,
         onUpdateEditAuthors = vm::updateEditAuthors,
@@ -53,8 +53,8 @@ fun BookDetailsRoute(
     )
 
     CoverPickerSheet(
-        state = coverPicker,
-        selectedUrl = if (selectedCover.isSelected) selectedCover.url else null,
+        state = coverPickerState,
+        selectedUrl = if (usePickerCover) coverPickerState.selectedCover.url else null,
         onManualUrlChange = coverPickerVM::onManualUrlChange,
         onAddManualUrl = coverPickerVM::addManualUrl,
         onSelect = coverPickerVM::selectCover,

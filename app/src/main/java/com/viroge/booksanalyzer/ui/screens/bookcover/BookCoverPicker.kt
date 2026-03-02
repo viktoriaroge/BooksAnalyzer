@@ -38,7 +38,7 @@ import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoverPickerSheet(
-    state: CoverPickerUiState,
+    state: BookCoverPickerUiState,
     selectedUrl: String?,
     onManualUrlChange: (String) -> Unit,
     onAddManualUrl: () -> Unit,
@@ -96,13 +96,13 @@ fun CoverPickerSheet(
                     .fillMaxWidth()
                     .heightIn(max = 420.dp)
             ) {
-                items(state.candidates.size) { idx ->
-                    val candidate = state.candidates[idx]
+                items(state.bookCovers.size) { idx ->
+                    val candidate = state.bookCovers[idx]
                     CoverChoiceTile(
-                        url = candidate.first,
-                        requestHeaders = candidate.second,
-                        selected = (candidate.first == selectedUrl),
-                        onClick = { onSelect(candidate.first) }
+                        url = candidate.url,
+                        requestHeaders = candidate.headers,
+                        selected = candidate == state.selectedCover,
+                        onClick = { onSelect(candidate.url) }
                     )
                 }
             }
