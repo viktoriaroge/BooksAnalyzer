@@ -1,0 +1,6 @@
+# Google Books API authentication:
+GOOGLE_BOOKS_API_KEY=your_api_key
+DEBUG_SHA1=your_debug_sha1
+
+# Open Library API optimization:
+USER_EMAIL=your_email@example.com

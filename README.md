@@ -24,6 +24,30 @@ Books Analyzer is an offline-first Android application designed to help readers 
 
 ---
 
+## Configuration & API Setup
+To run the application, you must configure the following environment variables.
+
+### Google Books API
+
+Authentication is required to use this service. You will need:
+
+```
+GOOGLE_BOOKS_API_KEY=your_api_key
+DEBUG_SHA1=your_debug_sha1
+```
+
+### Open Library API
+
+While this API is publicly accessible, it enforces strict rate limits. To lift these restrictions and improve performance, provide your email address:
+
+```
+USER_EMAIL=your_email@example.com
+```
+
+NOTE: Add these to your `local.properties` file. They are injected into the build as BuildConfig fields.
+
+---
+
 ## Purpose
 
 The primary goals of the app are:
@@ -102,15 +126,15 @@ Future sync and backup will be optional and user-controlled.
 
 * 🌳 Apply light / dark theme (follows system)
 
+* 🌱 Apply Clean Architecture with MVVM
+
 * 🌰 Backup and restore
 
 * 🌰 Optional cloud sync
 
 * 🌰 Advanced analytics and insights
 
-* 🌰 Data export
-
-* 🌰 Improve book entry consolidation for manual entries that are later added to any of the source libraries (either through manual edit or direct prefill suggestions).
+* 🌰 Data import (from Goodreads) and export
 
 ### Legend
 

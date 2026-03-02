@@ -5,7 +5,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Adb
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.LocalLibrary
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import com.viroge.booksanalyzer.R
@@ -25,21 +24,6 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     init {
         _state.value = SettingsUiState(
             settingsEntries = listOf(
-                // --- Profile -------------------
-                SettingsEntry(
-                    icon = Icons.Default.Person,
-                    isHeader = true,
-                    showTitle = true,
-                    titleRes = R.string.settings_screen_profile_section_title,
-                ),
-                SettingsEntry(
-                    isEnabled = false,
-                    showTitle = true,
-                    titleRes = R.string.settings_screen_item_account_title,
-                    showSubtitle = true,
-                    subtitleRes = R.string.settings_screen_item_account_subtitle,
-                ),
-
                 // --- Books --------------------
                 SettingsEntry(
                     icon = Icons.Default.LocalLibrary,
