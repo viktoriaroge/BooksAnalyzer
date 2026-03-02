@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
+import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +28,7 @@ fun SettingsScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            CommonTopAppBar(
+            PvTopAppBar(
                 title = stringResource(state.screenTitleRes),
             )
         },

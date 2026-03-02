@@ -15,7 +15,7 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.BookSource
 
 @Composable
-fun BookSourceBadge(
+fun PvBookSourceBadge(
     source: BookSource,
     modifier: Modifier = Modifier,
     showFullSourceName: Boolean = false,

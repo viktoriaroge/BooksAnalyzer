@@ -16,31 +16,31 @@ import coil.request.ImageRequest
 import com.viroge.booksanalyzer.R
 
 @Composable
-fun CommonCoverAsyncImage(
+fun PvBookCoverAsyncImage(
     url: String?,
     requestHeaders: Map<String, String>,
     @DrawableRes defaultImageRes: Int = R.drawable.ic_empty_book_cover,
-    size: CommonAsyncImageSize = CommonAsyncImageSize.SMALL,
+    size: PvBookCoverImageSize = PvBookCoverImageSize.SMALL,
     contentScale: ContentScale = ContentScale.Crop,
     modifier: Modifier = Modifier,
 ) = AsyncImage(
     modifier = modifier
         .size(
             width = when (size) {
-                CommonAsyncImageSize.XSMALL -> 60.dp
-                CommonAsyncImageSize.SMALL -> 80.dp
-                CommonAsyncImageSize.MEDIUM -> 120.dp
-                CommonAsyncImageSize.LARGE -> 160.dp
-                CommonAsyncImageSize.XLARGE -> 200.dp
-                CommonAsyncImageSize.XXLARGE -> 240.dp
+                PvBookCoverImageSize.XSMALL -> 60.dp
+                PvBookCoverImageSize.SMALL -> 80.dp
+                PvBookCoverImageSize.MEDIUM -> 120.dp
+                PvBookCoverImageSize.LARGE -> 160.dp
+                PvBookCoverImageSize.XLARGE -> 200.dp
+                PvBookCoverImageSize.XXLARGE -> 240.dp
             },
             height = when (size) {
-                CommonAsyncImageSize.XSMALL -> 90.dp
-                CommonAsyncImageSize.SMALL -> 120.dp
-                CommonAsyncImageSize.MEDIUM -> 180.dp
-                CommonAsyncImageSize.LARGE -> 240.dp
-                CommonAsyncImageSize.XLARGE -> 300.dp
-                CommonAsyncImageSize.XXLARGE -> 360.dp
+                PvBookCoverImageSize.XSMALL -> 90.dp
+                PvBookCoverImageSize.SMALL -> 120.dp
+                PvBookCoverImageSize.MEDIUM -> 180.dp
+                PvBookCoverImageSize.LARGE -> 240.dp
+                PvBookCoverImageSize.XLARGE -> 300.dp
+                PvBookCoverImageSize.XXLARGE -> 360.dp
             },
         )
         .clip(RoundedCornerShape(12.dp)),
@@ -64,7 +64,7 @@ fun CommonCoverAsyncImage(
     contentDescription = null,
 )
 
-enum class CommonAsyncImageSize {
+enum class PvBookCoverImageSize {
     XSMALL,
     SMALL,
     MEDIUM,

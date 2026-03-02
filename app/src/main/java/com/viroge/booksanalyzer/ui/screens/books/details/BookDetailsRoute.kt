@@ -8,8 +8,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.viroge.booksanalyzer.domain.CoverUrlOptimizer
 import com.viroge.booksanalyzer.ui.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.activityViewModel
-import com.viroge.booksanalyzer.ui.components.bookcover.CoverPickerSheet
-import com.viroge.booksanalyzer.ui.components.bookcover.CoverPickerViewModel
+import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerSheet
+import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerViewModel
 
 @Composable
 fun BookDetailsRoute(

@@ -27,9 +27,9 @@ import androidx.navigation.compose.rememberNavController
 import com.viroge.booksanalyzer.ui.AppEvent
 import com.viroge.booksanalyzer.ui.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.activityViewModel
-import com.viroge.booksanalyzer.ui.components.snackbar.AppSnackbarController
+import com.viroge.booksanalyzer.ui.common.util.truncate
+import com.viroge.booksanalyzer.ui.components.snackbar.PvAppSnackbarController
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
-import com.viroge.booksanalyzer.ui.screens.truncate
 
 @Composable
 fun AppRoot() {
@@ -50,7 +50,7 @@ fun AppRoot() {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val snackbarController = remember(key1 = scope, key2 = snackbarHostState) {
-        AppSnackbarController(scope, snackbarHostState)
+        PvAppSnackbarController(scope, snackbarHostState)
     }
 
     CompositionLocalProvider(value = LocalAppSnackbar provides snackbarController) {

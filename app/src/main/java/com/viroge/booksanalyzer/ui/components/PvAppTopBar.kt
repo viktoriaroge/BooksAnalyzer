@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CommonTopAppBar(
+fun PvTopAppBar(
     title: String,
     canGoBack: Boolean = false,
     onBack: () -> Unit = {},

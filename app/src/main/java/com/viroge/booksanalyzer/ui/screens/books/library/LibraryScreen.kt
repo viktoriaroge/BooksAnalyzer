@@ -47,13 +47,12 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.library.LibraryFilters
 import com.viroge.booksanalyzer.domain.model.library.LibrarySort
-import com.viroge.booksanalyzer.ui.components.BookSourceBadge
-import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage
-import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
-import com.viroge.booksanalyzer.ui.components.CommonItemCard
-import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
-import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
-import com.viroge.booksanalyzer.ui.screens.books.LibrarySortMapper
+import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
+import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.components.PvItemCard
+import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
+import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,7 +103,7 @@ fun LibraryScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            CommonTopAppBar(
+            PvTopAppBar(
                 title = stringResource(R.string.library_screen_name),
                 actions = {
                     IconButton(onClick = { showSearch = !showSearch }) {
@@ -280,7 +279,7 @@ fun CurrentlyReadingCard(
     book: Book,
     onClick: () -> Unit
 ) {
-    CommonItemCard(
+    PvItemCard(
         modifier = Modifier.width(width = 210.dp),
         onClick = onClick,
     ) {
@@ -292,13 +291,13 @@ fun CurrentlyReadingCard(
             Box(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                CommonCoverAsyncImage(
+                PvBookCoverAsyncImage(
                     url = book.coverUrl,
                     requestHeaders = book.coverRequestHeaders,
-                    size = CommonAsyncImageSize.MEDIUM,
+                    size = PvBookCoverImageSize.MEDIUM,
                     modifier = Modifier.align(Alignment.Center),
                 )
-                BookSourceBadge(
+                PvBookSourceBadge(
                     source = book.source,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -306,7 +305,7 @@ fun CurrentlyReadingCard(
                 )
             }
 
-            CommonLinearProgressIndicator(progress = { 0.3F })
+            PvLinearProgressIndicator(progress = { 0.3F })
 
             Text(
                 text = book.title,
@@ -335,7 +334,7 @@ private fun BookRowCard(
     book: Book,
     onClick: () -> Unit,
 ) {
-    CommonItemCard(
+    PvItemCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
@@ -346,10 +345,10 @@ private fun BookRowCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
-            CommonCoverAsyncImage(
+            PvBookCoverAsyncImage(
                 url = book.coverUrl,
                 requestHeaders = book.coverRequestHeaders,
-                size = CommonAsyncImageSize.SMALL,
+                size = PvBookCoverImageSize.SMALL,
             )
 
             Column(modifier = Modifier.weight(weight = 1f)) {
@@ -391,7 +390,7 @@ private fun BookRowCard(
                         modifier = Modifier.padding(all = 2.dp),
                     )
                     Spacer(modifier = Modifier.weight(weight = 1f))
-                    BookSourceBadge(
+                    PvBookSourceBadge(
                         source = book.source,
                         modifier = Modifier.padding(all = 2.dp),
                     )

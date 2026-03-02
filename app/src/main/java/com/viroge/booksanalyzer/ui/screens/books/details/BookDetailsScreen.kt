@@ -50,13 +50,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
-import com.viroge.booksanalyzer.ui.components.BookSourceBadge
-import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
-import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage
-import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
-import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
+import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
+import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
+import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
+import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
-import com.viroge.booksanalyzer.ui.screens.customAnnotatedString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,7 +85,7 @@ fun BookDetailsScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface, topBar = {
-            CommonTopAppBar(
+            PvTopAppBar(
                 title = if (state.isEditMode) stringResource(R.string.book_details_screen_in_edit_screen_name)
                 else stringResource(R.string.book_details_screen_name),
                 canGoBack = true,
@@ -160,7 +160,7 @@ fun BookDetailsScreen(
                 }
 
                 if (book == null) {
-                    CommonLinearProgressIndicator()
+                    PvLinearProgressIndicator()
                     return@Column
                 }
 
@@ -262,7 +262,7 @@ fun BookDetailsScreen(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
-                        BookSourceBadge(
+                        PvBookSourceBadge(
                             source = book.source,
                             modifier = Modifier.padding(all = 2.dp),
                             showFullSourceName = true,
@@ -343,7 +343,7 @@ fun BookCoverHeader(
     ) {
         // Hazy background:
         val isDarkTheme = isSystemInDarkTheme()
-        CommonCoverAsyncImage(
+        PvBookCoverAsyncImage(
             modifier = Modifier
                 .fillMaxSize()
                 .blur(radius = 30.dp)
@@ -358,18 +358,18 @@ fun BookCoverHeader(
             contentScale = ContentScale.Crop,
             url = imageUrl,
             requestHeaders = headersForBookCover,
-            size = CommonAsyncImageSize.XXLARGE,
+            size = PvBookCoverImageSize.XXLARGE,
         )
 
         // Cover image:
-        CommonCoverAsyncImage(
+        PvBookCoverAsyncImage(
             modifier = Modifier
                 .align(Alignment.Center)
                 .padding(vertical = 32.dp)
                 .shadow(12.dp, RoundedCornerShape(12.dp)),
             url = imageUrl,
             requestHeaders = headersForBookCover,
-            size = CommonAsyncImageSize.XXLARGE,
+            size = PvBookCoverImageSize.XXLARGE,
         )
     }
 }

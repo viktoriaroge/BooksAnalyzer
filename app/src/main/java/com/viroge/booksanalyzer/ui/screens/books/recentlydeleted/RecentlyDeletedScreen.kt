@@ -28,12 +28,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.ui.components.BookSourceBadge
-import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage
-import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
-import com.viroge.booksanalyzer.ui.components.CommonItemCard
-import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
-import com.viroge.booksanalyzer.ui.screens.customAnnotatedString
+import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
+import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
+import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.components.PvItemCard
+import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +49,7 @@ fun RecentlyDeletedScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            CommonTopAppBar(
+            PvTopAppBar(
                 title = stringResource(R.string.recently_deleted_screen_name),
                 canGoBack = true,
                 onBack = onBack,
@@ -90,7 +90,7 @@ fun RecentlyDeletedScreen(
                         key = { it.id },
                     ) { book ->
 
-                        CommonItemCard(
+                        PvItemCard(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
                                 selectedBookData = Pair(book.id, book.title)
@@ -102,10 +102,10 @@ fun RecentlyDeletedScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                             ) {
-                                CommonCoverAsyncImage(
+                                PvBookCoverAsyncImage(
                                     url = book.coverUrl,
                                     requestHeaders = book.coverRequestHeaders,
-                                    size = CommonAsyncImageSize.XSMALL,
+                                    size = PvBookCoverImageSize.XSMALL,
                                 )
 
                                 Column(modifier = Modifier.weight(weight = 1f)) {
@@ -155,7 +155,7 @@ fun RecentlyDeletedScreen(
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
                                         )
-                                        BookSourceBadge(
+                                        PvBookSourceBadge(
                                             source = book.source,
                                             modifier = Modifier.padding(all = 2.dp),
                                             showFullSourceName = false,

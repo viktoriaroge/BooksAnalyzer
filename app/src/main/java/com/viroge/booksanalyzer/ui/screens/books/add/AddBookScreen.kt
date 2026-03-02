@@ -38,14 +38,13 @@ import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
-import com.viroge.booksanalyzer.ui.components.BookSourceBadge
-import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage
-import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
-import com.viroge.booksanalyzer.ui.components.CommonItemCard
-import com.viroge.booksanalyzer.ui.components.CommonLinearProgressIndicator
-import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
-import com.viroge.booksanalyzer.ui.screens.books.SearchModeMapper
-import com.viroge.booksanalyzer.ui.screens.customAnnotatedString
+import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
+import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
+import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.PvItemCard
+import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
+import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,7 +70,7 @@ fun BookSearchScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
-        topBar = { CommonTopAppBar(title = stringResource(R.string.search_screen_name)) },
+        topBar = { PvTopAppBar(title = stringResource(R.string.search_screen_name)) },
     ) { screenPadding ->
 
         Column(
@@ -113,7 +112,7 @@ fun BookSearchScreen(
 
                 SearchUiState.Loading -> {
                     Spacer(Modifier.height(height = 4.dp))
-                    CommonLinearProgressIndicator()
+                    PvLinearProgressIndicator()
                 }
 
                 is SearchUiState.Error -> {
@@ -241,7 +240,7 @@ private fun BooksList(
         verticalArrangement = Arrangement.spacedBy(space = 8.dp),
     ) {
         items(items) { book ->
-            CommonItemCard(
+            PvItemCard(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onSelect(book) },
             ) {
@@ -250,10 +249,10 @@ private fun BooksList(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                 ) {
-                    CommonCoverAsyncImage(
+                    PvBookCoverAsyncImage(
                         url = book.coverUrl,
                         requestHeaders = book.coverRequestHeaders,
-                        size = CommonAsyncImageSize.XSMALL,
+                        size = PvBookCoverImageSize.XSMALL,
                     )
 
                     Column(modifier = Modifier.weight(weight = 1f)) {
@@ -303,7 +302,7 @@ private fun BooksList(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
-                            BookSourceBadge(
+                            PvBookSourceBadge(
                                 source = book.source,
                                 modifier = Modifier.padding(all = 2.dp),
                                 showFullSourceName = showingPartialResults,

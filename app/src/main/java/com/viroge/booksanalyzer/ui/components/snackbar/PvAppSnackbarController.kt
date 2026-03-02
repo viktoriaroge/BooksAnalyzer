@@ -6,7 +6,7 @@ import androidx.compose.material3.SnackbarResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class AppSnackbarController(
+class PvAppSnackbarController(
     private val scope: CoroutineScope,
     private val hostState: SnackbarHostState,
 ) {

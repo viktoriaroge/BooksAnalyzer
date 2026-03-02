@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CommonItemCard(
+fun PvItemCard(
     modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.small,
     elevation: CardElevation = CardDefaults.cardElevation(defaultElevation = 3.dp),

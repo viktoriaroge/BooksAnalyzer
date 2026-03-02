@@ -26,9 +26,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.ui.components.CommonItemCard
-import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
-import com.viroge.booksanalyzer.ui.screens.customAnnotatedString
+import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
+import com.viroge.booksanalyzer.ui.components.PvItemCard
+import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +40,7 @@ fun TermsScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            CommonTopAppBar(
+            PvTopAppBar(
                 title = stringResource(state.screenTitleRes),
                 canGoBack = true,
                 onBack = onBack,
@@ -58,7 +58,7 @@ fun TermsScreen(
             Spacer(Modifier.height(height = 24.dp))
 
             // All entries:
-            CommonItemCard(
+            PvItemCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),

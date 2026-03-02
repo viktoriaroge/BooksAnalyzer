@@ -30,7 +30,6 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.library.LibraryFilters
 import com.viroge.booksanalyzer.domain.model.library.LibrarySort
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
-import com.viroge.booksanalyzer.ui.screens.books.LibrarySortMapper
 import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
 
 @Composable

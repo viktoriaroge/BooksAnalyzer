@@ -9,8 +9,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.viroge.booksanalyzer.domain.CoverUrlOptimizer
-import com.viroge.booksanalyzer.ui.components.bookcover.CoverPickerSheet
-import com.viroge.booksanalyzer.ui.components.bookcover.CoverPickerViewModel
+import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerSheet
+import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerViewModel
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.nav.Routes
 import com.viroge.booksanalyzer.ui.screens.books.add.AddBookFlowViewModel

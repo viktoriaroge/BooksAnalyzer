@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.books
+package com.viroge.booksanalyzer.ui.screens.books.add
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

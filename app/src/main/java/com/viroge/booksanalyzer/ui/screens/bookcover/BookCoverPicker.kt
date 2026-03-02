@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.components.bookcover
+package com.viroge.booksanalyzer.ui.screens.bookcover
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -32,8 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage
-import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
+import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,11 +132,11 @@ private fun CoverChoiceTile(
                 else Modifier
             )
     ) {
-        CommonCoverAsyncImage(
+        PvBookCoverAsyncImage(
             modifier = Modifier.fillMaxSize(),
             url = url,
             requestHeaders = requestHeaders,
-            size = CommonAsyncImageSize.LARGE,
+            size = PvBookCoverImageSize.LARGE,
         )
     }
 }

@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun CommonLinearProgressIndicator(
+fun PvLinearProgressIndicator(
     modifier: Modifier = Modifier,
     progress: () -> Float = { 0f },
 ) = LinearProgressIndicator(
@@ -17,7 +17,7 @@ fun CommonLinearProgressIndicator(
 )
 
 @Composable
-fun CommonLinearProgressIndicator(
+fun PvLinearProgressIndicator(
     modifier: Modifier = Modifier,
 ) = LinearProgressIndicator(
     modifier = modifier.fillMaxWidth(),

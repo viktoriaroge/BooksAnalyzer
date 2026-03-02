@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens
+package com.viroge.booksanalyzer.ui.common.util
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -73,13 +73,3 @@ fun customAnnotatedString(id: Int, vararg formatArgs: Any): AnnotatedString {
         }
     }
 }
-
-fun String.truncate(
-    limit: Int,
-    appendDots: Boolean = true,
-): String =
-    if (this.length <= limit) this
-    else {
-        val suffix = if (appendDots) "..." else ""
-        this.take(limit).removeSuffix(" ") + suffix
-    }
