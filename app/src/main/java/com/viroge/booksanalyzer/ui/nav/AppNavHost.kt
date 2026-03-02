@@ -13,7 +13,7 @@ import com.viroge.booksanalyzer.ui.screens.books.details.BookDetailsRoute
 import com.viroge.booksanalyzer.ui.screens.books.library.LibraryRoute
 import com.viroge.booksanalyzer.ui.screens.books.recentlydeleted.RecentlyDeletedRoute
 import com.viroge.booksanalyzer.ui.screens.settings.SettingsRoute
-import com.viroge.booksanalyzer.ui.screens.settings.terms.TermsRoute
+import com.viroge.booksanalyzer.ui.screens.terms.TermsRoute
 
 @Composable
 fun AppNavHost(

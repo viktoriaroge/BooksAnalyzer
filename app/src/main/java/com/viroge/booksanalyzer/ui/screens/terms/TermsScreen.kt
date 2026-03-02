@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.settings.terms
+package com.viroge.booksanalyzer.ui.screens.terms
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

@@ -40,7 +40,7 @@ fun SettingsScreen(
                 .padding(top = screenPadding.calculateTopPadding())
                 .fillMaxSize(),
         ) {
-            items(items = state.settingsEntries) { item ->
+            items(items = state.rowStates) { item ->
 
                 HorizontalDivider(thickness = 1.dp)
 

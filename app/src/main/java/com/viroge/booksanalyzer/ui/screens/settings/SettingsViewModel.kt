@@ -1,92 +1,49 @@
 package com.viroge.booksanalyzer.ui.screens.settings
 
-import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Adb
-import androidx.compose.material.icons.filled.AutoStories
-import androidx.compose.material.icons.filled.LocalLibrary
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
-import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.ui.nav.Routes
+import androidx.lifecycle.viewModelScope
+import com.viroge.booksanalyzer.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor() : ViewModel() {
+class SettingsViewModel @Inject constructor(
+    private val mapper: SettingsMapper
+) : ViewModel() {
 
-    private val _state = MutableStateFlow(value = SettingsUiState())
-    val state: StateFlow<SettingsUiState> = _state.asStateFlow()
-
-    init {
-        _state.value = SettingsUiState(
-            settingsEntries = listOf(
-                // --- Books --------------------
-                SettingsEntry(
-                    icon = Icons.Default.LocalLibrary,
-                    isHeader = true,
-                    showTitle = true,
-                    titleRes = R.string.settings_screen_books_section_title,
-                ),
-                SettingsEntry(
-                    showTitle = true,
-                    titleRes = R.string.recently_deleted_screen_name,
-                    showSubtitle = true,
-                    subtitleRes = R.string.settings_screen_item_recently_deleted_subtitle,
-                    route = Routes.RECENTLY_DELETED_BOOKS,
-                ),
-
-                // --- Guide ----------------------
-                SettingsEntry(
-                    icon = Icons.Default.AutoStories,
-                    isHeader = true,
-                    showTitle = true,
-                    titleRes = R.string.settings_screen_guide_section_title,
-                ),
-                SettingsEntry(
-                    showTitle = true,
-                    titleRes = R.string.settings_screen_item_terms_title,
-                    showSubtitle = true,
-                    subtitleRes = R.string.settings_screen_item_terms_subtitle,
-                    route = Routes.APP_TERMS,
-                ),
-
-                // --- App ----------------------
-                SettingsEntry(
-                    icon = Icons.Default.Adb,
-                    isHeader = true,
-                    showTitle = true,
-                    titleRes = R.string.settings_screen_application_section_title,
-                ),
-                SettingsEntry(
-                    isEnabled = false,
-                    showTitle = true,
-                    titleRes = R.string.settings_screen_item_version_title,
-                    showSubtitle = true,
-                    subtitleRes = R.string.settings_screen_item_version_subtitle,
-                ),
-            ),
+    private val _itemTypesInOrder = MutableStateFlow(
+        listOf(
+            SettingsItemType.BOOKS_HEADER,
+            SettingsItemType.RECENTLY_DELETED,
+            SettingsItemType.GUIDE_HEADER,
+            SettingsItemType.TERMS,
+            SettingsItemType.APP_HEADER,
+            SettingsItemType.VERSION,
         )
-    }
+    )
+
+    val state: StateFlow<SettingsUiState> = _itemTypesInOrder
+        .map { types ->
+            val version = BuildConfig.VERSION_NAME
+            mapper.map(types, version)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = SettingsUiState()
+        )
 }
 
-data class SettingsUiState(
-    val settingsEntries: List<SettingsEntry> = emptyList(),
-)
-
-data class SettingsEntry(
-    val isHeader: Boolean = false,
-    val isEnabled: Boolean = true,
-    val route: String? = null,
-    val icon: ImageVector? = null,
-    val showTitle: Boolean = false,
-    val title: String? = null,
-    @param:StringRes val titleRes: Int = R.string.empty_text,
-    val showSubtitle: Boolean = false,
-    val subtitle: String? = null,
-    @param:StringRes val subtitleRes: Int = R.string.empty_text,
-)
-
+enum class SettingsItemType {
+    BOOKS_HEADER,
+    RECENTLY_DELETED,
+    GUIDE_HEADER,
+    TERMS,
+    APP_HEADER,
+    VERSION,
+}

@@ -102,7 +102,6 @@
     <string name="settings_screen_item_recently_deleted_subtitle">Severed PageVows rest here for 7 days, awaiting a second chance before being cast into the abyss.</string>
     <string name="settings_screen_application_section_title">The Foundation</string>
     <string name="settings_screen_item_version_title">Era of the Build</string>
-    <string name="settings_screen_item_version_subtitle">1.0.0</string>
     <string name="settings_screen_guide_section_title">Guidance</string>
     <string name="settings_screen_item_terms_title">The Lexicon of PageVows</string>
     <string name="settings_screen_item_terms_subtitle">Decipher the ancient terms used within these halls.</string>

@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.settings.terms
+package com.viroge.booksanalyzer.ui.screens.terms
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
