@@ -12,9 +12,7 @@ plugins {
 
 android {
     namespace = "com.viroge.booksanalyzer"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.viroge.booksanalyzer"
@@ -32,6 +30,7 @@ android {
 
     buildFeatures {
         buildConfig = true
+        compose = true
     }
 
     buildTypes {
@@ -50,22 +49,20 @@ android {
             )
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
-        jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
+        jvmTarget = "17"
     }
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // UI & Compose
     implementation(libs.androidx.activity.compose)
@@ -82,16 +79,18 @@ dependencies {
 
     // Networking
     implementation(libs.retrofit.core)
-    implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.retrofit.serialization)
     implementation(libs.okhttp.core)
     implementation(libs.okhttp.logging)
 
-    // Serialization
+    // Serialization & Date
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.datetime)
 
     // Lifecycle / Compose
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.lifecycle.runtime.ktx)
 
     // Navigation
     implementation(libs.navigation.compose)
