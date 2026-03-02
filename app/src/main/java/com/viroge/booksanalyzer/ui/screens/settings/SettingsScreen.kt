@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +29,7 @@ fun SettingsScreen(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             CommonTopAppBar(
-                title = stringResource(R.string.settings_screen_name),
+                title = stringResource(state.screenTitleRes),
             )
         },
     ) { screenPadding ->

@@ -1,92 +1,49 @@
 package com.viroge.booksanalyzer.ui.screens.terms
 
-import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
-import com.viroge.booksanalyzer.R
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class TermsViewModel @Inject constructor() : ViewModel() {
+class TermsViewModel @Inject constructor(
+    private val mapper: TermsMapper,
+) : ViewModel() {
 
-    private val _state = MutableStateFlow(value = TermsUiState())
-    val state: StateFlow<TermsUiState> = _state.asStateFlow()
-
-    init {
-        _state.value = TermsUiState(
-            settingsEntries = listOf(
-                // --- Terms -------------------
-                TermsEntry(
-                    icon = Icons.Default.Person,
-                    showTitle = true,
-                    titleRes = R.string.terms_screen_pagevow_title,
-                    showSubtitle = true,
-                    subtitleRes = R.string.terms_screen_pagevow_desc,
-                ),
-                TermsEntry(
-                    icon = Icons.Default.Person,
-                    showTitle = true,
-                    titleRes = R.string.terms_screen_visage_title,
-                    showSubtitle = true,
-                    subtitleRes = R.string.terms_screen_visage_desc,
-                ),
-                TermsEntry(
-                    icon = Icons.Default.Person,
-                    showTitle = true,
-                    titleRes = R.string.terms_screen_chronicle_title,
-                    showSubtitle = true,
-                    subtitleRes = R.string.terms_screen_chronicle_desc,
-                ),
-                TermsEntry(
-                    icon = Icons.Default.Person,
-                    showTitle = true,
-                    titleRes = R.string.terms_screen_banish_title,
-                    showSubtitle = true,
-                    subtitleRes = R.string.terms_screen_banish_desc,
-                ),
-                TermsEntry(
-                    icon = Icons.Default.Person,
-                    showTitle = true,
-                    titleRes = R.string.terms_screen_exile_title,
-                    showSubtitle = true,
-                    subtitleRes = R.string.terms_screen_exile_desc,
-                ),
-                TermsEntry(
-                    icon = Icons.Default.Person,
-                    showTitle = true,
-                    titleRes = R.string.terms_screen_scriptorium_title,
-                    showSubtitle = true,
-                    subtitleRes = R.string.terms_screen_scriptorium_desc,
-                ),
-                TermsEntry(
-                    icon = Icons.Default.Person,
-                    showTitle = true,
-                    titleRes = R.string.terms_screen_origin_title,
-                    showSubtitle = true,
-                    subtitleRes = R.string.terms_screen_origin_desc,
-                ),
-            ),
+    private val _itemTypesInOrder = MutableStateFlow(
+        listOf(
+            TermsItemType.PAGEVOW,
+            TermsItemType.BOOK_COVER,
+            TermsItemType.LIBRARY,
+            TermsItemType.DELETE_BOOK,
+            TermsItemType.RECENTLY_DELETED_BOOKS,
+            TermsItemType.SETTINGS,
+            TermsItemType.SOURCE,
         )
-    }
+    )
+
+    val state: StateFlow<TermsUiState> = _itemTypesInOrder
+        .map { types ->
+            mapper.map(types)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = TermsUiState()
+        )
 }
 
-data class TermsUiState(
-    val settingsEntries: List<TermsEntry> = emptyList(),
-)
-
-data class TermsEntry(
-    val icon: ImageVector? = null,
-    val showTitle: Boolean = false,
-    val title: String? = null,
-    @param:StringRes val titleRes: Int = R.string.empty_text,
-    val showSubtitle: Boolean = false,
-    val subtitle: String? = null,
-    @param:StringRes val subtitleRes: Int = R.string.empty_text,
-)
-
+enum class TermsItemType {
+    PAGEVOW,
+    BOOK_COVER,
+    LIBRARY,
+    DELETE_BOOK,
+    RECENTLY_DELETED_BOOKS,
+    SETTINGS,
+    SOURCE,
+}

@@ -26,7 +26,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.components.CommonItemCard
 import com.viroge.booksanalyzer.ui.components.CommonTopAppBar
 import com.viroge.booksanalyzer.ui.screens.customAnnotatedString
@@ -42,7 +41,7 @@ fun TermsScreen(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             CommonTopAppBar(
-                title = stringResource(R.string.terms_screen_name),
+                title = stringResource(state.screenTitleRes),
                 canGoBack = true,
                 onBack = onBack,
             )
@@ -78,14 +77,14 @@ fun TermsScreen(
                         horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                     ) {
                         Image(
-                            painterResource(R.drawable.ic_launcher_foreground),
+                            painterResource(state.introIconRes),
                             contentDescription = "",
                             contentScale = ContentScale.FillWidth,
                             modifier = Modifier.size(100.dp)
                         )
                         Text(
                             modifier = Modifier,
-                            text = customAnnotatedString(R.string.terms_screen_intro),
+                            text = customAnnotatedString(state.introTextRes),
                             fontStyle = FontStyle.Italic,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -95,7 +94,7 @@ fun TermsScreen(
                     Spacer(Modifier.height(height = 24.dp))
                     HorizontalDivider(thickness = 1.dp)
 
-                    state.settingsEntries.forEachIndexed { index, entry ->
+                    state.rowStates.forEachIndexed { index, entry ->
                         TermEntry(
                             entry = entry,
                             addTopDivider = index != 0,
@@ -111,7 +110,7 @@ fun TermsScreen(
 
 @Composable
 private fun TermEntry(
-    entry: TermsEntry,
+    entry: TermsRowState,
     addTopDivider: Boolean,
 ) {
 

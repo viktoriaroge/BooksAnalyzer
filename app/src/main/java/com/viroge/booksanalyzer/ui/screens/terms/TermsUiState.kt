@@ -1,19 +1,18 @@
-package com.viroge.booksanalyzer.ui.screens.settings
+package com.viroge.booksanalyzer.ui.screens.terms
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.viroge.booksanalyzer.R
 
-data class SettingsUiState(
+
+data class TermsUiState(
     @param:StringRes val screenTitleRes: Int = R.string.empty_text,
-    val rowStates: List<SettingsRowState> = emptyList(),
+    @param:DrawableRes val introIconRes: Int = R.drawable.ic_launcher_foreground,
+    @param:StringRes val introTextRes: Int = R.string.empty_text,
+    val rowStates: List<TermsRowState> = emptyList(),
 )
 
-data class SettingsRowState(
-    val isHeader: Boolean = false,
-    val isEnabled: Boolean = true,
-    val route: String? = null,
-    val icon: ImageVector? = null,
+data class TermsRowState(
     val showTitle: Boolean = false,
     val title: String? = null,
     @param:StringRes val titleRes: Int = R.string.empty_text,

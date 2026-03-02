@@ -14,6 +14,7 @@ class SettingsMapper @Inject constructor() {
         types: List<SettingsItemType>,
         version: String,
     ): SettingsUiState = SettingsUiState(
+        screenTitleRes = R.string.settings_screen_name,
         rowStates = types.map { type ->
             when (type) {
                 SettingsItemType.BOOKS_HEADER -> SettingsRowState(
