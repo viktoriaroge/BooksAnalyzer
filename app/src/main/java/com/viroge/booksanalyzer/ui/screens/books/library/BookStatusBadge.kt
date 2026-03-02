@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
 
 @Composable

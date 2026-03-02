@@ -5,8 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.domain.Book
-import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.ui.nav.Routes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay

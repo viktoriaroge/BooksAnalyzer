@@ -3,7 +3,7 @@ package com.viroge.booksanalyzer.ui.screens.books
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.LibrarySort
+import com.viroge.booksanalyzer.domain.model.library.LibrarySort
 
 object LibrarySortMapper {
 

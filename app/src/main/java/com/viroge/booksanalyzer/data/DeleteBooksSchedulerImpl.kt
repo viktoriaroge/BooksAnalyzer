@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.domain.delete
+package com.viroge.booksanalyzer.data
 
 import android.content.Context
 import android.util.Log
@@ -6,7 +6,7 @@ import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import com.viroge.booksanalyzer.domain.delete.DeleteWork.UNIQUE_NAME
+import com.viroge.booksanalyzer.data.DeleteWork.UNIQUE_NAME
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 

@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.domain
+package com.viroge.booksanalyzer.domain.model
 
 enum class ReadingStatus {
     NOT_STARTED,

@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.domain.Book
-import com.viroge.booksanalyzer.domain.delete.DeleteBooksScheduler
+import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.data.DeleteBooksScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow

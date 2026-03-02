@@ -4,6 +4,9 @@ import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.data.remote.google.GoogleVolumeItem
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryDoc
 import com.viroge.booksanalyzer.domain.BooksUtil.splitIsbns
+import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.BookSource
+import com.viroge.booksanalyzer.domain.model.ReadingStatus
 
 object BookMapper {
 

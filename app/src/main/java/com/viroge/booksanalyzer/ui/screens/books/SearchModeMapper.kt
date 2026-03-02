@@ -3,7 +3,7 @@ package com.viroge.booksanalyzer.ui.screens.books
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.SearchMode
+import com.viroge.booksanalyzer.domain.model.library.SearchMode
 
 object SearchModeMapper {
 

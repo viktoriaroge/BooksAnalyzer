@@ -24,9 +24,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideJson(): Json = Json {
-        ignoreUnknownKeys = true
-        explicitNulls = false
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
     }
 
     @Provides
@@ -39,10 +38,8 @@ object NetworkModule {
     @GoogleBooksRetrofit
     fun provideGoogleRetrofit(
         converter: Converter.Factory,
+        logging: HttpLoggingInterceptor,
     ): Retrofit {
-        val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
         val okHttp = OkHttpClient.Builder()
             .addInterceptor(Interceptor { chain ->
                 // NOTE: Google Books API authentication is multi-layered. :)
@@ -70,10 +67,8 @@ object NetworkModule {
     @OpenLibraryRetrofit
     fun provideOpenLibraryRetrofit(
         converter: Converter.Factory,
+        logging: HttpLoggingInterceptor,
     ): Retrofit {
-        val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
         val okHttp = OkHttpClient.Builder()
             .addInterceptor(Interceptor { chain ->
                 // NOTE: Adding a user email in the header helps us get more allowed requests per second.

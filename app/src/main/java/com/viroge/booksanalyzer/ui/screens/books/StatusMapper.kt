@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.domain.model.ReadingStatus
 
 object StatusMapper {
 

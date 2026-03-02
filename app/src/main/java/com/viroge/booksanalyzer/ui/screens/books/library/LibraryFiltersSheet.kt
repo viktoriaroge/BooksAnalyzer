@@ -27,9 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.LibraryFilters
-import com.viroge.booksanalyzer.domain.LibrarySort
-import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.domain.model.library.LibraryFilters
+import com.viroge.booksanalyzer.domain.model.library.LibrarySort
+import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.ui.screens.books.LibrarySortMapper
 import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
 

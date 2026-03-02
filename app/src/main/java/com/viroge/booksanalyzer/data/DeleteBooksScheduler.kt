@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.domain.delete
+package com.viroge.booksanalyzer.data
 
 interface DeleteBooksScheduler {
     fun enqueueBulkDelete()

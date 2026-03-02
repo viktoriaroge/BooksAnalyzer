@@ -1,9 +1,9 @@
 package com.viroge.booksanalyzer.ui.screens.books.add
 
 import androidx.lifecycle.ViewModel
-import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.BooksUtil.normalizeForManualInput
-import com.viroge.booksanalyzer.domain.SearchMode
+import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

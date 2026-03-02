@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.SearchMode
+import com.viroge.booksanalyzer.domain.model.library.SearchMode
 
 @Composable
 fun ConfirmBookManualForm(

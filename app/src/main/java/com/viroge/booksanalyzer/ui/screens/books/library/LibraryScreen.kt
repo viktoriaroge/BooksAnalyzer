@@ -44,9 +44,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.Book
-import com.viroge.booksanalyzer.domain.LibraryFilters
-import com.viroge.booksanalyzer.domain.LibrarySort
+import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.library.LibraryFilters
+import com.viroge.booksanalyzer.domain.model.library.LibrarySort
 import com.viroge.booksanalyzer.ui.components.BookSourceBadge
 import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize

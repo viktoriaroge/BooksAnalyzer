@@ -31,8 +31,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.Book
-import com.viroge.booksanalyzer.domain.SearchMode
+import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import com.viroge.booksanalyzer.ui.components.BookSourceBadge
 import com.viroge.booksanalyzer.ui.components.CommonAsyncImageSize
 import com.viroge.booksanalyzer.ui.components.CommonCoverAsyncImage

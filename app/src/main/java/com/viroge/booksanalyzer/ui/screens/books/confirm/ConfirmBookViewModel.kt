@@ -3,7 +3,7 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.BookMapper.getBookFromManualInput
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow

@@ -3,6 +3,8 @@ package com.viroge.booksanalyzer.domain
 import android.util.Log
 import com.viroge.booksanalyzer.domain.BookHeaders.getGoogleBooksHeaders
 import com.viroge.booksanalyzer.domain.BookHeaders.getOpenLibraryHeaders
+import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.BookSource
 
 object CoverUrlOptimizer {
 

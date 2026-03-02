@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.domain
+package com.viroge.booksanalyzer.domain.model.library
 
 enum class SearchMode {
     ALL,

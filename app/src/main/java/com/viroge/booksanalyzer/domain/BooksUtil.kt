@@ -1,5 +1,7 @@
 package com.viroge.booksanalyzer.domain
 
+import com.viroge.booksanalyzer.domain.model.Book
+
 object BooksUtil {
 
     fun normalizeForManualInput(

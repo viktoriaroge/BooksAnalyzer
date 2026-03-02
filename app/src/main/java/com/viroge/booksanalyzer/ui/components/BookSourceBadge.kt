@@ -12,7 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.BookSource
+import com.viroge.booksanalyzer.domain.model.BookSource
 
 @Composable
 fun BookSourceBadge(

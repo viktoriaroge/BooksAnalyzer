@@ -3,7 +3,7 @@ package com.viroge.booksanalyzer.ui.components.bookcover
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.domain.Book
+import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.CoverUrlOptimizer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -3,10 +3,10 @@ package com.viroge.booksanalyzer.ui.screens.books.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.domain.Book
-import com.viroge.booksanalyzer.domain.LibraryFilters
-import com.viroge.booksanalyzer.domain.LibrarySort
-import com.viroge.booksanalyzer.domain.ReadingStatus
+import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.library.LibraryFilters
+import com.viroge.booksanalyzer.domain.model.library.LibrarySort
+import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
