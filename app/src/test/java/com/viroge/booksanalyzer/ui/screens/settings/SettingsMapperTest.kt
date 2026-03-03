@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.settings
+package com.viroge.booksanalyzer.ui.screens.settings
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalLibrary

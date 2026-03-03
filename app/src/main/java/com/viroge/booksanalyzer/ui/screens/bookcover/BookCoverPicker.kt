@@ -3,19 +3,16 @@ package com.viroge.booksanalyzer.ui.screens.bookcover
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,11 +24,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
 
@@ -51,34 +46,30 @@ fun CoverPickerSheet(
         onDismissRequest = onDismiss,
     ) {
         Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            Modifier.fillMaxWidth()
         ) {
-            Text(stringResource(R.string.book_cover_picker_name), style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(12.dp))
-
-            // Manual url input:
-            Row(
+            Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = state.manualUrlInput,
-                    onValueChange = onManualUrlChange,
-                    modifier = Modifier.weight(1f),
-                    label = { Text(stringResource(R.string.book_cover_picker_input_field_label)) },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                IconButton(onClick = onAddManualUrl) {
-                    Icon(Icons.Default.Check, contentDescription = "")
-                }
-            }
+                    .padding(bottom = 16.dp)
+                    .padding(horizontal = 16.dp),
+                text = stringResource(state.screenValues.screenTitle), style = MaterialTheme.typography.titleLarge
+            )
 
-            Spacer(Modifier.height(12.dp))
+            // Manual url input:
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = state.manualUrlInput,
+                onValueChange = onManualUrlChange,
+                label = { Text(stringResource(state.screenValues.inputFieldLabel)) },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                trailingIcon = {
+                    IconButton(onClick = onAddManualUrl) {
+                        Icon(state.screenValues.inputFieldIcon, contentDescription = "")
+                    }
+                }
+            )
 
             if (state.isLoading) {
                 CircularProgressIndicator()
@@ -91,9 +82,8 @@ fun CoverPickerSheet(
                 columns = GridCells.Fixed(3),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 420.dp)
+                contentPadding = PaddingValues(16.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 items(state.bookCovers.size) { idx ->
                     val candidate = state.bookCovers[idx]

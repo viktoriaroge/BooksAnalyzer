@@ -1,6 +1,5 @@
 package com.viroge.booksanalyzer.domain.usecase
 
-import android.util.Log
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import javax.inject.Inject
@@ -8,6 +7,8 @@ import javax.inject.Inject
 class GetBookCoverCandidatesUseCase @Inject constructor(
     private val getCoverHeaders: GetBookCoverHeadersUseCase,
 ) {
+
+    private val protocolRegex = Regex("^http://", RegexOption.IGNORE_CASE)
 
     operator fun invoke(book: Book): List<BookCoverCandidate> {
         val candidates = getCoverCandidates(book)
@@ -51,36 +52,32 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
         // Always include original at the end as fallback:
         book.coverUrl?.let { original -> if (original.isNotBlank()) list += original }
 
-        val normalizedList = list.distinct()
-        Log.println(Log.DEBUG, "GetBookCoverCandidatesUseCase", "---> CoverCandidates: (${normalizedList.size}) $normalizedList")
-
-        return normalizedList.map { attachCoverHeaders(url = it) }
+        return list.distinct().map { attachCoverHeaders(url = it) }
     }
 
-    fun attachCoverHeaders(url: String): BookCoverCandidate =
+    private fun attachCoverHeaders(url: String): BookCoverCandidate =
         BookCoverCandidate(url = url, headers = getCoverHeaders(url))
 
     private fun googleUpgrades(url: String): List<String> {
-        val baseUrl = url.replace("http://", "https://")
+        // Upgrades only if it starts with http:// (case-insensitive)
+        val baseUrl = url.replace(protocolRegex, "https://")
 
-        // Those are the most common zoom factors, try with the most optimal one first:
-        return if (baseUrl.contains("zoom=")) listOf(
-            baseUrl.replace(Regex("zoom=\\d+"), "zoom=3"),
-            baseUrl.replace(Regex("zoom=\\d+"), "zoom=2"),
-            baseUrl.replace(Regex("zoom=\\d+"), "zoom=1"),
-        )
-        else listOf(baseUrl)
+        return if (baseUrl.contains("zoom=")) {
+            listOf("3", "2", "1").map { level ->
+                baseUrl.replace(Regex("zoom=\\d+"), "zoom=$level")
+            }
+        } else {
+            listOf(baseUrl)
+        }
     }
 
     private fun openLibraryUpgrades(url: String): List<String> {
-        val baseUrl = url.replace("http://", "https://")
+        val baseUrl = url.replace(protocolRegex, "https://")
 
-        // OpenLibrary covers: ...-S.jpg, ...-M.jpg, ...-L.jpg, ...-XL.jpg
-        return listOf(
-            baseUrl.replace(Regex("-(S|M|L|XL)\\.jpg$"), "-XL.jpg"),
-            baseUrl.replace(Regex("-(S|M|L|XL)\\.jpg$"), "-L.jpg"),
-            baseUrl.replace(Regex("-(S|M|L|XL)\\.jpg$"), "-M.jpg"),
-        )
+        // Defines the sizes in order of preference
+        return listOf("-XL.jpg", "-L.jpg", "-M.jpg").map { size ->
+            baseUrl.replace(Regex("-(S|M|L|XL)\\.jpg$"), size)
+        }
     }
 }
 

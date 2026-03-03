@@ -11,9 +11,7 @@ class GetBookCoverHeadersUseCase @Inject constructor(
         return getCoverHeaders(url)
     }
 
-    private fun getCoverHeaders(url: String?): Map<String, String> = when {
-        url == null -> emptyMap()
-
+    private fun getCoverHeaders(url: String): Map<String, String> = when {
         // Case 1: Open Library
         url.contains("openlibrary.org") -> bookCoverHeaders.getOpenLibraryHeaders()
 

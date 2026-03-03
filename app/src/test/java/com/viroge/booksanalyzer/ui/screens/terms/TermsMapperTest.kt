@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.terms
+package com.viroge.booksanalyzer.ui.screens.terms
 
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.screens.terms.TermsItemType

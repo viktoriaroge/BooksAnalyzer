@@ -44,6 +44,7 @@ class CoverPickerViewModel @Inject constructor(
                 it.copy(
                     initialized = true,
                     isLoading = false,
+                    screenValues = mapper.getStaticScreenValues(),
                     selectedCover = selected,
                     bookCovers = getCoverCandidates(book)
                         .map { candidate ->
@@ -87,7 +88,6 @@ class CoverPickerViewModel @Inject constructor(
     fun selectCover(url: String) {
         _state.update {
             it.copy(
-                isOpen = true,
                 selectedCover = BookCoverState(
                     url = url,
                     headers = getCoverHeaders(url),
