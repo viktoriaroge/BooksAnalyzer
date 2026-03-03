@@ -10,8 +10,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.nav.Routes
-import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerSheet
-import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerViewModel
+import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerSheet
+import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
 import com.viroge.booksanalyzer.ui.screens.books.add.AddBookFlowViewModel
 
 @Composable

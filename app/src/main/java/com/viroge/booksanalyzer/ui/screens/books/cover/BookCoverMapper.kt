@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.bookcover
+package com.viroge.booksanalyzer.ui.screens.books.cover
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check

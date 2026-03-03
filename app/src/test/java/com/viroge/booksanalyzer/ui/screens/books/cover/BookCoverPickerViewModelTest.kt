@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.bookcover
+package com.viroge.booksanalyzer.ui.screens.books.cover
 
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource

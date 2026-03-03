@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.bookcover
+package com.viroge.booksanalyzer.ui.screens.books.cover
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

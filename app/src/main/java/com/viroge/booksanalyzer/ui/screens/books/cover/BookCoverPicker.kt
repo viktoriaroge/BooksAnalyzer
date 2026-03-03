@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.bookcover
+package com.viroge.booksanalyzer.ui.screens.books.cover
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement

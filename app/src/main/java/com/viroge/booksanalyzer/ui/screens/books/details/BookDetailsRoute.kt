@@ -7,8 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.viroge.booksanalyzer.ui.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.activityViewModel
-import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerSheet
-import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerViewModel
+import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerSheet
+import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
 
 @Composable
 fun BookDetailsRoute(
