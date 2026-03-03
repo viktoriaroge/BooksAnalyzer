@@ -1,8 +1,7 @@
-package com.viroge.booksanalyzer.ui.screens.books.recentlydeleted
+package com.viroge.booksanalyzer.ui.screens.books.deleted
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.usecase.GetRecentlyDeletedBooksUseCase
 import com.viroge.booksanalyzer.domain.usecase.RestoreBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,13 +20,19 @@ import javax.inject.Inject
 class RecentlyDeletedViewModel @Inject constructor(
     getRecentlyDeletedBooks: GetRecentlyDeletedBooksUseCase,
     private val restoreBookUseCase: RestoreBookUseCase,
+    private val mapper: RecentlyDeletedBookMapper,
 ) : ViewModel() {
 
     private val _message = MutableSharedFlow<String?>()
     val message: SharedFlow<String?> = _message
 
     val state: StateFlow<RecentlyDeletedUiState> = getRecentlyDeletedBooks()
-        .map { RecentlyDeletedUiState(books = it) }
+        .map { books ->
+            RecentlyDeletedUiState(
+                screenValues = mapper.getScreenValues(),
+                books = mapper.map(books)
+            )
+        }
         .distinctUntilChanged()
         .catch { _ -> _message.emit("Failed to retrieve Books pending deletion.") }
         .stateIn(
@@ -43,7 +48,3 @@ class RecentlyDeletedViewModel @Inject constructor(
         }
     }
 }
-
-data class RecentlyDeletedUiState(
-    val books: List<Book> = emptyList(),
-)

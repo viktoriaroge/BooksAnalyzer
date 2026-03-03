@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.books.recentlydeleted
+package com.viroge.booksanalyzer.ui.screens.books.deleted
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
