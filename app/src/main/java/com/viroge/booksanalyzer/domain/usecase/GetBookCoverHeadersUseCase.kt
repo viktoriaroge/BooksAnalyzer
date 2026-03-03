@@ -1,10 +1,11 @@
 package com.viroge.booksanalyzer.domain.usecase
 
-import com.viroge.booksanalyzer.domain.BookHeaders.getGoogleBooksHeaders
-import com.viroge.booksanalyzer.domain.BookHeaders.getOpenLibraryHeaders
+import com.viroge.booksanalyzer.data.remote.BookCoverHeaders
 import javax.inject.Inject
 
-class GetBookCoverHeadersUseCase @Inject constructor() {
+class GetBookCoverHeadersUseCase @Inject constructor(
+    private val bookCoverHeaders: BookCoverHeaders,
+) {
 
     operator fun invoke(url: String): Map<String, String> {
         return getCoverHeaders(url)
@@ -14,10 +15,10 @@ class GetBookCoverHeadersUseCase @Inject constructor() {
         url == null -> emptyMap()
 
         // Case 1: Open Library
-        url.contains("openlibrary.org") -> getOpenLibraryHeaders()
+        url.contains("openlibrary.org") -> bookCoverHeaders.getOpenLibraryHeaders()
 
         // Case 2: Google Books
-        url.contains("google.com/books") || url.contains("googleapis.com") -> getGoogleBooksHeaders()
+        url.contains("google.com/books") || url.contains("googleapis.com") -> bookCoverHeaders.getGoogleBooksHeaders()
 
         else -> emptyMap()
     }

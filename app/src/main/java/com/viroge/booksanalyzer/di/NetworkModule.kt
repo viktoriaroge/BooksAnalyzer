@@ -1,10 +1,9 @@
 package com.viroge.booksanalyzer.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.viroge.booksanalyzer.data.remote.BookCoverHeaders
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksApi
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryApi
-import com.viroge.booksanalyzer.domain.BookHeaders.getGoogleBooksHeaders
-import com.viroge.booksanalyzer.domain.BookHeaders.getOpenLibraryHeaders
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,10 +34,15 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideBookCoverHeaders(): BookCoverHeaders = BookCoverHeaders()
+
+    @Provides
+    @Singleton
     @GoogleBooksRetrofit
     fun provideGoogleRetrofit(
         converter: Converter.Factory,
         logging: HttpLoggingInterceptor,
+        headers: BookCoverHeaders,
     ): Retrofit {
         val okHttp = OkHttpClient.Builder()
             .addInterceptor(Interceptor { chain ->
@@ -46,7 +50,7 @@ object NetworkModule {
                 // It requires the package name and the SHA1 hash as headers.
                 // And later also the generated API key as a query parameter.
                 val requestBuilder = chain.request().newBuilder()
-                val headersToAdd = getGoogleBooksHeaders()
+                val headersToAdd = headers.getGoogleBooksHeaders()
                 for ((name, value) in headersToAdd) {
                     requestBuilder.header(name, value)
                 }
@@ -68,13 +72,14 @@ object NetworkModule {
     fun provideOpenLibraryRetrofit(
         converter: Converter.Factory,
         logging: HttpLoggingInterceptor,
+        headers: BookCoverHeaders,
     ): Retrofit {
         val okHttp = OkHttpClient.Builder()
             .addInterceptor(Interceptor { chain ->
                 // NOTE: Adding a user email in the header helps us get more allowed requests per second.
                 // For Open Library API that raises our requests from 1 to 3 per second.
                 val requestBuilder = chain.request().newBuilder()
-                val headersToAdd = getOpenLibraryHeaders()
+                val headersToAdd = headers.getOpenLibraryHeaders()
                 for ((name, value) in headersToAdd) {
                     requestBuilder.header(name, value)
                 }

@@ -1,42 +1,44 @@
 package com.viroge.booksanalyzer.domain
 
 import com.viroge.booksanalyzer.data.local.books.BookEntity
+import com.viroge.booksanalyzer.data.remote.BookCoverHeaders
 import com.viroge.booksanalyzer.data.remote.google.GoogleVolumeItem
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryDoc
-import com.viroge.booksanalyzer.domain.BookHeaders.getGoogleBooksHeaders
-import com.viroge.booksanalyzer.domain.BookHeaders.getOpenLibraryHeaders
 import com.viroge.booksanalyzer.domain.BooksUtil.splitIsbns
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
+import javax.inject.Inject
 
-object BookMapper {
+class BookMapper @Inject constructor(
+    private val bookCoverHeaders: BookCoverHeaders,
+) {
 
-    fun GoogleVolumeItem.toBook(): Book {
-        val isbn13 = volumeInfo.industryIdentifiers.firstOrNull {
+    fun map(item: GoogleVolumeItem): Book {
+        val isbn13 = item.volumeInfo.industryIdentifiers.firstOrNull {
             it.type.equals(
                 other = "ISBN_13", ignoreCase = true
             )
         }?.identifier
 
-        val isbn10 = volumeInfo.industryIdentifiers.firstOrNull {
+        val isbn10 = item.volumeInfo.industryIdentifiers.firstOrNull {
             it.type.equals(
                 other = "ISBN_10", ignoreCase = true
             )
         }?.identifier
 
-        val year = volumeInfo.publishedDate?.take(4)?.toIntOrNull()
-        val coverUrl = (volumeInfo.imageLinks?.thumbnail ?: volumeInfo.imageLinks?.smallThumbnail)?.replace(
+        val year = item.volumeInfo.publishedDate?.take(4)?.toIntOrNull()
+        val coverUrl = (item.volumeInfo.imageLinks?.thumbnail ?: item.volumeInfo.imageLinks?.smallThumbnail)?.replace(
             oldValue = "http://",
             newValue = "https://"
         )
 
         return Book(
             id = "", // not important for network construction
-            sourceId = id,
+            sourceId = item.id,
             source = BookSource.GOOGLE_BOOKS,
-            title = volumeInfo.title,
-            authors = volumeInfo.authors,
+            title = item.volumeInfo.title,
+            authors = item.volumeInfo.authors,
             publishedYear = year,
             isbn13 = isbn13,
             isbn10 = isbn10,
@@ -50,13 +52,13 @@ object BookMapper {
         )
     }
 
-    fun OpenLibraryDoc.toBookOrNull(): Book? {
-        val title = this.title?.takeIf { it.isNotBlank() } ?: return null
-        val id = key ?: return null
+    fun mapOrNull(doc: OpenLibraryDoc): Book? {
+        val title = doc.title?.takeIf { it.isNotBlank() } ?: return null
+        val id = doc.key ?: return null
 
-        val (isbn13, isbn10) = splitIsbns(isbns = isbn)
+        val (isbn13, isbn10) = splitIsbns(isbns = doc.isbn)
 
-        val coverUrl = coverId?.let { coverId ->
+        val coverUrl = doc.coverId?.let { coverId ->
             // Covers API: https://covers.openlibrary.org/b/id/{coverId}-{size}.jpg
             // We have the following options: S, M, L, XL
             "https://covers.openlibrary.org/b/id/$coverId-L.jpg"
@@ -67,8 +69,8 @@ object BookMapper {
             sourceId = id,
             source = BookSource.OPEN_LIBRARY,
             title = title,
-            authors = authorName,
-            publishedYear = firstPublishYear,
+            authors = doc.authorName,
+            publishedYear = doc.firstPublishYear,
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = coverUrl,
@@ -81,7 +83,7 @@ object BookMapper {
         )
     }
 
-    fun getBookFromManualInput(
+    fun mapFromManualInput(
         title: String,
         authors: String,
         publishedYear: Int?,
@@ -105,36 +107,36 @@ object BookMapper {
         toBeDeleted = false, // not important for network construction
     )
 
-    fun BookEntity.toBook(): Book = Book(
-        id = this.bookId,
-        sourceId = this.sourceId,
+    fun map(entity: BookEntity): Book = Book(
+        id = entity.bookId,
+        sourceId = entity.sourceId,
         source = when {
-            this.source.equals(other = "GOOGLE_BOOKS", ignoreCase = true) -> BookSource.GOOGLE_BOOKS
-            this.source.equals(other = "OPEN_LIBRARY", ignoreCase = true) -> BookSource.OPEN_LIBRARY
+            entity.source.equals(other = "GOOGLE_BOOKS", ignoreCase = true) -> BookSource.GOOGLE_BOOKS
+            entity.source.equals(other = "OPEN_LIBRARY", ignoreCase = true) -> BookSource.OPEN_LIBRARY
 
             else -> BookSource.MANUAL
         },
         status = when {
-            this.status.equals(
+            entity.status.equals(
                 other = "NOT_STARTED", ignoreCase = true
             ) -> ReadingStatus.NOT_STARTED
 
-            this.status.equals(other = "READING", ignoreCase = true) -> ReadingStatus.READING
-            this.status.equals(other = "FINISHED", ignoreCase = true) -> ReadingStatus.FINISHED
-            this.status.equals(other = "ABANDONED", ignoreCase = true) -> ReadingStatus.ABANDONED
+            entity.status.equals(other = "READING", ignoreCase = true) -> ReadingStatus.READING
+            entity.status.equals(other = "FINISHED", ignoreCase = true) -> ReadingStatus.FINISHED
+            entity.status.equals(other = "ABANDONED", ignoreCase = true) -> ReadingStatus.ABANDONED
             else -> ReadingStatus.NOT_STARTED
         },
-        title = this.title,
-        authors = this.authors.split(",").map { it.trim() },
-        publishedYear = this.publishedYear,
-        isbn13 = this.isbn13,
-        isbn10 = this.isbn10,
-        coverUrl = this.coverUrl,
-        coverRequestHeaders = getCoverHeaders(url = coverUrl),
-        createdAtEpochMs = this.createdAtEpochMs,
-        lastOpenAtEpochMs = this.lastOpenAtEpochMs,
-        lastMarkedToDelete = this.lastMarkedToDelete,
-        toBeDeleted = this.toBeDeleted,
+        title = entity.title,
+        authors = entity.authors.split(",").map { it.trim() },
+        publishedYear = entity.publishedYear,
+        isbn13 = entity.isbn13,
+        isbn10 = entity.isbn10,
+        coverUrl = entity.coverUrl,
+        coverRequestHeaders = getCoverHeaders(url = entity.coverUrl),
+        createdAtEpochMs = entity.createdAtEpochMs,
+        lastOpenAtEpochMs = entity.lastOpenAtEpochMs,
+        lastMarkedToDelete = entity.lastMarkedToDelete,
+        toBeDeleted = entity.toBeDeleted,
     )
 
     @Deprecated("Use GetBookCoverHeadersUseCase instead")
@@ -142,10 +144,10 @@ object BookMapper {
         url == null -> emptyMap()
 
         // Case 1: Open Library
-        url.contains("openlibrary.org") -> getOpenLibraryHeaders()
+        url.contains("openlibrary.org") -> bookCoverHeaders.getOpenLibraryHeaders()
 
         // Case 2: Google Books
-        url.contains("google.com/books") || url.contains("googleapis.com") -> getGoogleBooksHeaders()
+        url.contains("google.com/books") || url.contains("googleapis.com") -> bookCoverHeaders.getGoogleBooksHeaders()
 
         else -> emptyMap()
     }

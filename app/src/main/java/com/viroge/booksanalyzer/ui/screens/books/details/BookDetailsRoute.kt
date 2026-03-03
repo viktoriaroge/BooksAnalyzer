@@ -5,7 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.viroge.booksanalyzer.domain.BookMapper.getCoverHeaders
 import com.viroge.booksanalyzer.ui.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.activityViewModel
 import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerSheet
@@ -32,7 +31,7 @@ fun BookDetailsRoute(
         state = state,
         headersForBookCover =
             if (usePickerCover) coverPickerState.selectedCover.headers
-            else state.book?.coverUrl?.let { getCoverHeaders(it) } ?: emptyMap(),
+            else state.book?.coverRequestHeaders ?: emptyMap(),
         selectedCoverUrl = if (usePickerCover) coverPickerState.selectedCover.url else null,
         onBack = onBack,
         onStatusChange = vm::setStatus,
@@ -54,7 +53,6 @@ fun BookDetailsRoute(
 
     CoverPickerSheet(
         state = coverPickerState,
-        selectedUrl = if (usePickerCover) coverPickerState.selectedCover.url else null,
         onManualUrlChange = coverPickerVM::onManualUrlChange,
         onAddManualUrl = coverPickerVM::addManualUrl,
         onSelect = coverPickerVM::selectCover,

@@ -39,7 +39,6 @@ import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
 @Composable
 fun CoverPickerSheet(
     state: BookCoverPickerUiState,
-    selectedUrl: String?,
     onManualUrlChange: (String) -> Unit,
     onAddManualUrl: () -> Unit,
     onSelect: (String) -> Unit,

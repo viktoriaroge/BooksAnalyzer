@@ -1,8 +1,10 @@
-package com.viroge.booksanalyzer.domain
+package com.viroge.booksanalyzer.data.remote
 
 import com.viroge.booksanalyzer.BuildConfig
+import javax.inject.Singleton
 
-object BookHeaders {
+@Singleton
+class BookCoverHeaders() {
 
     fun getOpenLibraryHeaders(): Map<String, String> = mapOf(
         "Accept" to "application/json",

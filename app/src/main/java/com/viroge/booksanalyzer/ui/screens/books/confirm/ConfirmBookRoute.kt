@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import com.viroge.booksanalyzer.domain.BookMapper.getCoverHeaders
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.nav.Routes
 import com.viroge.booksanalyzer.ui.screens.bookcover.CoverPickerSheet
@@ -59,7 +58,7 @@ fun ConfirmBookRoute(
         book = book,
         headersForBookCover =
             if (usePickerCover) coverPickerState.selectedCover.headers
-            else book?.coverUrl?.let { getCoverHeaders(it) } ?: emptyMap(),
+            else book?.coverRequestHeaders ?: emptyMap(),
         selectedCoverUrl =
             if (usePickerCover) coverPickerState.selectedCover.url
             else null,
@@ -91,7 +90,6 @@ fun ConfirmBookRoute(
 
     CoverPickerSheet(
         state = coverPickerState,
-        selectedUrl = if (usePickerCover) coverPickerState.selectedCover.url else null,
         onManualUrlChange = coverPickerVM::onManualUrlChange,
         onAddManualUrl = coverPickerVM::addManualUrl,
         onSelect = coverPickerVM::selectCover,

@@ -3,8 +3,8 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
+import com.viroge.booksanalyzer.domain.BookMapper
 import com.viroge.booksanalyzer.domain.model.Book
-import com.viroge.booksanalyzer.domain.BookMapper.getBookFromManualInput
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ConfirmBookViewModel @Inject constructor(
     private val booksRepo: BooksRepository,
+    private val bookMapper: BookMapper,
 ) : ViewModel() {
 
     private val _isSaving = MutableStateFlow(value = false)
@@ -69,7 +70,7 @@ class ConfirmBookViewModel @Inject constructor(
 
         saveBook(
             selectedCoverUrl = selectedCoverUrl,
-            book = getBookFromManualInput(
+            book = bookMapper.mapFromManualInput(
                 title = title,
                 authors = authors,
                 publishedYear = publishedYear,

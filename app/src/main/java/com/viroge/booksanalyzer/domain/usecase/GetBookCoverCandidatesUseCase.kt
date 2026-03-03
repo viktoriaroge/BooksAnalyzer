@@ -52,7 +52,7 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
         book.coverUrl?.let { original -> if (original.isNotBlank()) list += original }
 
         val normalizedList = list.distinct()
-        Log.println(Log.DEBUG, "CoverUrlOptimizer", "---> CoverCandidates: (${normalizedList.size}) $normalizedList")
+        Log.println(Log.DEBUG, "GetBookCoverCandidatesUseCase", "---> CoverCandidates: (${normalizedList.size}) $normalizedList")
 
         return normalizedList.map { attachCoverHeaders(url = it) }
     }

@@ -5,13 +5,13 @@ import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
-import com.viroge.booksanalyzer.domain.model.Book
-import com.viroge.booksanalyzer.domain.BookMapper.toBook
+import com.viroge.booksanalyzer.domain.BookMapper
 import com.viroge.booksanalyzer.domain.BooksPage
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.BooksUtil.titleKey
 import com.viroge.booksanalyzer.domain.PageTokenHandler.makePageToken
 import com.viroge.booksanalyzer.domain.PageTokenHandler.parsePageToken
+import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,19 +28,20 @@ class BooksRepositoryImpl @Inject constructor(
     private val bookDao: BookDao,
     private val googleClient: GoogleBooksClient,
     private val openLibraryClient: OpenLibraryClient,
+    private val bookMapper: BookMapper,
 ) : BooksRepository {
 
     override fun observeLibrary(): Flow<List<Book>> = bookDao.observeAll()
         .map { list -> list.filter { entity -> !entity.toBeDeleted } }
-        .map { list -> list.map { entity -> entity.toBook() } }
+        .map { list -> list.map { entity -> bookMapper.map(entity) } }
 
     override fun observePendingDeleteBooks(): Flow<List<Book>> = bookDao.observeAll()
         .map { list -> list.filter { entity -> entity.toBeDeleted } }
-        .map { list -> list.map { entity -> entity.toBook() } }
+        .map { list -> list.map { entity -> bookMapper.map(entity) } }
 
     override fun observeBook(
         bookId: String,
-    ): Flow<Book?> = bookDao.observeById(bookId).map { it?.toBook() }
+    ): Flow<Book?> = bookDao.observeById(bookId).map { it?.let { entity -> bookMapper.map(entity) } }
 
     override suspend fun updateStatus(
         bookId: String,
@@ -77,7 +78,7 @@ class BooksRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getPendingDeleteBooks(): List<Book> {
-        return bookDao.getPendingDeleteBooks().orEmpty().map { it.toBook() }
+        return bookDao.getPendingDeleteBooks().orEmpty().map { bookMapper.map(it) }
     }
 
     override suspend fun deleteBook(
@@ -190,14 +191,18 @@ class BooksRepositoryImpl @Inject constructor(
                 searchMode = searchMode,
                 query = query,
                 startIndex = token.googleStart,
-            )
+            ).map { items ->
+                items.map { item -> bookMapper.map(item) }
+            }
         }
         val o = async {
             openLibraryClient.search(
                 searchMode = searchMode,
                 query = query,
                 page = token.olPage,
-            )
+            ).map { items ->
+                items.mapNotNull { item -> bookMapper.mapOrNull(item) }
+            }
         }
 
         val results = listOf(g.await(), o.await())
