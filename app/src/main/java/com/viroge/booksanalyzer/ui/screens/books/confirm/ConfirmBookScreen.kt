@@ -28,174 +28,126 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
-import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
-import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
 import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmBookScreen(
-    book: Book?,
-    headersForBookCover: Map<String, String>,
-    selectedCoverUrl: String?,
+    state: ConfirmBookUiState,
     prefillQuery: String?,
     prefillMode: SearchMode?,
-    isSaving: Boolean,
-    error: String?,
     onOpenCoverPicker: () -> Unit,
     onBack: () -> Unit,
     onConfirmSave: () -> Unit,
-    onConfirmSaveManual: (
-        title: String,
-        authors: String,
-        publishedYear: Int?,
-        isbn13: String?,
-        coverUrl: String?,
-    ) -> Unit = { _, _, _, _, _ -> },
+    onConfirmSaveManual: (String, String, Int?, String?, String?) -> Unit,
 ) {
+    val values = state.screenValues
+    val book = state.bookData
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             PvTopAppBar(
-                title =
-                    if (book != null) stringResource(R.string.confirm_book_screen_name)
-                    else stringResource(R.string.confirm_book_screen_in_manual_mode_name),
+                title = stringResource(if (book != null) values.screenTitleConfirm else values.screenTitleManual),
                 canGoBack = true,
                 onBack = onBack,
             )
         }
     ) { screenPadding ->
-
-        val scrollState = rememberScrollState()
-
         Column(
             modifier = Modifier
-                .padding(top = screenPadding.calculateTopPadding()) // top bar
+                .padding(screenPadding)
                 .fillMaxWidth()
-                .verticalScroll(scrollState),
+                .verticalScroll(rememberScrollState()),
         ) {
-
-            if (isSaving) {
-                Spacer(Modifier.height(height = 12.dp))
-
-                PvLinearProgressIndicator()
+            if (state.isSaving) {
+                PvLinearProgressIndicator(modifier = Modifier.padding(top = 12.dp))
             }
 
-            error?.let { msg ->
-                Spacer(Modifier.height(height = 12.dp))
+            state.error?.let { msg ->
                 Text(
                     text = msg,
                     color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(16.dp)
                 )
-                Spacer(Modifier.height(height = 16.dp))
             }
 
-            when {
-                book != null -> {
-                    val coverToShow = selectedCoverUrl ?: book.coverUrl
-                    BookCoverHeader(
-                        imageUrl = coverToShow,
-                        headersForBookCover = headersForBookCover,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+            if (book != null) {
+                // Mode: Confirming an existing result
+                BookCoverHeader(
+                    imageUrl = book.coverUrl,
+                    headersForBookCover = book.coverHeaders,
+                )
 
-                    Button(
-                        onClick = onOpenCoverPicker,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                    ) {
-                        Text(text = stringResource(R.string.confirm_book_screen_change_book_cover_button_label))
-                    }
+                Button(
+                    onClick = onOpenCoverPicker,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                ) {
+                    Text(text = stringResource(values.changeCoverButtonLabel))
+                }
 
-                    Spacer(Modifier.height(height = 24.dp))
+                Spacer(Modifier.height(24.dp))
 
+                Text(
+                    text = book.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+
+                if (book.authors.isNotBlank()) {
                     Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        text = book.title,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-
-                    if (book.authors.isNotEmpty()) {
-                        Spacer(Modifier.height(height = 8.dp))
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            text = book.authors.joinToString(separator = ", "),
-                        )
-                    }
-
-                    book.isbn13?.let {
-                        Spacer(Modifier.height(height = 8.dp))
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            text = stringResource(R.string.confirm_book_screen_isbn13_label, it)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(height = 8.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(space = 2.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.confirm_book_screen_source_label),
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        PvBookSourceBadge(
-                            source = book.source,
-                            modifier = Modifier.padding(all = 2.dp),
-                            showFullSourceName = true,
-                        )
-                        Spacer(modifier = Modifier.weight(weight = 1f))
-                    }
-
-                    Spacer(Modifier.height(height = 16.dp))
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        onClick = onConfirmSave,
-                        enabled = !isSaving,
-                    ) { Text(text = stringResource(R.string.confirm_book_screen_save_button_label)) }
-
-                    Spacer(Modifier.height(height = 24.dp))
-                }
-
-                !prefillQuery.isNullOrBlank() -> {
-                    ConfirmBookManualForm(
-                        prefillQuery = prefillQuery,
-                        prefillMode = prefillMode ?: SearchMode.ALL,
-                        isSaving = isSaving,
-                        onSave = onConfirmSaveManual,
+                        text = book.authors,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 }
 
-                else -> { /* noop */
+                book.isbn13?.let { isbn ->
+                    Text(
+                        text = stringResource(values.isbnLabel, isbn),
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
                 }
+
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(
+                        text = stringResource(values.sourceLabel),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    PvBookSourceBadge(sourceTextRes = book.sourceBadgeTextRes)
+                }
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    onClick = onConfirmSave,
+                    enabled = !state.isSaving,
+                ) {
+                    Text(text = stringResource(values.saveButtonLabel))
+                }
+            } else if (!prefillQuery.isNullOrBlank()) {
+                // Mode: Manual Form
+                ConfirmBookManualForm(
+                    prefillQuery = prefillQuery,
+                    prefillMode = prefillMode ?: SearchMode.ALL,
+                    isSaving = state.isSaving,
+                    onSave = onConfirmSaveManual,
+                )
             }
         }
     }
 }
-
 
 @Composable
 fun BookCoverHeader(

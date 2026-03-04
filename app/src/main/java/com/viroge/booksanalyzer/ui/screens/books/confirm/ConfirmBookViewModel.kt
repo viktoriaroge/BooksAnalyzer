@@ -18,6 +18,7 @@ import javax.inject.Inject
 class ConfirmBookViewModel @Inject constructor(
     private val saveBookUseCase: SaveBookUseCase,
     private val validateManualBook: ValidateAndGetManualBookUseCase,
+    private val mapper: ConfirmBookMapper,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ConfirmBookUiState())
@@ -26,16 +27,33 @@ class ConfirmBookViewModel @Inject constructor(
     private val _events = MutableSharedFlow<ConfirmEvent>()
     val events = _events.asSharedFlow()
 
+    fun initializeWithBook(
+        book: Book,
+        selectedCoverUrl: String?,
+        selectedCoverHeaders: Map<String, String>?,
+    ) {
+        _state.update {
+            it.copy(
+                screenValues = mapper.getScreenValues(),
+                bookData = mapper.mapToDataState(book, selectedCoverUrl, selectedCoverHeaders),
+            )
+        }
+    }
+
     fun saveBook(
         book: Book,
         selectedCoverUrl: String?,
+        selectedCoverHeaders: Map<String, String>?,
     ) {
         if (_state.value.isSaving) return
 
         viewModelScope.launch {
             _state.update { it.copy(isSaving = true, error = null) }
 
-            val finalBook = book.copy(coverUrl = selectedCoverUrl ?: book.coverUrl)
+            val finalBook = book.copy(
+                coverUrl = selectedCoverUrl ?: book.coverUrl,
+                coverRequestHeaders = selectedCoverHeaders ?: book.coverRequestHeaders,
+            )
 
             saveBookUseCase(finalBook)
                 .onSuccess { result ->
@@ -58,10 +76,11 @@ class ConfirmBookViewModel @Inject constructor(
         isbn13: String?,
         coverUrl: String?,
         selectedCoverUrl: String?,
+        selectedCoverHeaders: Map<String, String>?,
     ) {
         validateManualBook(title, authors, publishedYear, isbn13, coverUrl)
             .onSuccess { book ->
-                saveBook(book, selectedCoverUrl)
+                saveBook(book, selectedCoverUrl, selectedCoverHeaders)
             }
             .onFailure { t ->
                 _state.update { it.copy(error = t.message) }

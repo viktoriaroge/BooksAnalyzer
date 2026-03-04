@@ -30,12 +30,22 @@ fun ConfirmBookRoute(
     val prefill by flowVm.prefillQuery.collectAsState()
     val prefillMode by flowVm.prefillMode.collectAsState()
 
-    val vm: ConfirmBookViewModel = hiltViewModel()
-    val state by vm.state.collectAsState()
-
     val coverPickerVM: CoverPickerViewModel = hiltViewModel()
     val coverPickerState by coverPickerVM.state.collectAsState()
     val usePickerCover = coverPickerState.initialized
+
+    val vm: ConfirmBookViewModel = hiltViewModel()
+    val state by vm.state.collectAsState()
+    val selectedCover = if (usePickerCover) coverPickerState.selectedCover else null
+    LaunchedEffect(book, selectedCover) {
+        book?.let { originalBook ->
+            vm.initializeWithBook(
+                book = originalBook,
+                selectedCoverUrl = selectedCover?.url,
+                selectedCoverHeaders = selectedCover?.headers,
+            )
+        }
+    }
 
     val snackbar = LocalAppSnackbar.current
     LaunchedEffect(key1 = Unit) {
@@ -54,15 +64,7 @@ fun ConfirmBookRoute(
     }
 
     ConfirmBookScreen(
-        isSaving = state.isSaving,
-        error = state.error,
-        book = book,
-        selectedCoverUrl =
-            if (usePickerCover) coverPickerState.selectedCover.url
-            else null,
-        headersForBookCover =
-            if (usePickerCover) coverPickerState.selectedCover.headers
-            else book?.coverRequestHeaders ?: emptyMap(),
+        state = state,
         prefillQuery = prefill,
         prefillMode = prefillMode,
         onOpenCoverPicker = { book?.let(coverPickerVM::openCoverPicker) },
@@ -71,7 +73,8 @@ fun ConfirmBookRoute(
             book?.let {
                 vm.saveBook(
                     book = it,
-                    selectedCoverUrl = if (usePickerCover) coverPickerState.selectedCover.url else null,
+                    selectedCoverUrl = selectedCover?.url,
+                    selectedCoverHeaders = selectedCover?.headers,
                 )
             }
         },
@@ -82,7 +85,8 @@ fun ConfirmBookRoute(
                 publishedYear = year,
                 isbn13 = isbn13,
                 coverUrl = coverUrl,
-                selectedCoverUrl = if (usePickerCover) coverPickerState.selectedCover.url else null,
+                selectedCoverUrl = selectedCover?.url,
+                selectedCoverHeaders = selectedCover?.headers,
             )
         },
     )
