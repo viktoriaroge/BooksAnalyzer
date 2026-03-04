@@ -10,9 +10,9 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.nav.Routes
+import com.viroge.booksanalyzer.ui.screens.books.add.AddBookFlowViewModel
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerSheet
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
-import com.viroge.booksanalyzer.ui.screens.books.add.AddBookFlowViewModel
 
 @Composable
 fun ConfirmBookRoute(
@@ -21,24 +21,23 @@ fun ConfirmBookRoute(
     onBack: () -> Unit,
     onBookSaved: (String) -> Unit,
 ) {
-    val vm: ConfirmBookViewModel = hiltViewModel()
-    val coverPickerVM: CoverPickerViewModel = hiltViewModel()
 
     val parentEntry = remember(entry) {
         navController.getBackStackEntry(Routes.ADD_BOOK)
     }
     val flowVm: AddBookFlowViewModel = hiltViewModel(viewModelStoreOwner = parentEntry)
-
     val book by flowVm.selectedBook.collectAsState()
     val prefill by flowVm.prefillQuery.collectAsState()
     val prefillMode by flowVm.prefillMode.collectAsState()
-    val isSaving by vm.isSaving.collectAsState()
-    val error by vm.error.collectAsState()
+
+    val vm: ConfirmBookViewModel = hiltViewModel()
+    val state by vm.state.collectAsState()
+
+    val coverPickerVM: CoverPickerViewModel = hiltViewModel()
     val coverPickerState by coverPickerVM.state.collectAsState()
     val usePickerCover = coverPickerState.initialized
 
     val snackbar = LocalAppSnackbar.current
-
     LaunchedEffect(key1 = Unit) {
         vm.events.collect { event ->
             when (event) {
@@ -55,17 +54,17 @@ fun ConfirmBookRoute(
     }
 
     ConfirmBookScreen(
+        isSaving = state.isSaving,
+        error = state.error,
         book = book,
-        headersForBookCover =
-            if (usePickerCover) coverPickerState.selectedCover.headers
-            else book?.coverRequestHeaders ?: emptyMap(),
         selectedCoverUrl =
             if (usePickerCover) coverPickerState.selectedCover.url
             else null,
+        headersForBookCover =
+            if (usePickerCover) coverPickerState.selectedCover.headers
+            else book?.coverRequestHeaders ?: emptyMap(),
         prefillQuery = prefill,
         prefillMode = prefillMode,
-        isSaving = isSaving,
-        error = error,
         onOpenCoverPicker = { book?.let(coverPickerVM::openCoverPicker) },
         onBack = onBack,
         onConfirmSave = {

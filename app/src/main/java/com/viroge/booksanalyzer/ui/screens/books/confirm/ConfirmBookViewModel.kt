@@ -2,53 +2,52 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.domain.BookMapper
 import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.usecase.SaveBookUseCase
+import com.viroge.booksanalyzer.domain.usecase.ValidateAndGetManualBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ConfirmBookViewModel @Inject constructor(
-    private val booksRepo: BooksRepository,
-    private val bookMapper: BookMapper,
+    private val saveBookUseCase: SaveBookUseCase,
+    private val validateManualBook: ValidateAndGetManualBookUseCase,
 ) : ViewModel() {
 
-    private val _isSaving = MutableStateFlow(value = false)
-    val isSaving: StateFlow<Boolean> = _isSaving
-
-    private val _error = MutableStateFlow<String?>(value = null)
-    val error: StateFlow<String?> = _error
+    private val _state = MutableStateFlow(ConfirmBookUiState())
+    val state = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<ConfirmEvent>()
-    val events: SharedFlow<ConfirmEvent> = _events
+    val events = _events.asSharedFlow()
 
     fun saveBook(
         book: Book,
         selectedCoverUrl: String?,
     ) {
-        if (_isSaving.value) return
+        if (_state.value.isSaving) return
 
         viewModelScope.launch {
-            _isSaving.value = true
-            _error.value = null
+            _state.update { it.copy(isSaving = true, error = null) }
 
             val finalBook = book.copy(coverUrl = selectedCoverUrl ?: book.coverUrl)
 
-            runCatching { booksRepo.insertFromBook(finalBook) }
-                .onSuccess { res -> _events.emit(value = ConfirmEvent.Saved(res.bookId, res.wasInserted)) }
+            saveBookUseCase(finalBook)
+                .onSuccess { result ->
+                    _events.emit(ConfirmEvent.Saved(result.bookId))
+                }
                 .onFailure { t ->
                     val msg = t.message ?: "Failed to save book"
-                    _error.value = msg
-                    _events.emit(value = ConfirmEvent.Error(message = msg))
+                    _state.update { it.copy(error = msg) }
+                    _events.emit(ConfirmEvent.Error(msg))
                 }
 
-            _isSaving.value = false
+            _state.update { it.copy(isSaving = false) }
         }
     }
 
@@ -60,35 +59,12 @@ class ConfirmBookViewModel @Inject constructor(
         coverUrl: String?,
         selectedCoverUrl: String?,
     ) {
-        if (_isSaving.value) return
-
-        val trimmedTitle = title.trim()
-        if (trimmedTitle.isBlank()) {
-            _error.value = "Title is required"
-            return
-        }
-
-        saveBook(
-            selectedCoverUrl = selectedCoverUrl,
-            book = bookMapper.mapFromManualInput(
-                title = title,
-                authors = authors,
-                publishedYear = publishedYear,
-                isbn13 = isbn13,
-                coverUrl = coverUrl,
-            )
-        )
+        validateManualBook(title, authors, publishedYear, isbn13, coverUrl)
+            .onSuccess { book ->
+                saveBook(book, selectedCoverUrl)
+            }
+            .onFailure { t ->
+                _state.update { it.copy(error = t.message) }
+            }
     }
-}
-
-sealed interface ConfirmEvent {
-
-    data class Saved(
-        val bookId: String,
-        val wasInserted: Boolean,
-    ) : ConfirmEvent
-
-    data class Error(
-        val message: String,
-    ) : ConfirmEvent
 }
