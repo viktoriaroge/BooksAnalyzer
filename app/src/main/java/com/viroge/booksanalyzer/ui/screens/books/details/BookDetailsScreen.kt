@@ -1,9 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
 import android.util.Log
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -39,21 +36,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
+import com.viroge.booksanalyzer.ui.components.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
-import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
-import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
@@ -125,7 +115,7 @@ fun BookDetailsScreen(
 
             if (book != null) {
                 val coverToShow = selectedCoverUrl ?: book.coverUrl ?: ""
-                BookCoverHeader(
+                PvBookCoverHeader(
                     imageUrl = coverToShow,
                     headersForBookCover = headersForBookCover,
                     modifier = Modifier.fillMaxWidth(),
@@ -327,50 +317,6 @@ fun BookDetailsScreen(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun BookCoverHeader(
-    imageUrl: String,
-    headersForBookCover: Map<String, String>,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clipToBounds() // Prevents the blur from bleeding out
-    ) {
-        // Hazy background:
-        val isDarkTheme = isSystemInDarkTheme()
-        PvBookCoverAsyncImage(
-            modifier = Modifier
-                .fillMaxSize()
-                .blur(radius = 30.dp)
-                .drawWithContent {
-                    drawContent()
-                    // Adjust slightly so the foreground pops
-                    drawRect(
-                        if (isDarkTheme) Color.Black.copy(alpha = 0.3f)
-                        else Color.White.copy(alpha = 0.3f)
-                    )
-                },
-            contentScale = ContentScale.Crop,
-            url = imageUrl,
-            requestHeaders = headersForBookCover,
-            size = PvBookCoverImageSize.XXLARGE,
-        )
-
-        // Cover image:
-        PvBookCoverAsyncImage(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(vertical = 32.dp)
-                .shadow(12.dp, RoundedCornerShape(12.dp)),
-            url = imageUrl,
-            requestHeaders = headersForBookCover,
-            size = PvBookCoverImageSize.XXLARGE,
-        )
     }
 }
 

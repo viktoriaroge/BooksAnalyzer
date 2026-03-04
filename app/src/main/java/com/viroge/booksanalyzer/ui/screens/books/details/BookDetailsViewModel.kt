@@ -136,7 +136,7 @@ class BookDetailsViewModel @Inject constructor(
             val updated = book.copy(
                 title = title,
                 authors = state.editAuthors.split(",").map { it.trim() }.filter { it.isNotBlank() }.ifEmpty { listOf("") },
-                publishedYear = state.editPublishedYear.trim().toIntOrNull(),
+                publishedYear = state.editPublishedYear.trim(),
                 isbn13 = state.editIsbn13.trim().takeIf { it.isNotEmpty() },
                 isbn10 = state.editIsbn10.trim().takeIf { it.isNotEmpty() },
                 coverUrl = selectedCoverUrl ?: book.coverUrl,

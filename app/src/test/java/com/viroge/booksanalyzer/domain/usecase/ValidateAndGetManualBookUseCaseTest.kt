@@ -13,7 +13,7 @@ class ValidateAndGetManualBookUseCaseTest {
 
     @Test
     fun `invoke should return failure when title is blank`() {
-        val result = useCase(title = "   ", authors = "", null, null, null)
+        val result = useCase(title = "   ", authors = "", null, null)
 
         assert(result.isFailure)
         assertEquals("Title is required", result.exceptionOrNull()?.message)
@@ -22,9 +22,9 @@ class ValidateAndGetManualBookUseCaseTest {
     @Test
     fun `invoke should return success and map when title is valid`() {
         val expectedBook = mockk<Book>()
-        every { mapper.mapFromManualInput(any(), any(), any(), any(), any()) } returns expectedBook
+        every { mapper.mapFromManualInput(any(), any(), any(), any()) } returns expectedBook
 
-        val result = useCase(title = "Clean Code", authors = "Uncle Bob", null, null, null)
+        val result = useCase(title = "Clean Code", authors = "Uncle Bob", null, null)
 
         assert(result.isSuccess)
         assertEquals(expectedBook, result.getOrNull())

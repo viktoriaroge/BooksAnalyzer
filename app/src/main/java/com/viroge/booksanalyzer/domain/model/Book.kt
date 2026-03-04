@@ -7,7 +7,7 @@ data class Book(
     val status: ReadingStatus,
     val title: String,
     val authors: List<String>,
-    val publishedYear: Int? = null,
+    val publishedYear: String? = null,
     val isbn13: String? = null,
     val isbn10: String? = null,
     val coverUrl: String? = null,

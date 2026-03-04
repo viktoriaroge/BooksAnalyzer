@@ -37,7 +37,7 @@ class ConfirmBookViewModelTest : ViewModelTest() {
             id = "Test",
             title = "Clean Code",
             authors = emptyList(),
-            publishedYear = 2008,
+            publishedYear = "2008",
             isbn13 = "9780132350884",
             source = BookSource.MANUAL,
             coverUrl = "existing_url",
@@ -65,9 +65,9 @@ class ConfirmBookViewModelTest : ViewModelTest() {
     @Test
     fun `saveManualBook should update state with error when validation fails`() = runTest {
         val errorMsg = "Title is required"
-        every { validateManualBook(any(), any(), any(), any(), any()) } returns Result.failure(Exception(errorMsg))
+        every { validateManualBook(any(), any(), any(), any()) } returns Result.failure(Exception(errorMsg))
 
-        viewModel.saveManualBook("", "", null, null, null, null, null)
+        viewModel.saveManualBook(null, null)
 
         assertEquals(errorMsg, viewModel.state.value.error)
     }

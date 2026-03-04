@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
+import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import javax.inject.Inject
 
@@ -27,14 +28,10 @@ class ConfirmBookMapper @Inject constructor() {
 
     fun mapToDataState(
         book: Book,
-        selectedCoverUrl: String?,
-        headersForBookCover: Map<String, String>?
     ): ConfirmBookDataState = ConfirmBookDataState(
         title = book.title,
         authors = book.authors.joinToString(separator = ", "),
         isbn13 = book.isbn13,
-        coverUrl = selectedCoverUrl ?: book.coverUrl,
-        coverHeaders = headersForBookCover ?: book.coverRequestHeaders,
         sourceBadgeTextRes = when (book.source) {
             BookSource.GOOGLE_BOOKS -> R.string.book_source_full_google_books
             BookSource.OPEN_LIBRARY -> R.string.book_source_full_open_library
@@ -50,9 +47,35 @@ class ConfirmBookMapper @Inject constructor() {
         val mode = prefillMode ?: SearchMode.ALL
 
         return ConfirmBookManualFormData(
-            initialTitle = if (mode == SearchMode.ALL || mode == SearchMode.TITLE) query else "",
-            initialAuthors = if (mode == SearchMode.AUTHOR) query else "",
-            initialIsbn13 = if (mode == SearchMode.ISBN) query else "",
+            title = if (mode == SearchMode.ALL || mode == SearchMode.TITLE) query else "",
+            authors = if (mode == SearchMode.AUTHOR) query else "",
+            isbn13 = if (mode == SearchMode.ISBN) query else "",
         )
     }
+
+    fun mapToTempBookForCoverPicker(
+        title: String,
+        authors: String,
+        publishedYear: String?,
+        isbn13: String?,
+        source: BookSource,
+        coverUrl: String?,
+    ): Book = Book(
+        title = title,
+        authors = authors.split(",").map { it.trim() }.filter { it.isNotBlank() },
+        publishedYear = publishedYear,
+        isbn13 = isbn13,
+        source = source,
+        coverUrl = coverUrl,
+
+        // Not necessary for now. Add later if necessary for book cover selection:
+        id = "",
+        sourceId = null,
+        status = ReadingStatus.NOT_STARTED,
+        createdAtEpochMs = 0,
+        lastOpenAtEpochMs = 0,
+        lastMarkedToDelete = 0,
+        toBeDeleted = false,
+        coverRequestHeaders = emptyMap(),
+    )
 }

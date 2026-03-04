@@ -77,6 +77,7 @@ fun CoverPickerSheet(
                 return@ModalBottomSheet
             }
 
+            val allItems = state.manualBookCovers + state.bookCovers
             // Grid with image candidates:
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -85,13 +86,13 @@ fun CoverPickerSheet(
                 contentPadding = PaddingValues(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(state.bookCovers.size) { idx ->
-                    val candidate = state.bookCovers[idx]
+                items(allItems.size) { idx ->
+                    val candidate = allItems[idx]
                     CoverChoiceTile(
-                        url = candidate.url,
+                        url = candidate.url ?: "",
                         requestHeaders = candidate.headers,
                         selected = candidate == state.selectedCover,
-                        onClick = { onSelect(candidate.url) }
+                        onClick = { onSelect(candidate.url ?: "") }
                     )
                 }
             }

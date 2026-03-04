@@ -15,6 +15,7 @@ data class BookCoverPickerUiState(
     val manualUrlInput: String = "",
     val selectedCover: BookCoverState = BookCoverState(),
     val bookCovers: List<BookCoverState> = emptyList(),
+    val manualBookCovers: List<BookCoverState> = emptyList(),
 )
 
 data class BookCoverPickerScreenValues(
@@ -24,6 +25,6 @@ data class BookCoverPickerScreenValues(
 )
 
 data class BookCoverState(
-    val url: String = "",
+    val url: String? = null,
     val headers: Map<String, String> = emptyMap(),
 )

@@ -10,9 +10,8 @@ class ValidateAndGetManualBookUseCase @Inject constructor(
     operator fun invoke(
         title: String,
         authors: String,
-        publishedYear: Int?,
+        year: String?,
         isbn13: String?,
-        coverUrl: String?
     ): Result<Book> {
 
         val trimmedTitle = title.trim()
@@ -24,9 +23,8 @@ class ValidateAndGetManualBookUseCase @Inject constructor(
             bookMapper.mapFromManualInput(
                 title = trimmedTitle,
                 authors = authors,
-                publishedYear = publishedYear,
+                year = year,
                 isbn13 = isbn13,
-                coverUrl = coverUrl
             )
         )
     }

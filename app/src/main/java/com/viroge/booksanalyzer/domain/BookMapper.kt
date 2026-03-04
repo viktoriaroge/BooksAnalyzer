@@ -27,7 +27,7 @@ class BookMapper @Inject constructor(
             )
         }?.identifier
 
-        val year = item.volumeInfo.publishedDate?.take(4)?.toIntOrNull()
+        val year = item.volumeInfo.publishedDate?.take(4)
         val coverUrl = (item.volumeInfo.imageLinks?.thumbnail ?: item.volumeInfo.imageLinks?.smallThumbnail)?.replace(
             oldValue = "http://",
             newValue = "https://"
@@ -70,7 +70,7 @@ class BookMapper @Inject constructor(
             source = BookSource.OPEN_LIBRARY,
             title = title,
             authors = doc.authorName,
-            publishedYear = doc.firstPublishYear,
+            publishedYear = doc.firstPublishYear?.toString(),
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = coverUrl,
@@ -86,20 +86,19 @@ class BookMapper @Inject constructor(
     fun mapFromManualInput(
         title: String,
         authors: String,
-        publishedYear: Int?,
+        year: String?,
         isbn13: String?,
-        coverUrl: String?,
     ): Book = Book(
         id = "", // not important for network construction
         source = BookSource.MANUAL,
         sourceId = null,
         title = title,
         authors = authors.split(",").map { it.trim() }.filter { it.isNotBlank() }.ifEmpty { listOf("") },
-        publishedYear = publishedYear,
+        publishedYear = year,
         isbn13 = isbn13?.takeIf { it.isNotBlank() },
         isbn10 = null,
-        coverUrl = coverUrl?.takeIf { it.isNotBlank() },
-        coverRequestHeaders = getCoverHeaders(url = coverUrl),
+        coverUrl = null,
+        coverRequestHeaders = emptyMap(),
         status = ReadingStatus.NOT_STARTED,
         createdAtEpochMs = 0, // not important for network construction
         lastOpenAtEpochMs = 0, // not important for network construction

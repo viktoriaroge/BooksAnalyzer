@@ -25,7 +25,7 @@ class RecentlyDeletedBookMapperTest {
             id = "1",
             title = "Clean Code",
             authors = listOf("Robert C. Martin", "Micah Martin"),
-            publishedYear = 2008,
+            publishedYear = "2008",
             isbn13 = "9780132350884",
             source = BookSource.MANUAL,
             coverUrl = "existing_url",

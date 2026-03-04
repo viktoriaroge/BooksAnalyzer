@@ -79,12 +79,11 @@ class CoverPickerViewModelTest {
         every { getCoverHeaders(manualUrl) } returns manualHeaders
 
         viewModel.onManualUrlChange(manualUrl)
-
         viewModel.addManualUrl()
 
         val state = viewModel.state.value
-        assertEquals(manualUrl, state.bookCovers.first().url)
-        assertEquals(manualHeaders, state.bookCovers.first().headers)
+        assertEquals(manualUrl, state.manualBookCovers.first().url)
+        assertEquals(manualHeaders, state.manualBookCovers.first().headers)
         assertEquals("", state.manualUrlInput)
     }
 
@@ -112,12 +111,9 @@ class CoverPickerViewModelTest {
         every { getCoverCandidates(any()) } returns listOf(BookCoverCandidate(existingUrl, emptyMap()))
 
         viewModel.onManualUrlChange(existingUrl)
-
         viewModel.addManualUrl()
 
-        // We expect only 2 covers (the one we seeded + the default empty one from UseCase)
-        // If duplicates weren't handled, there would be 3.
-        assertEquals(1, viewModel.state.value.bookCovers.filter { it.url == existingUrl }.size)
+        assertEquals(1, viewModel.state.value.manualBookCovers.filter { it.url == existingUrl }.size)
     }
 
     @Test

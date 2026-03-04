@@ -6,30 +6,36 @@ import com.viroge.booksanalyzer.R
 data class ConfirmBookUiState(
     val isSaving: Boolean = false,
     val error: String? = null,
-    val bookData: ConfirmBookDataState? = null,
-    val manualFormData: ConfirmBookManualFormData? = null,
     val screenValues: ConfirmBookScreenValues = ConfirmBookScreenValues(),
+
+    val bookData: ConfirmBookDataState? = null,
+
+    val manualFormData: ConfirmBookManualFormData? = null,
+    val titleInput: String = "",
+    val authorsInput: String = "",
+    val yearInput: String = "",
+    val isbn13Input: String = "",
+
+    val selectedCoverUrl: String? = null,
+    val selectedCoverHeaders: Map<String, String> = emptyMap(),
 )
 
 data class ConfirmBookDataState(
     val title: String,
     val authors: String,
     val isbn13: String?,
-    val coverUrl: String?,
-    val coverHeaders: Map<String, String>,
     @param:StringRes val sourceBadgeTextRes: Int,
 )
 
 data class ConfirmBookManualFormData(
-    val initialTitle: String,
-    val initialAuthors: String,
-    val initialIsbn13: String,
+    val title: String,
+    val authors: String,
+    val isbn13: String,
 )
 
 data class ConfirmBookScreenValues(
     @param:StringRes val screenTitleConfirm: Int = R.string.empty_text,
     @param:StringRes val screenTitleManual: Int = R.string.empty_text,
-    @param:StringRes val changeCoverButtonLabel: Int = R.string.empty_text,
     @param:StringRes val isbnLabel: Int = R.string.empty_text,
     @param:StringRes val sourceLabel: Int = R.string.empty_text,
     @param:StringRes val saveButtonLabel: Int = R.string.empty_text,
@@ -43,4 +49,6 @@ data class ConfirmBookScreenValues(
     @param:StringRes val manualIsbn13Label: Int = R.string.empty_text,
     @param:StringRes val manualCoverUrlLabel: Int = R.string.empty_text,
     @param:StringRes val manualSaveButtonLabel: Int = R.string.empty_text,
+
+    @param:StringRes val changeCoverButtonLabel: Int = R.string.empty_text,
 )

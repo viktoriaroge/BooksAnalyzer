@@ -22,22 +22,8 @@ class CoverPickerViewModel @Inject constructor(
     private val _state = MutableStateFlow(BookCoverPickerUiState())
     val state = _state.asStateFlow()
 
-    init {
-        _state.update { it.copy(initialized = false) }
-    }
-
     fun openCoverPicker(book: Book) {
-        if (_state.value.initialized) {
-            _state.update { it.copy(isOpen = true) }
-            return
-        }
-
         _state.update { it.copy(isOpen = true, isLoading = true) }
-
-        val selected = BookCoverState(
-            url = book.coverUrl ?: "",
-            headers = book.coverRequestHeaders,
-        )
 
         viewModelScope.launch {
             _state.update {
@@ -45,11 +31,22 @@ class CoverPickerViewModel @Inject constructor(
                     initialized = true,
                     isLoading = false,
                     screenValues = mapper.getStaticScreenValues(),
-                    selectedCover = selected,
                     bookCovers = getCoverCandidates(book)
                         .map { candidate ->
                             mapper.map(candidate = candidate)
                         },
+                )
+            }
+        }
+
+        val currentSelection = _state.value.selectedCover
+        if (currentSelection.url == null && book.coverUrl != null) {
+            _state.update {
+                it.copy(
+                    selectedCover = BookCoverState(
+                        url = book.coverUrl,
+                        headers = book.coverRequestHeaders,
+                    )
                 )
             }
         }
@@ -67,8 +64,8 @@ class CoverPickerViewModel @Inject constructor(
         val url = _state.value.manualUrlInput.trim()
         if (url.isEmpty()) return
 
-        val currentCandidates = _state.value.bookCovers
-        if (currentCandidates.any { it.url == url }) {
+        if (_state.value.bookCovers.any { it.url == url }
+            || _state.value.manualBookCovers.any { it.url == url }) {
             _state.update { it.copy(manualUrlInput = "") }
             return
         }
@@ -79,8 +76,9 @@ class CoverPickerViewModel @Inject constructor(
         )
         _state.update {
             it.copy(
-                bookCovers = listOf(newCandidate) + _state.value.bookCovers,
+                manualBookCovers = listOf(newCandidate) + it.manualBookCovers,
                 manualUrlInput = "",
+                selectedCover = newCandidate,
             )
         }
     }

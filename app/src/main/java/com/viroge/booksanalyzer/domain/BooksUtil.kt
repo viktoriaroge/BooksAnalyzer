@@ -33,11 +33,11 @@ object BooksUtil {
     fun titleKey(
         title: String,
         authors: List<String>,
-        year: Int?,
+        year: String?,
     ): String {
         val t = normalize(input = title)
         val a = normalize(input = authors.firstOrNull().orEmpty())
-        val y = year?.toString().orEmpty()
+        val y = year ?: ""
 
         // if authors/year missing, still stable; duplicates are still likely the same book:
         return listOf(t, a, y).joinToString(separator = "|")

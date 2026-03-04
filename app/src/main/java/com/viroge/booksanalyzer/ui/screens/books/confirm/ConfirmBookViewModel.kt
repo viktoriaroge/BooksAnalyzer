@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import com.viroge.booksanalyzer.domain.usecase.SaveBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.ValidateAndGetManualBookUseCase
@@ -30,16 +31,30 @@ class ConfirmBookViewModel @Inject constructor(
 
     fun initializeWithBook(
         book: Book?,
-        selectedCoverUrl: String?,
-        selectedCoverHeaders: Map<String, String>?,
         prefillQuery: String?,
         prefillMode: SearchMode?,
     ) {
         _state.update { newState ->
+            val manualData = mapper.mapToManualFormData(prefillQuery, prefillMode)
             newState.copy(
                 screenValues = mapper.getScreenValues(),
-                bookData = book?.let { mapper.mapToDataState(it, selectedCoverUrl, selectedCoverHeaders) },
-                manualFormData = mapper.mapToManualFormData(prefillQuery, prefillMode),
+                bookData = book?.let { mapper.mapToDataState(it) },
+                manualFormData = manualData,
+                titleInput = newState.titleInput.ifBlank { manualData.title },
+                authorsInput = newState.authorsInput.ifBlank { manualData.authors },
+                isbn13Input = newState.isbn13Input.ifBlank { manualData.isbn13 },
+            )
+        }
+    }
+
+    fun updateCover(
+        selectedCoverUrl: String?,
+        selectedCoverHeaders: Map<String, String>,
+    ) {
+        _state.update { newState ->
+            newState.copy(
+                selectedCoverUrl = selectedCoverUrl,
+                selectedCoverHeaders = selectedCoverHeaders,
             )
         }
     }
@@ -74,20 +89,39 @@ class ConfirmBookViewModel @Inject constructor(
     }
 
     fun saveManualBook(
-        title: String,
-        authors: String,
-        publishedYear: Int?,
-        isbn13: String?,
-        coverUrl: String?,
         selectedCoverUrl: String?,
         selectedCoverHeaders: Map<String, String>?,
     ) {
-        validateManualBook(title, authors, publishedYear, isbn13, coverUrl)
-            .onSuccess { book ->
-                saveBook(book, selectedCoverUrl, selectedCoverHeaders)
-            }
-            .onFailure { t ->
-                _state.update { it.copy(error = t.message) }
-            }
+        val s = _state.value
+        validateManualBook(
+            title = s.titleInput,
+            authors = s.authorsInput,
+            year = s.yearInput,
+            isbn13 = s.isbn13Input,
+        ).onSuccess { book ->
+            saveBook(book, selectedCoverUrl, selectedCoverHeaders)
+        }.onFailure { t ->
+            _state.update { it.copy(error = t.message) }
+        }
+    }
+
+    fun onTitleChange(value: String) = _state.update { it.copy(titleInput = value) }
+    fun onAuthorsChange(value: String) = _state.update { it.copy(authorsInput = value) }
+    fun onYearChange(value: String) = _state.update { it.copy(yearInput = value) }
+    fun onIsbnChange(value: String) = _state.update { it.copy(isbn13Input = value) }
+
+    fun getTemporaryBookForCoverPicker(
+        source: BookSource,
+        coverUrl: String?,
+    ): Book {
+        val s = _state.value
+        return mapper.mapToTempBookForCoverPicker(
+            s.titleInput,
+            s.authorsInput,
+            s.yearInput,
+            s.isbn13Input,
+            source,
+            coverUrl,
+        )
     }
 }

@@ -9,7 +9,7 @@ import com.viroge.booksanalyzer.data.local.searchhistory.SearchHistoryEntity
 
 @Database(
     entities = [BookEntity::class, SearchHistoryEntity::class],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 abstract class BooksAnalyzerDb : RoomDatabase() {

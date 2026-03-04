@@ -35,7 +35,7 @@ data class BookEntity(
     val titleKey: String, // normalized identity key
 
     @ColumnInfo(name = "publishedYear")
-    val publishedYear: Int? = null,
+    val publishedYear: String? = null,
 
     @ColumnInfo(name = "isbn13")
     val isbn13: String? = null,
