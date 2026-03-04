@@ -2,7 +2,6 @@ package com.viroge.booksanalyzer.ui.screens.books.deleted
 
 import androidx.annotation.StringRes
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.model.BookSource
 
 data class RecentlyDeletedUiState(
     val screenValues: RecentlyDeletedScreenValues = RecentlyDeletedScreenValues(),
@@ -27,5 +26,5 @@ data class RecentlyDeletedBookState(
     val metadata: String,
     val coverUrl: String?,
     val coverHeaders: Map<String, String>,
-    val source: BookSource,
+    @param:StringRes val sourceBadgeTextRes: Int,
 )

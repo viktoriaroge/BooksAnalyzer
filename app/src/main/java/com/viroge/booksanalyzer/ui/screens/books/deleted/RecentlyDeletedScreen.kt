@@ -176,8 +176,7 @@ private fun BookItemCard(
                         style = MaterialTheme.typography.bodySmall,
                     )
                     PvBookSourceBadge(
-                        source = book.source,
-                        showFullSourceName = false,
+                        sourceTextRes = book.sourceBadgeTextRes,
                     )
                 }
             }

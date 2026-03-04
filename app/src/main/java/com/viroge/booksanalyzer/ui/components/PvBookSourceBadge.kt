@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,26 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.BookSource
 
 @Composable
+fun PvBookSourceBadge(
+    modifier: Modifier = Modifier,
+    @StringRes sourceTextRes: Int,
+) {
+    Box(
+        modifier = modifier
+            .clip(shape = RoundedCornerShape(size = 6.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+    ) {
+        Text(
+            text = stringResource(sourceTextRes),
+            color = MaterialTheme.colorScheme.inverseSurface,
+            style = MaterialTheme.typography.labelSmall,
+        )
+    }
+}
+
+@Composable
+@Deprecated("Use the clean version that caries no domain data and uses string resources instead")
 fun PvBookSourceBadge(
     source: BookSource,
     modifier: Modifier = Modifier,

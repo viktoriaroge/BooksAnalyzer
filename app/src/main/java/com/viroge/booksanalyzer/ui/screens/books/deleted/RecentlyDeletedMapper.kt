@@ -2,6 +2,7 @@ package com.viroge.booksanalyzer.ui.screens.books.deleted
 
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.BookSource
 import javax.inject.Inject
 
 class RecentlyDeletedBookMapper @Inject constructor() {
@@ -29,7 +30,11 @@ class RecentlyDeletedBookMapper @Inject constructor() {
                 ).joinToString(separator = " • "),
                 coverUrl = book.coverUrl,
                 coverHeaders = book.coverRequestHeaders,
-                source = book.source,
+                sourceBadgeTextRes = when (book.source) {
+                    BookSource.GOOGLE_BOOKS -> R.string.book_source_short_google_books
+                    BookSource.OPEN_LIBRARY -> R.string.book_source_short_open_library
+                    BookSource.MANUAL -> R.string.book_source_short_added_manually
+                },
             )
         }
     }
