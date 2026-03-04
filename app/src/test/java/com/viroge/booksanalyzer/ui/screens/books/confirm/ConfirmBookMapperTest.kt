@@ -4,6 +4,7 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
+import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 
@@ -58,5 +59,28 @@ class ConfirmBookMapperTest {
 
         assertEquals("Author 1, Author 2", result.authors)
         assertEquals(R.string.book_source_full_google_books, result.sourceBadgeTextRes)
+    }
+
+    @Test
+    fun `mapToManualFormData should correctly distribute query based on SearchMode`() {
+        val query = "9781234567890"
+
+        // Test ISBN mode
+        val isbnResult = mapper.mapToManualFormData(query, SearchMode.ISBN)
+        assertEquals("", isbnResult.initialTitle)
+        assertEquals("", isbnResult.initialAuthors)
+        assertEquals(query, isbnResult.initialIsbn13)
+
+        // Test Author mode
+        val authorQuery = "Robert Martin"
+        val authorResult = mapper.mapToManualFormData(authorQuery, SearchMode.AUTHOR)
+        assertEquals("", authorResult.initialTitle)
+        assertEquals(authorQuery, authorResult.initialAuthors)
+        assertEquals("", authorResult.initialIsbn13)
+
+        // Test Title mode (or ALL)
+        val titleResult = mapper.mapToManualFormData("Clean Code", SearchMode.TITLE)
+        assertEquals("Clean Code", titleResult.initialTitle)
+        assertEquals("", titleResult.initialAuthors)
     }
 }

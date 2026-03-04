@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import com.viroge.booksanalyzer.domain.usecase.SaveBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.ValidateAndGetManualBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,14 +29,17 @@ class ConfirmBookViewModel @Inject constructor(
     val events = _events.asSharedFlow()
 
     fun initializeWithBook(
-        book: Book,
+        book: Book?,
         selectedCoverUrl: String?,
         selectedCoverHeaders: Map<String, String>?,
+        prefillQuery: String?,
+        prefillMode: SearchMode?,
     ) {
-        _state.update {
-            it.copy(
+        _state.update { newState ->
+            newState.copy(
                 screenValues = mapper.getScreenValues(),
-                bookData = mapper.mapToDataState(book, selectedCoverUrl, selectedCoverHeaders),
+                bookData = book?.let { mapper.mapToDataState(it, selectedCoverUrl, selectedCoverHeaders) },
+                manualFormData = mapper.mapToManualFormData(prefillQuery, prefillMode),
             )
         }
     }

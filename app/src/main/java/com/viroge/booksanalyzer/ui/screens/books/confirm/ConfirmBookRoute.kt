@@ -37,14 +37,14 @@ fun ConfirmBookRoute(
     val vm: ConfirmBookViewModel = hiltViewModel()
     val state by vm.state.collectAsState()
     val selectedCover = if (usePickerCover) coverPickerState.selectedCover else null
-    LaunchedEffect(book, selectedCover) {
-        book?.let { originalBook ->
-            vm.initializeWithBook(
-                book = originalBook,
-                selectedCoverUrl = selectedCover?.url,
-                selectedCoverHeaders = selectedCover?.headers,
-            )
-        }
+    LaunchedEffect(book, selectedCover, prefill, prefillMode) {
+        vm.initializeWithBook(
+            book = book,
+            selectedCoverUrl = selectedCover?.url,
+            selectedCoverHeaders = selectedCover?.headers,
+            prefillQuery = prefill,
+            prefillMode = prefillMode,
+        )
     }
 
     val snackbar = LocalAppSnackbar.current
@@ -65,8 +65,6 @@ fun ConfirmBookRoute(
 
     ConfirmBookScreen(
         state = state,
-        prefillQuery = prefill,
-        prefillMode = prefillMode,
         onOpenCoverPicker = { book?.let(coverPickerVM::openCoverPicker) },
         onBack = onBack,
         onConfirmSave = {

@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
@@ -40,8 +39,6 @@ import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 @Composable
 fun ConfirmBookScreen(
     state: ConfirmBookUiState,
-    prefillQuery: String?,
-    prefillMode: SearchMode?,
     onOpenCoverPicker: () -> Unit,
     onBack: () -> Unit,
     onConfirmSave: () -> Unit,
@@ -49,6 +46,7 @@ fun ConfirmBookScreen(
 ) {
     val values = state.screenValues
     val book = state.bookData
+    val manualForm = state.manualFormData
 
     Scaffold(
         topBar = {
@@ -77,73 +75,77 @@ fun ConfirmBookScreen(
                 )
             }
 
-            if (book != null) {
-                // Mode: Confirming an existing result
-                BookCoverHeader(
-                    imageUrl = book.coverUrl,
-                    headersForBookCover = book.coverHeaders,
-                )
-
-                Button(
-                    onClick = onOpenCoverPicker,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                ) {
-                    Text(text = stringResource(values.changeCoverButtonLabel))
-                }
-
-                Spacer(Modifier.height(24.dp))
-
-                Text(
-                    text = book.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-
-                if (book.authors.isNotBlank()) {
-                    Text(
-                        text = book.authors,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            when {
+                book != null -> {
+                    // Mode: Confirming an existing result
+                    BookCoverHeader(
+                        imageUrl = book.coverUrl,
+                        headersForBookCover = book.coverHeaders,
                     )
-                }
 
-                book.isbn13?.let { isbn ->
+                    Button(
+                        onClick = onOpenCoverPicker,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                    ) {
+                        Text(text = stringResource(values.changeCoverButtonLabel))
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+
                     Text(
-                        text = stringResource(values.isbnLabel, isbn),
+                        text = book.title,
+                        style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
+
+                    if (book.authors.isNotBlank()) {
+                        Text(
+                            text = book.authors,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+
+                    book.isbn13?.let { isbn ->
+                        Text(
+                            text = stringResource(values.isbnLabel, isbn),
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        Text(
+                            text = stringResource(values.sourceLabel),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        PvBookSourceBadge(sourceTextRes = book.sourceBadgeTextRes)
+                    }
+
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        onClick = onConfirmSave,
+                        enabled = !state.isSaving,
+                    ) {
+                        Text(text = stringResource(values.saveButtonLabel))
+                    }
                 }
 
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    Text(
-                        text = stringResource(values.sourceLabel),
-                        style = MaterialTheme.typography.bodySmall,
+                manualForm != null -> {
+                    // Mode: Manual Form
+                    ConfirmBookManualForm(
+                        formData = manualForm,
+                        values = values,
+                        isSaving = state.isSaving,
+                        onSave = onConfirmSaveManual,
                     )
-                    PvBookSourceBadge(sourceTextRes = book.sourceBadgeTextRes)
                 }
-
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    onClick = onConfirmSave,
-                    enabled = !state.isSaving,
-                ) {
-                    Text(text = stringResource(values.saveButtonLabel))
-                }
-            } else if (!prefillQuery.isNullOrBlank()) {
-                // Mode: Manual Form
-                ConfirmBookManualForm(
-                    prefillQuery = prefillQuery,
-                    prefillMode = prefillMode ?: SearchMode.ALL,
-                    isSaving = state.isSaving,
-                    onSave = onConfirmSaveManual,
-                )
             }
         }
     }
