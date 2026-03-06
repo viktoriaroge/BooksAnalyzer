@@ -108,6 +108,8 @@ Future sync and backup will be optional and user-controlled.
 
 * 🌳 Manual book addition
 
+* 🌱 Stabilization Phase: Apply Clean Architecture with MVVM
+
 ### 🌰 MVP 2 – Reading sessions
 
 * 🌰 Track reading sessions and duration
@@ -125,8 +127,6 @@ Future sync and backup will be optional and user-controlled.
 ### 🌱 Nice-to-have-s (To Be Planned)
 
 * 🌳 Apply light / dark theme (follows system)
-
-* 🌱 Apply Clean Architecture with MVVM
 
 * 🌰 Backup and restore
 
