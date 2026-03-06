@@ -84,7 +84,7 @@ Future sync and backup will be optional and user-controlled.
 
 ## Planned Features
 
-### Status : Active development.
+### Status : Active development. Finalizing MVP 1.
 
 ### 🌳 MVP 1 - Personal Library
 
@@ -108,7 +108,8 @@ Future sync and backup will be optional and user-controlled.
 
 * 🌳 Manual book addition
 
-* 🌱 Stabilization Phase: Apply Clean Architecture with MVVM
+* 🌱 Stabilization Phase: Apply Clean Architecture with MVVM. Separate data models, use cases, etc.
+
 
 ### 🌰 MVP 2 – Reading sessions
 
@@ -139,11 +140,11 @@ Future sync and backup will be optional and user-controlled.
 ### Legend
 
 ```
-🌰               → Seed, just an idea
-🌱               → Seedling, taking root and developing
-🪴               → Plant, developed but could use more growth
-🌳               → Tree, fully developed
-🪾               → Lifeless tree, sad and abandoned (for now)
+🌰   → Seed, just an idea
+🌱   → Seedling, taking root and developing
+🪴   → Plant, developed but could use more growth
+🌳   → Tree, fully developed
+🪾   → Lifeless tree, sad and abandoned (for now)
 ```
 
 ---
@@ -171,11 +172,18 @@ The project follows modern Android development standards:
 ### Structure overview:
 
 ```
-data/           → Repositories
+data/           → Repositories, workers
   local/        → Entities, DAOs
   remote/       → API clients (Google Books, Open Library)
+
 di/             → Dependency injection modules
-domain/         → Business logic, data models
+
+domain/         → Business logic
+  usecase/      → Separate isolated business logic Use Cases
+
 ui/             → Screens, routes, composables
+  components/   → Extracted reusable UI components
   nav/          → Navigation graph and routes
+  screens/      → UI screens
+  theme/        → Theme setup and Colours
 ```
