@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConfirmBookViewModel @Inject constructor(
-    private val saveBookUseCase: SaveBookUseCase,
+    private val saveBook: SaveBookUseCase,
     private val validateManualBook: ValidateAndGetManualBookUseCase,
     private val mapper: ConfirmBookMapper,
 ) : ViewModel() {
@@ -74,7 +74,7 @@ class ConfirmBookViewModel @Inject constructor(
                 coverRequestHeaders = selectedCoverHeaders ?: book.coverRequestHeaders,
             )
 
-            saveBookUseCase(finalBook)
+            saveBook(finalBook)
                 .onSuccess { result ->
                     _events.emit(ConfirmEvent.Saved(result.bookId))
                 }

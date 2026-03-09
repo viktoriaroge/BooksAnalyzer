@@ -65,7 +65,6 @@ fun BookDetailsScreen(
     onUpdateEditPublishedYear: (String) -> Unit,
     onUpdateEditIsbn13: (String) -> Unit,
     onUpdateEditIsbn10: (String) -> Unit,
-    onUpdateEditStatus: (ReadingStatus) -> Unit,
     onOpenCoverPicker: () -> Unit,
 ) {
 
@@ -120,19 +119,19 @@ fun BookDetailsScreen(
                     headersForBookCover = headersForBookCover,
                     modifier = Modifier.fillMaxWidth(),
                 )
-            }
 
-            if (state.isEditMode) {
-                Button(
-                    onClick = onOpenCoverPicker,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(all = 16.dp),
-                ) {
-                    Text(text = stringResource(R.string.book_details_screen_in_edit_change_book_cover_button_label))
+                if (state.isEditMode) {
+                    Button(
+                        onClick = onOpenCoverPicker,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(all = 16.dp),
+                    ) {
+                        Text(text = stringResource(R.string.book_details_screen_in_edit_change_book_cover_button_label))
+                    }
+
+                    Spacer(Modifier.height(height = 8.dp))
                 }
-
-                Spacer(Modifier.height(height = 8.dp))
             }
 
             Column(
@@ -192,10 +191,6 @@ fun BookDetailsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
-                    StatusPicker(
-                        current = state.editStatus ?: ReadingStatus.NOT_STARTED,
-                        onChange = onUpdateEditStatus,
-                    )
 
                     Spacer(Modifier.height(height = 8.dp))
                     Button(
@@ -229,7 +224,7 @@ fun BookDetailsScreen(
                     }
 
                     val meta = listOfNotNull(
-                        book.publishedYear?.toString(), book.isbn13
+                        book.publishedYear, book.isbn13
                     ).joinToString(separator = " • ")
 
                     if (meta.isNotBlank()) {
