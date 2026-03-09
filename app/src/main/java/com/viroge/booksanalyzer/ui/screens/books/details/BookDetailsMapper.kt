@@ -1,15 +1,27 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
 import com.viroge.booksanalyzer.R
+import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.ui.common.util.UiText
 import javax.inject.Inject
 
 class BookDetailsMapper @Inject constructor() {
 
-    fun getScreenValues(isInEditMode: Boolean): BookDetailsScreenValues = BookDetailsScreenValues(
-        screenName =
-            if (isInEditMode) R.string.book_details_screen_in_edit_screen_name
-            else R.string.book_details_screen_name,
+    fun getScreenValues(
+        source: BookSource,
+    ): BookDetailsScreenValues = BookDetailsScreenValues(
+        screenName = R.string.book_details_screen_name,
+        originLabel = R.string.book_details_screen_source_label,
+        deleteButtonText = R.string.book_details_screen_delete_default_button,
+        sourceBadgeTextRes = when (source) {
+            BookSource.GOOGLE_BOOKS -> R.string.book_source_full_google_books
+            BookSource.OPEN_LIBRARY -> R.string.book_source_full_open_library
+            BookSource.MANUAL -> R.string.book_source_full_added_manually
+        },
+    )
+
+    fun getEditScreenValues(): BookDetailsEditScreenValues = BookDetailsEditScreenValues(
+        screenName = R.string.book_details_screen_in_edit_screen_name,
         originLabel = R.string.book_details_screen_source_label,
         deleteButtonText = R.string.book_details_screen_delete_default_button,
         changeCoverButtonText = R.string.book_details_screen_in_edit_change_book_cover_button_label,

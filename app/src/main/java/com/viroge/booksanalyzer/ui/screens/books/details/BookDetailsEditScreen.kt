@@ -43,7 +43,7 @@ fun BookDetailsEditScreen(
 ) {
     val book = state.book ?: return
     val editState = state.editState
-    val values = state.screenValues
+    val values = state.editScreenValues
 
     val scrollState = rememberScrollState()
 

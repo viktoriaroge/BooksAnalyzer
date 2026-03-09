@@ -45,7 +45,7 @@ class BookDetailsViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isLoading = true,
-                    screenValues = mapper.getScreenValues(isInEditMode = false),
+                    editScreenValues = mapper.getEditScreenValues(),
                     deleteDialogValues = mapper.getDeleteDialogValues(),
                 )
             }
@@ -58,6 +58,7 @@ class BookDetailsViewModel @Inject constructor(
                             it.copy(
                                 isLoading = false,
                                 book = book,
+                                screenValues = mapper.getScreenValues(source = book.source),
                                 errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
                             )
                         }
@@ -65,7 +66,7 @@ class BookDetailsViewModel @Inject constructor(
                     onFailure = { _ ->
                         _state.update {
                             it.copy(
-                                isLoading = true,
+                                isLoading = false,
                                 errorState = mapper.getErrorState(BookDetailsErrorType.LOADING_BOOK_FAILED),
                             )
                         }
@@ -85,9 +86,7 @@ class BookDetailsViewModel @Inject constructor(
                     _state.update { it.copy(book = book.copy(status = status)) }
                 }
                 .onFailure { _ ->
-                    _state.update {
-                        it.copy(errorState = mapper.getErrorState(BookDetailsErrorType.UPDATING_STATUS_FAILED))
-                    }
+                    _state.update { it.copy(errorState = mapper.getErrorState(BookDetailsErrorType.UPDATING_STATUS_FAILED)) }
                 }
         }
     }
@@ -102,12 +101,10 @@ class BookDetailsViewModel @Inject constructor(
             editIsbn13 = book.isbn13.orEmpty(),
             editIsbn10 = book.isbn10.orEmpty(),
         )
-        val isInEditMode = true
         _state.update {
             it.copy(
-                isEditMode = isInEditMode,
+                isInEditMode = true,
                 editState = editState,
-                screenValues = mapper.getScreenValues(isInEditMode = isInEditMode),
                 errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
             )
         }
@@ -121,12 +118,10 @@ class BookDetailsViewModel @Inject constructor(
             editIsbn13 = "",
             editIsbn10 = "",
         )
-        val isInEditMode = false
         _state.update {
             it.copy(
-                isEditMode = isInEditMode,
+                isInEditMode = false,
                 editState = editState,
-                screenValues = mapper.getScreenValues(isInEditMode = isInEditMode),
                 errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
             )
         }
@@ -162,11 +157,7 @@ class BookDetailsViewModel @Inject constructor(
         val editState = state.editState
         val editTitle = editState.editTitle.trim()
         if (editTitle.isBlank()) {
-            _state.update {
-                it.copy(
-                    errorState = mapper.getErrorState(BookDetailsErrorType.TITLE_REQUIRED),
-                )
-            }
+            _state.update { it.copy(errorState = mapper.getErrorState(BookDetailsErrorType.TITLE_REQUIRED)) }
             return
         }
 
@@ -200,13 +191,13 @@ class BookDetailsViewModel @Inject constructor(
                         it.copy(
                             book = updatedBook,
                             editState = clearEditState,
-                            isEditMode = false,
+                            isInEditMode = false,
                             isSaving = false,
                             errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
                         )
                     }
                 }
-                .onFailure { e ->
+                .onFailure { _ ->
                     _state.update {
                         it.copy(
                             isSaving = false,

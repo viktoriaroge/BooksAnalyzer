@@ -32,7 +32,7 @@ fun BookDetailsRoute(
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     when {
-        state.isEditMode -> BookDetailsEditScreen(
+        state.isInEditMode -> BookDetailsEditScreen(
             state = state,
             selectedCoverUrl = coverPickerState.selectedCover.url,
             headersForBookCover = coverPickerState.selectedCover.headers,

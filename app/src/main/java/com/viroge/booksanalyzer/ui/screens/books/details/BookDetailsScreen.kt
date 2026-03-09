@@ -158,9 +158,8 @@ fun BookDetailsScreen(
                         overflow = TextOverflow.Ellipsis,
                     )
                     PvBookSourceBadge(
-                        source = book.source,
                         modifier = Modifier.padding(all = 2.dp),
-                        showFullSourceName = true,
+                        sourceTextRes = values.sourceBadgeTextRes,
                     )
                     Spacer(modifier = Modifier.weight(weight = 1f))
                 }

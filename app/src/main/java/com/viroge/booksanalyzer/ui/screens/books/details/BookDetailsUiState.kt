@@ -10,15 +10,23 @@ data class BookDetailsUiState(
     val isLoading: Boolean = false,
     val isDeleting: Boolean = false,
     val isSaving: Boolean = false,
-    val isEditMode: Boolean = false,
+    val isInEditMode: Boolean = false,
 
     val screenValues: BookDetailsScreenValues = BookDetailsScreenValues(),
+    val editScreenValues: BookDetailsEditScreenValues = BookDetailsEditScreenValues(),
     val deleteDialogValues: BookDetailsDeleteDialogValues = BookDetailsDeleteDialogValues(),
     val editState: BookDetailsEditState = BookDetailsEditState(),
     val errorState: BookDetailsErrorState = BookDetailsErrorState(),
 )
 
 data class BookDetailsScreenValues(
+    @param:StringRes val screenName: Int = R.string.empty_text,
+    @param:StringRes val originLabel: Int = R.string.empty_text,
+    @param:StringRes val deleteButtonText: Int = R.string.empty_text,
+    @param:StringRes val sourceBadgeTextRes: Int = R.string.empty_text,
+)
+
+data class BookDetailsEditScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
     @param:StringRes val originLabel: Int = R.string.empty_text,
     @param:StringRes val deleteButtonText: Int = R.string.empty_text,
