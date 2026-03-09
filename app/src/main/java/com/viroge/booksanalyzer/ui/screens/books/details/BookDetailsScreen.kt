@@ -1,6 +1,5 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,9 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -28,7 +25,6 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +37,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
-import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
 import com.viroge.booksanalyzer.ui.components.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
@@ -58,258 +53,141 @@ fun BookDetailsScreen(
     onStatusChange: (ReadingStatus) -> Unit,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
-    onSaveEdits: () -> Unit,
-    onCancelEdit: () -> Unit,
-    onUpdateEditTitle: (String) -> Unit,
-    onUpdateEditAuthors: (String) -> Unit,
-    onUpdateEditPublishedYear: (String) -> Unit,
-    onUpdateEditIsbn13: (String) -> Unit,
-    onUpdateEditIsbn10: (String) -> Unit,
-    onOpenCoverPicker: () -> Unit,
 ) {
 
-    Log.d("BookDetailsScreen", "state: $state")
-
-    var showDeleteDialog by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
+    val book = state.book
+    val values = state.screenValues
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface, topBar = {
+        containerColor = MaterialTheme.colorScheme.surface,
+        topBar = {
             PvTopAppBar(
-                title = if (state.isEditMode) stringResource(R.string.book_details_screen_in_edit_screen_name)
-                else stringResource(R.string.book_details_screen_name),
+                title = stringResource(values.screenName),
                 canGoBack = true,
-                onBack = if (state.isEditMode) onCancelEdit else onBack,
+                onBack = onBack,
                 actions = {
-                    if (state.book != null) {
-                        if (state.isEditMode) {
-                            IconButton(onClick = onSaveEdits) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "",
-                                )
-                            }
-                        } else {
-                            IconButton(onClick = onEdit) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "",
-                                )
-                            }
+                    if (book != null) {
+                        IconButton(onClick = onEdit) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "",
+                            )
                         }
                     }
                 },
             )
         }) { screenPadding ->
 
-        val book = state.book
-        val scrollState = rememberScrollState()
-
         Column(
             modifier = Modifier
                 .verticalScroll(state = scrollState)
                 .padding(top = screenPadding.calculateTopPadding())
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
 
+            if (state.isLoading) {
+                PvLinearProgressIndicator()
+            }
+
             if (book != null) {
-                val coverToShow = selectedCoverUrl ?: book.coverUrl ?: ""
                 PvBookCoverHeader(
-                    imageUrl = coverToShow,
+                    imageUrl = selectedCoverUrl ?: book.coverUrl ?: "",
                     headersForBookCover = headersForBookCover,
                     modifier = Modifier.fillMaxWidth(),
                 )
-
-                if (state.isEditMode) {
-                    Button(
-                        onClick = onOpenCoverPicker,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = 16.dp),
-                    ) {
-                        Text(text = stringResource(R.string.book_details_screen_in_edit_change_book_cover_button_label))
-                    }
-
-                    Spacer(Modifier.height(height = 8.dp))
-                }
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(space = 12.dp),
-            ) {
-
-                if (state.error != null) {
-                    Text(
-                        text = state.error,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-
-                if (book == null) {
-                    PvLinearProgressIndicator()
-                    return@Column
-                }
-
-                if (state.isEditMode) {
-                    OutlinedTextField(
-                        value = state.editTitle,
-                        onValueChange = onUpdateEditTitle,
-                        label = { Text(stringResource(R.string.book_details_screen_in_edit_title_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
-                    OutlinedTextField(
-                        value = state.editAuthors,
-                        onValueChange = onUpdateEditAuthors,
-                        label = { Text(stringResource(R.string.book_details_screen_in_edit_author_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        placeholder = { Text(stringResource(R.string.book_details_screen_in_edit_author_hint)) },
-                    )
-                    OutlinedTextField(
-                        value = state.editPublishedYear,
-                        onValueChange = onUpdateEditPublishedYear,
-                        label = { Text(stringResource(R.string.book_details_screen_in_edit_year_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        placeholder = { Text(stringResource(R.string.book_details_screen_in_edit_year_hint)) },
-                    )
-                    OutlinedTextField(
-                        value = state.editIsbn13,
-                        onValueChange = onUpdateEditIsbn13,
-                        label = { Text(stringResource(R.string.book_details_screen_in_edit_isbn13_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
-                    OutlinedTextField(
-                        value = state.editIsbn10,
-                        onValueChange = onUpdateEditIsbn10,
-                        label = { Text(stringResource(R.string.book_details_screen_in_edit_isbn10_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
-
-                    Spacer(Modifier.height(height = 8.dp))
-                    Button(
-                        onClick = onSaveEdits,
-                        enabled = !state.isSaving,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            text = if (state.isSaving) stringResource(R.string.book_details_screen_in_edit_save_in_progress_button)
-                            else stringResource(R.string.book_details_screen_in_edit_save_default_button)
-                        )
-                    }
-                    TextButton(
-                        onClick = onCancelEdit,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(stringResource(R.string.book_details_screen_in_edit_cancel_button))
-                    }
-                } else {
-                    Text(
-                        text = book.title,
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-
-                    if (book.authors.isNotEmpty()) {
-                        Text(
-                            text = book.authors.joinToString(separator = ", "),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-
-                    val meta = listOfNotNull(
-                        book.publishedYear, book.isbn13
-                    ).joinToString(separator = " • ")
-
-                    if (meta.isNotBlank()) {
-                        Text(
-                            text = meta,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(height = 8.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(space = 2.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.book_details_screen_source_label),
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        PvBookSourceBadge(
-                            source = book.source,
-                            modifier = Modifier.padding(all = 2.dp),
-                            showFullSourceName = true,
-                        )
-                        Spacer(modifier = Modifier.weight(weight = 1f))
-                    }
-
-                    StatusPicker(
-                        current = book.status,
-                        onChange = onStatusChange,
-                    )
-
-                    Spacer(Modifier.height(height = 8.dp))
-
-                    Button(
-                        onClick = { showDeleteDialog = true },
-                        enabled = !state.isDeleting,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error,
-                        ),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            text = if (state.isDeleting) stringResource(R.string.book_details_screen_delete_in_progress_button)
-                            else stringResource(R.string.book_details_screen_delete_default_button)
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(height = 16.dp))
-
-            if (showDeleteDialog) {
-                val settingsTabName = stringResource(R.string.settings_screen_name)
-                val recentlyDeletedSectionName = stringResource(R.string.recently_deleted_screen_name)
-
-                AlertDialog(
-                    onDismissRequest = { showDeleteDialog = false },
-                    title = {
-                        Text(text = stringResource(R.string.book_details_screen_delete_book_dialog_title))
-                    },
-                    text = {
-                        Text(
-                            text = customAnnotatedString(
-                                R.string.book_details_screen_delete_book_dialog_text, recentlyDeletedSectionName, settingsTabName
-                            )
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showDeleteDialog = false
-                                onDelete()
-                            }) { Text(text = stringResource(R.string.book_details_screen_delete_book_dialog_delete_button)) }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                showDeleteDialog = false
-                            }) { Text(text = stringResource(R.string.book_details_screen_delete_book_dialog_cancel_button)) }
-                    },
+            if (state.errorState.showError) {
+                Spacer(Modifier.height(height = 16.dp))
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    text = stringResource(state.errorState.errorMessage),
+                    color = MaterialTheme.colorScheme.error,
                 )
+                Spacer(Modifier.height(height = 16.dp))
+            }
+
+            if (book != null) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    text = book.title,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+
+                if (book.authors.isNotEmpty()) {
+                    Spacer(Modifier.height(height = 12.dp))
+                    Text(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        text = book.authors.joinToString(separator = ", "),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                val meta = listOfNotNull(book.publishedYear, book.isbn13).joinToString(separator = " • ")
+                if (meta.isNotBlank()) {
+                    Spacer(Modifier.height(height = 12.dp))
+                    Text(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        text = meta,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(height = 12.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(space = 2.dp),
+                ) {
+                    Text(
+                        text = stringResource(values.originLabel),
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    PvBookSourceBadge(
+                        source = book.source,
+                        modifier = Modifier.padding(all = 2.dp),
+                        showFullSourceName = true,
+                    )
+                    Spacer(modifier = Modifier.weight(weight = 1f))
+                }
+
+                StatusPicker(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    current = book.status,
+                    onChange = onStatusChange,
+                )
+
+                Spacer(Modifier.height(height = 16.dp))
+                Button(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    onClick = { onDelete() },
+                    enabled = !state.isDeleting,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) {
+                    Text(stringResource(values.deleteButtonText))
+                }
+
+                Spacer(Modifier.height(height = 24.dp))
             }
         }
     }
@@ -318,13 +196,14 @@ fun BookDetailsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun StatusPicker(
+    modifier: Modifier = Modifier,
     current: ReadingStatus,
     onChange: (ReadingStatus) -> Unit,
 ) {
 
     var expanded by remember { mutableStateOf(value = false) }
 
-    Column {
+    Column(modifier = modifier) {
 
         Spacer(Modifier.height(height = 24.dp))
         Text(

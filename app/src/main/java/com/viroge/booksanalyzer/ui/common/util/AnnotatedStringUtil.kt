@@ -26,7 +26,11 @@ import androidx.compose.ui.text.withStyle
 @Composable
 fun customAnnotatedString(id: Int, vararg formatArgs: Any): AnnotatedString {
     val rawText = stringResource(id, *formatArgs)
+    return customAnnotatedString(rawText)
+}
 
+@Composable
+fun customAnnotatedString(rawText: String): AnnotatedString {
     val boldStyle = SpanStyle(
         fontWeight = FontWeight.ExtraBold,
     )

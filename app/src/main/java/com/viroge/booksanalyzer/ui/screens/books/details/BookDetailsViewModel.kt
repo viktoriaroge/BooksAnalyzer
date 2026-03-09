@@ -27,6 +27,7 @@ class BookDetailsViewModel @Inject constructor(
     private val editBook: EditBookUseCase,
     private val updateBookStatus: UpdateBookStatusUseCase,
     private val markBookAsOpened: MarkBookAsOpenedUseCase,
+    private val mapper: BookDetailsMapper,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -41,15 +42,33 @@ class BookDetailsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    screenValues = mapper.getScreenValues(isInEditMode = false),
+                    deleteDialogValues = mapper.getDeleteDialogValues(),
+                )
+            }
             markBookAsOpened(bookId)
 
             bookStream.collect { result ->
                 result.fold(
                     onSuccess = { book ->
-                        _state.update { it.copy(book = book, error = null) }
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                book = book,
+                                errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
+                            )
+                        }
                     },
-                    onFailure = { e ->
-                        _state.update { it.copy(error = e.message ?: "Failed to load book") }
+                    onFailure = { _ ->
+                        _state.update {
+                            it.copy(
+                                isLoading = true,
+                                errorState = mapper.getErrorState(BookDetailsErrorType.LOADING_BOOK_FAILED),
+                            )
+                        }
                     })
             }
         }
@@ -65,8 +84,10 @@ class BookDetailsViewModel @Inject constructor(
 
                     _state.update { it.copy(book = book.copy(status = status)) }
                 }
-                .onFailure { e ->
-                    _state.update { it.copy(error = e.message ?: "Failed to update status") }
+                .onFailure { _ ->
+                    _state.update {
+                        it.copy(errorState = mapper.getErrorState(BookDetailsErrorType.UPDATING_STATUS_FAILED))
+                    }
                 }
         }
     }
@@ -74,51 +95,61 @@ class BookDetailsViewModel @Inject constructor(
     fun enterEditMode() {
         val book = _state.value.book ?: return
 
+        val editState = BookDetailsEditState(
+            editTitle = book.title,
+            editAuthors = book.authors.joinToString(separator = ", "),
+            editPublishedYear = book.publishedYear.orEmpty(),
+            editIsbn13 = book.isbn13.orEmpty(),
+            editIsbn10 = book.isbn10.orEmpty(),
+        )
+        val isInEditMode = true
         _state.update {
             it.copy(
-                isEditMode = true,
-                editTitle = book.title,
-                editAuthors = book.authors.joinToString(separator = ", "),
-                editPublishedYear = book.publishedYear.orEmpty(),
-                editIsbn13 = book.isbn13.orEmpty(),
-                editIsbn10 = book.isbn10.orEmpty(),
-                error = null,
+                isEditMode = isInEditMode,
+                editState = editState,
+                screenValues = mapper.getScreenValues(isInEditMode = isInEditMode),
+                errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
             )
         }
     }
 
     fun exitEditMode() {
+        val editState = BookDetailsEditState(
+            editTitle = "",
+            editAuthors = "",
+            editPublishedYear = "",
+            editIsbn13 = "",
+            editIsbn10 = "",
+        )
+        val isInEditMode = false
         _state.update {
             it.copy(
-                isEditMode = false,
-                editTitle = "",
-                editAuthors = "",
-                editPublishedYear = "",
-                editIsbn13 = "",
-                editIsbn10 = "",
-                error = null,
+                isEditMode = isInEditMode,
+                editState = editState,
+                screenValues = mapper.getScreenValues(isInEditMode = isInEditMode),
+                errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
             )
         }
     }
 
     fun updateEditTitle(value: String) {
-        _state.update { it.copy(editTitle = value) }
+        _state.update { it.copy(editState = it.editState.copy(editTitle = value)) }
     }
 
     fun updateEditAuthors(value: String) {
-        _state.update { it.copy(editAuthors = value) }
+        _state.update { it.copy(editState = it.editState.copy(editAuthors = value)) }
     }
 
     fun updateEditPublishedYear(value: String) {
-        _state.update { it.copy(editPublishedYear = value) }
+        _state.update { it.copy(editState = it.editState.copy(editPublishedYear = value)) }
     }
 
     fun updateEditIsbn13(value: String) {
-        _state.update { it.copy(editIsbn13 = value) }
+        _state.update { it.copy(editState = it.editState.copy(editIsbn13 = value)) }
     }
 
     fun updateEditIsbn10(value: String) {
-        _state.update { it.copy(editIsbn10 = value) }
+        _state.update { it.copy(editState = it.editState.copy(editIsbn10 = value)) }
     }
 
     fun saveEdits(
@@ -128,38 +159,50 @@ class BookDetailsViewModel @Inject constructor(
         val state = _state.value
         val book = state.book ?: return
 
-        val title = state.editTitle.trim()
-        if (title.isBlank()) {
-            _state.update { it.copy(error = "Title is required") }
+        val editState = state.editState
+        val editTitle = editState.editTitle.trim()
+        if (editTitle.isBlank()) {
+            _state.update {
+                it.copy(
+                    errorState = mapper.getErrorState(BookDetailsErrorType.TITLE_REQUIRED),
+                )
+            }
             return
         }
 
         viewModelScope.launch {
-            _state.update { it.copy(isSaving = true, error = null) }
+            _state.update {
+                it.copy(
+                    isSaving = true,
+                    errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
+                )
+            }
 
-            val updated = book.copy(
-                title = title,
-                authors = state.editAuthors.split(",").map { it.trim() }.filter { it.isNotBlank() }.ifEmpty { listOf("") },
-                publishedYear = state.editPublishedYear.trim(),
-                isbn13 = state.editIsbn13.trim().takeIf { it.isNotEmpty() },
-                isbn10 = state.editIsbn10.trim().takeIf { it.isNotEmpty() },
+            val updatedBook = book.copy(
+                title = editTitle,
+                authors = editState.editAuthors.split(",").map { it.trim() }.filter { it.isNotBlank() }.ifEmpty { listOf("") },
+                publishedYear = editState.editPublishedYear.trim(),
+                isbn13 = editState.editIsbn13.trim().takeIf { it.isNotEmpty() },
+                isbn10 = editState.editIsbn10.trim().takeIf { it.isNotEmpty() },
                 coverUrl = selectedCoverUrl ?: book.coverUrl,
                 coverRequestHeaders = selectedCoverHeaders,
             )
-
-            editBook(updated)
+            val clearEditState = BookDetailsEditState(
+                editTitle = "",
+                editAuthors = "",
+                editPublishedYear = "",
+                editIsbn13 = "",
+                editIsbn10 = "",
+            )
+            editBook(updatedBook)
                 .onSuccess { _ ->
                     _state.update {
                         it.copy(
-                            book = updated,
+                            book = updatedBook,
+                            editState = clearEditState,
                             isEditMode = false,
                             isSaving = false,
-                            editTitle = "",
-                            editAuthors = "",
-                            editPublishedYear = "",
-                            editIsbn13 = "",
-                            editIsbn10 = "",
-                            error = null,
+                            errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
                         )
                     }
                 }
@@ -167,10 +210,18 @@ class BookDetailsViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isSaving = false,
-                            error = e.message ?: "Failed to save changes",
+                            errorState = mapper.getErrorState(BookDetailsErrorType.SAVING_FAILED),
                         )
                     }
                 }
         }
     }
+}
+
+enum class BookDetailsErrorType {
+    NONE,
+    LOADING_BOOK_FAILED,
+    UPDATING_STATUS_FAILED,
+    SAVING_FAILED,
+    TITLE_REQUIRED,
 }

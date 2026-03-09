@@ -45,7 +45,6 @@
     <string name="book_details_screen_source_label">Origin:</string>
     <string name="book_details_screen_status_label">Nature of the Bond</string>
     <string name="book_details_screen_delete_default_button">Banish Book</string>
-    <string name="book_details_screen_delete_in_progress_button">Banishing…</string>
     <string name="book_details_screen_delete_book_dialog_title">Banish Book?</string>
     <string name="book_details_screen_delete_book_dialog_text">Shall this book be cast out of your collection? \nIt will remain within the {spe}%1$s{/spe} chamber in the {spe}%2$s{/spe} for a week\'s grace before the record is purged.</string>
     <string name="book_details_screen_delete_book_dialog_delete_button">Banish</string>
@@ -62,6 +61,10 @@
     <string name="book_details_screen_in_edit_save_default_button">Seal Changes</string>
     <string name="book_details_screen_in_edit_save_in_progress_button">Sealing…</string>
     <string name="book_details_screen_in_edit_cancel_button">Discard</string>
+    <string name="book_details_screen_error_book_loading">The Tome could not be summoned at this time.</string>
+    <string name="book_details_screen_error_saving">The Scribe’s hand faltered… the changes could not be sealed.</string>
+    <string name="book_details_screen_error_title_required">A Tome cannot exist without its Title.</string>
+    <string name="book_details_screen_error_status_update">The Nature of the Bond could not be altered.</string>
 
     <string name="search_screen_name">Discover Stories</string>
     <string name="search_screen_search_field_hint">Seek by title, author, or ISBN</string>
