@@ -66,20 +66,21 @@ class SearchBookViewModel @Inject constructor(
     init {
         query
             .map { it.trim() }
-            .debounce(timeoutMillis = 550)
+            .onEach { q ->
+                if (q.isBlank() || q.length < 2) reset()
+            }
+            .debounce(timeoutMillis = 800) // debounce for typing
             .distinctUntilChanged()
             .onEach { q ->
-                if (q.isBlank() || q.length < 2) {
-                    reset()
-                    return@onEach
-                }
+                if (q.isBlank() || q.length < 2) return@onEach
+
                 searchFirstPage(q)
             }
             .launchIn(viewModelScope)
 
         mode
             .drop(count = 1)
-            .debounce(timeoutMillis = 450)
+            .debounce(timeoutMillis = 500)
             .distinctUntilChanged()
             .onEach { searchFirstPage(query.value) }
             .launchIn(viewModelScope)
