@@ -29,7 +29,7 @@ fun AppBottomBar(
             icon = Icons.Default.LocalLibrary,
         ),
         BottomItem(
-            route = Routes.ADD_BOOK,
+            route = Routes.SEARCH_BOOK,
             label = stringResource(R.string.search_screen_name),
             icon = Icons.Default.Search,
         ),

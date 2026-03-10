@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.viroge.booksanalyzer.ui.screens.books.add.AddBookRoute
+import com.viroge.booksanalyzer.ui.screens.books.search.SearchBookRoute
 import com.viroge.booksanalyzer.ui.screens.books.confirm.ConfirmBookRoute
 import com.viroge.booksanalyzer.ui.screens.books.deleted.RecentlyDeletedRoute
 import com.viroge.booksanalyzer.ui.screens.books.details.BookDetailsRoute
@@ -42,14 +42,14 @@ fun AppNavHost(
 
         }
 
-        // --- ADD BOOK TAB -------------------------------------------------------------
+        // --- SEARCH BOOK TAB -------------------------------------------------------------
 
         navigation(
-            route = Routes.ADD_BOOK_GRAPH,
-            startDestination = Routes.ADD_BOOK
+            route = Routes.SEARCH_BOOK_GRAPH,
+            startDestination = Routes.SEARCH_BOOK
         ) {
-            composable(Routes.ADD_BOOK) {
-                AddBookRoute(
+            composable(Routes.SEARCH_BOOK) {
+                SearchBookRoute(
                     onGoToConfirm = { navController.navigate(Routes.CONFIRM_BOOK) },
                 )
             }
@@ -59,7 +59,7 @@ fun AppNavHost(
                     onBack = { navController.popBackStack() },
                     onBookSaved = {
                         navController.navigate(Routes.BOOK_DETAILS) {
-                            popUpTo(Routes.ADD_BOOK) { inclusive = false }
+                            popUpTo(Routes.SEARCH_BOOK) { inclusive = false }
                         }
                     },
                 )

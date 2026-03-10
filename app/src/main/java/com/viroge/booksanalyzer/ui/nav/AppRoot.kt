@@ -46,7 +46,7 @@ fun AppRoot() {
 
     val topLevelRoutes = setOf(
         Routes.LIBRARY,
-        Routes.ADD_BOOK,
+        Routes.SEARCH_BOOK,
         Routes.SETTINGS,
     )
 

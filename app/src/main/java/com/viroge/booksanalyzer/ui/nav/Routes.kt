@@ -5,8 +5,8 @@ object Routes {
     const val LIBRARY = "library"
     const val LIBRARY_GRAPH = "library_graph"
 
-    const val ADD_BOOK = "add_book"
-    const val ADD_BOOK_GRAPH = "add_book_graph"
+    const val SEARCH_BOOK = "search_book"
+    const val SEARCH_BOOK_GRAPH = "search_book_graph"
 
     const val SETTINGS = "settings"
     const val SETTINGS_GRAPH = "settings_graph"
