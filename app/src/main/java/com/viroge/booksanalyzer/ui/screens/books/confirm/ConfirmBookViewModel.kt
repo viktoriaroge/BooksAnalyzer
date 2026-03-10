@@ -68,7 +68,7 @@ class ConfirmBookViewModel @Inject constructor(
         if (_internalState.value.isSaving) return
 
         viewModelScope.launch {
-            _internalState.update { it.copy(isSaving = true, error = null) }
+            _internalState.update { it.copy(isSaving = true) }
 
             val originalBook = book
                 ?: bookSelectionStateProvider.getSelectedTempBook()
@@ -86,10 +86,8 @@ class ConfirmBookViewModel @Inject constructor(
                     bookSelectionStateProvider.selectBookId(result.bookId)
                     _events.emit(ConfirmEvent.Saved)
                 }
-                .onFailure { t ->
-                    val msg = t.message ?: "Failed to save book"
-                    _internalState.update { it.copy(error = msg) }
-                    _events.emit(ConfirmEvent.Error(msg))
+                .onFailure { _ ->
+                    _events.emit(ConfirmEvent.Error(ConfirmErrorType.SAVING_FAILED))
                 }
 
             _internalState.update { it.copy(isSaving = false) }
@@ -97,16 +95,18 @@ class ConfirmBookViewModel @Inject constructor(
     }
 
     fun saveManualBook() {
-        val state = _internalState.value
-        validateManualBook(
-            title = state.titleInput,
-            authors = state.authorsInput,
-            year = state.yearInput,
-            isbn13 = state.isbn13Input,
-        ).onSuccess { book ->
-            saveBook(book)
-        }.onFailure { t ->
-            _internalState.update { it.copy(error = t.message) }
+        viewModelScope.launch {
+            val state = _internalState.value
+            validateManualBook(
+                title = state.titleInput,
+                authors = state.authorsInput,
+                year = state.yearInput,
+                isbn13 = state.isbn13Input,
+            ).onSuccess { book ->
+                saveBook(book)
+            }.onFailure { _ ->
+                _events.emit(ConfirmEvent.Error(ConfirmErrorType.SAVING_FAILED))
+            }
         }
     }
 

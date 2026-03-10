@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -67,9 +68,10 @@ fun BookDetailsEditScreen(
 
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .verticalScroll(state = scrollState)
-                .padding(top = screenPadding.calculateTopPadding())
-                .fillMaxSize(),
+                .imePadding()
+                .padding(top = screenPadding.calculateTopPadding()),
         ) {
 
             PvBookCoverHeader(
@@ -87,17 +89,6 @@ fun BookDetailsEditScreen(
                 Text(text = stringResource(values.changeCoverButtonText))
             }
 
-            if (state.screenState.errorState.showError) {
-                Spacer(Modifier.height(height = 16.dp))
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    text = stringResource(state.screenState.errorState.errorMessage),
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-
             Spacer(Modifier.height(height = 12.dp))
             OutlinedTextField(
                 modifier = Modifier
@@ -107,6 +98,15 @@ fun BookDetailsEditScreen(
                 onValueChange = onUpdateEditTitle,
                 label = { Text(stringResource(values.titleLabel)) },
                 singleLine = true,
+                isError = editState.showTitleError,
+                supportingText = {
+                    if (editState.showTitleError) {
+                        Text(
+                            text = stringResource(state.screenState.editScreenValues.titleError),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
             )
 
             Spacer(Modifier.height(height = 12.dp))
@@ -119,6 +119,15 @@ fun BookDetailsEditScreen(
                 label = { Text(stringResource(values.authorLabel)) },
                 singleLine = true,
                 placeholder = { Text(stringResource(values.authorHint)) },
+                isError = editState.showAuthorError,
+                supportingText = {
+                    if (editState.showAuthorError) {
+                        Text(
+                            text = stringResource(state.screenState.editScreenValues.authorError),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
             )
 
             Spacer(Modifier.height(height = 12.dp))

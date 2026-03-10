@@ -22,7 +22,9 @@ class BookDetailsMapper @Inject constructor() {
         deleteButtonText = R.string.book_details_screen_delete_default_button,
         changeCoverButtonText = R.string.book_details_screen_in_edit_change_book_cover_button_label,
         titleLabel = R.string.book_details_screen_in_edit_title_label,
+        titleError = R.string.book_details_screen_in_edit_title_error,
         authorLabel = R.string.book_details_screen_in_edit_author_label,
+        authorError = R.string.book_details_screen_in_edit_author_error,
         authorHint = R.string.book_details_screen_in_edit_author_hint,
         yearLabel = R.string.book_details_screen_in_edit_year_label,
         yearHint = R.string.book_details_screen_in_edit_year_hint,
@@ -42,18 +44,6 @@ class BookDetailsMapper @Inject constructor() {
         ),
         deleteButtonText = R.string.book_details_screen_delete_book_dialog_delete_button,
         cancelButtonText = R.string.book_details_screen_delete_book_dialog_cancel_button,
-    )
-
-    fun getErrorState(errorType: BookDetailsErrorType): BookDetailsErrorState = BookDetailsErrorState(
-        showError = errorType != BookDetailsErrorType.NONE,
-        errorMessage = when (errorType) {
-            BookDetailsErrorType.NONE -> R.string.empty_text
-            BookDetailsErrorType.SAVING_FAILED -> R.string.book_details_screen_error_saving
-            BookDetailsErrorType.LOADING_BOOK_FAILED -> R.string.book_details_screen_error_book_loading
-            BookDetailsErrorType.UPDATING_STATUS_FAILED -> R.string.book_details_screen_error_status_update
-            BookDetailsErrorType.TITLE_REQUIRED -> R.string.book_details_screen_error_title_required
-            BookDetailsErrorType.AUTHOR_REQUIRED -> R.string.book_details_screen_error_author_required
-        }
     )
 
     fun mapToDataState(

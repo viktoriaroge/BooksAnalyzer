@@ -1,10 +1,12 @@
 package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
@@ -28,6 +30,7 @@ fun ConfirmBookRoute(
         onBack()
     }
 
+    val context = LocalContext.current
     val snackbar = LocalAppSnackbar.current
     LaunchedEffect(key1 = Unit) {
         vm.events.collect { event ->
@@ -38,7 +41,7 @@ fun ConfirmBookRoute(
                 }
 
                 is ConfirmEvent.Error -> {
-                    snackbar.show(event.message)
+                    snackbar.show(message = event.errorType.message.asString(context), duration = SnackbarDuration.Short)
                 }
             }
         }

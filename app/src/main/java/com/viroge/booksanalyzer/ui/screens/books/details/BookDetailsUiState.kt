@@ -21,7 +21,6 @@ data class BookDetailsScreenState(
     val editScreenValues: BookDetailsEditScreenValues = BookDetailsEditScreenValues(),
     val deleteDialogValues: BookDetailsDeleteDialogValues = BookDetailsDeleteDialogValues(),
     val editState: BookDetailsEditState = BookDetailsEditState(),
-    val errorState: BookDetailsErrorState = BookDetailsErrorState(),
 )
 
 data class BookDetailsScreenValues(
@@ -36,7 +35,9 @@ data class BookDetailsEditScreenValues(
     @param:StringRes val deleteButtonText: Int = R.string.empty_text,
     @param:StringRes val changeCoverButtonText: Int = R.string.empty_text,
     @param:StringRes val titleLabel: Int = R.string.empty_text,
+    @param:StringRes val titleError: Int = R.string.empty_text,
     @param:StringRes val authorLabel: Int = R.string.empty_text,
+    @param:StringRes val authorError: Int = R.string.empty_text,
     @param:StringRes val authorHint: Int = R.string.empty_text,
     @param:StringRes val yearLabel: Int = R.string.empty_text,
     @param:StringRes val yearHint: Int = R.string.empty_text,
@@ -56,7 +57,9 @@ data class BookDetailsDeleteDialogValues(
 
 data class BookDetailsEditState(
     val editTitle: String = "",
+    val showTitleError: Boolean = false,
     val editAuthors: String = "",
+    val showAuthorError: Boolean = false,
     val editPublishedYear: String = "",
     val editIsbn13: String = "",
     val editIsbn10: String = "",
@@ -73,9 +76,4 @@ data class BookDetailsDataState(
     val headers: Map<String, String>,
     val status: BookReadingStatusUi = BookReadingStatusUi.NotStarted,
     val source: BookSourceUi = BookSourceUi.Manual,
-)
-
-data class BookDetailsErrorState(
-    val showError: Boolean = false,
-    @param:StringRes val errorMessage: Int = R.string.empty_text,
 )

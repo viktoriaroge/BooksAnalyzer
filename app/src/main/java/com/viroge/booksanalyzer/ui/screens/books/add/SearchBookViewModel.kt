@@ -6,6 +6,8 @@ import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.data.SearchHistoryRepository
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.BookSource
+import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import com.viroge.booksanalyzer.domain.provider.BookSearchStateProvider
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
@@ -216,7 +218,27 @@ class SearchBookViewModel @Inject constructor(
     }
 
     fun setManualPrefill(query: String, mode: SearchMode) {
-        bookSelectionStateProvider.clearTempSelection()
+        // TODO: Later, cleanup the use of a full Book data model:
+        val tempBook = Book(
+            title = bookSearchStateProvider.getTitleFromManualPrefill(query, mode),
+            authors = bookSearchStateProvider.getAuthorFromManualPrefill(query, mode)
+                .split(",").map { it.trim() }.filter { it.isNotBlank() },
+            publishedYear = "",
+            isbn13 = bookSearchStateProvider.getIsbnFromManualPrefill(query, mode),
+            source = BookSource.MANUAL,
+            coverUrl = null,
+
+            // Not necessary for now. Add later if necessary for book cover selection:
+            id = "",
+            sourceId = null,
+            status = ReadingStatus.NOT_STARTED,
+            createdAtEpochMs = 0,
+            lastOpenAtEpochMs = 0,
+            lastMarkedToDelete = 0,
+            toBeDeleted = false,
+            coverRequestHeaders = emptyMap(),
+        )
+        bookSelectionStateProvider.selectTempBook(tempBook)
         bookSearchStateProvider.setManualPrefill(query, mode)
     }
 }

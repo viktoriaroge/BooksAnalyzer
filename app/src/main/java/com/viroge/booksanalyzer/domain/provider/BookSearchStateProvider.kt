@@ -35,6 +35,45 @@ class BookSearchStateProvider @Inject constructor() {
         _prefillMode.value = mode
     }
 
+    fun getTitleFromManualPrefill(
+        query: String,
+        mode: SearchMode,
+    ): String {
+        return when (mode) {
+            SearchMode.ALL,
+            SearchMode.TITLE -> BooksUtil.normalizeForManualInput(string = query)
+
+            SearchMode.ISBN,
+            SearchMode.AUTHOR -> ""
+        }
+    }
+
+    fun getAuthorFromManualPrefill(
+        query: String,
+        mode: SearchMode,
+    ): String {
+        return when (mode) {
+            SearchMode.AUTHOR -> BooksUtil.normalizeForManualInput(string = query)
+
+            SearchMode.ALL,
+            SearchMode.TITLE,
+            SearchMode.ISBN -> ""
+        }
+    }
+
+    fun getIsbnFromManualPrefill(
+        query: String,
+        mode: SearchMode,
+    ): String {
+        return when (mode) {
+            SearchMode.ALL,
+            SearchMode.TITLE,
+            SearchMode.AUTHOR -> ""
+
+            SearchMode.ISBN -> query
+        }
+    }
+
     fun clear() {
         _prefillQuery.value = null
         _prefillMode.value = null

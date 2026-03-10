@@ -2,19 +2,23 @@ package com.viroge.booksanalyzer.ui.screens.books.details
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.viroge.booksanalyzer.ui.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.activityViewModel
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
+import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerSheet
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
 
@@ -36,6 +40,18 @@ fun BookDetailsRoute(
     BackHandler(enabled = true) {
         vm.clearSessionData()
         onBack()
+    }
+
+    val context = LocalContext.current
+    val snackbar = LocalAppSnackbar.current
+    LaunchedEffect(key1 = Unit) {
+        vm.events.collect { event ->
+            when (event) {
+                is DetailsEvent.Error -> {
+                    snackbar.show(message = event.errorType.message.asString(context), duration = SnackbarDuration.Short)
+                }
+            }
+        }
     }
 
     BookDetailsScreen(

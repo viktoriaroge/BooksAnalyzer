@@ -54,14 +54,6 @@ fun ConfirmBookScreen(
                 PvLinearProgressIndicator(modifier = Modifier.padding(top = 12.dp))
             }
 
-            state.screenState.error?.let { msg ->
-                Text(
-                    text = msg,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-
             PvBookCoverHeader(
                 imageUrl = book.url,
                 headersForBookCover = book.headers,

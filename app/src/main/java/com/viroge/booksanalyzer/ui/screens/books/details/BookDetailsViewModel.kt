@@ -15,9 +15,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -41,15 +43,14 @@ class BookDetailsViewModel @Inject constructor(
 
     private var needsMarking: Boolean = true
 
+    private val _events = MutableSharedFlow<DetailsEvent>()
+    val events = _events.asSharedFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val bookStream: Flow<Book?> = bookSelectionStateProvider.selectedBookId
         .flatMapLatest { id -> id?.let { getBookUseCase(it) } ?: flowOf(null) }
         .distinctUntilChanged()
-        .catch { _ ->
-            _internalState.update {
-                it.copy(errorState = mapper.getErrorState(BookDetailsErrorType.LOADING_BOOK_FAILED))
-            }
-        }
+        .catch { _ -> _events.emit(DetailsEvent.Error(DetailsErrorType.LOADING_BOOK_FAILED)) }
 
     private val _internalState = MutableStateFlow(BookDetailsScreenState())
     private val _selectedBookState: MutableStateFlow<BookDetailsDataState?> = MutableStateFlow(null)
@@ -60,19 +61,15 @@ class BookDetailsViewModel @Inject constructor(
         coverPickerStateProvider.state,
     ) { internalState, selectedBook, pickerState ->
 
-        var errorState = internalState.errorState
         if (selectedBook != null && needsMarking) {
             markBookAsOpened(selectedBook.id)
             needsMarking = false
-            // Reset the error on screen open:
-            errorState = mapper.getErrorState(BookDetailsErrorType.NONE)
         }
 
         val newState = internalState.copy(
             screenValues = mapper.getScreenValues(),
             editScreenValues = mapper.getEditScreenValues(),
             deleteDialogValues = mapper.getDeleteDialogValues(),
-            errorState = errorState,
             isLoading = selectedBook?.let { false } ?: true,
         )
 
@@ -102,11 +99,7 @@ class BookDetailsViewModel @Inject constructor(
             val bookId = bookSelectionStateProvider.getSelectedBookId() ?: return@launch
 
             updateBookStatus(bookId, status)
-                .onFailure { _ ->
-                    _internalState.update {
-                        it.copy(errorState = mapper.getErrorState(BookDetailsErrorType.UPDATING_STATUS_FAILED))
-                    }
-                }
+                .onFailure { _ -> _events.emit(DetailsEvent.Error(DetailsErrorType.UPDATING_STATUS_FAILED)) }
         }
     }
 
@@ -118,12 +111,13 @@ class BookDetailsViewModel @Inject constructor(
                 isInEditMode = true,
                 editState = BookDetailsEditState(
                     editTitle = book.title,
+                    showTitleError = false,
                     editAuthors = book.authors,
+                    showAuthorError = false,
                     editPublishedYear = book.year.orEmpty(),
                     editIsbn13 = book.isbn13.orEmpty(),
                     editIsbn10 = book.isbn10.orEmpty(),
                 ),
-                errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
             )
         }
     }
@@ -134,12 +128,13 @@ class BookDetailsViewModel @Inject constructor(
                 isInEditMode = false,
                 editState = BookDetailsEditState(
                     editTitle = "",
+                    showTitleError = false,
                     editAuthors = "",
+                    showAuthorError = false,
                     editPublishedYear = "",
                     editIsbn13 = "",
                     editIsbn10 = "",
                 ),
-                errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
             )
         }
     }
@@ -166,30 +161,25 @@ class BookDetailsViewModel @Inject constructor(
 
     fun saveEdits() {
         val book = _selectedBookState.value ?: return
-        val editState = _internalState.value.editState
 
+        val editState = _internalState.value.editState
         val editTitle = editState.editTitle.trim()
-        if (editTitle.isBlank()) {
-            _internalState.update {
-                it.copy(errorState = mapper.getErrorState(BookDetailsErrorType.TITLE_REQUIRED))
-            }
-            return
-        }
         val editAuthor = editState.editAuthors.trim()
-        if (editAuthor.isBlank()) {
-            _internalState.update {
-                it.copy(errorState = mapper.getErrorState(BookDetailsErrorType.AUTHOR_REQUIRED))
-            }
+
+        if (editTitle.isBlank() || editAuthor.isBlank()) {
+            // There are error states, check which ones to show:
+            if (editTitle.isBlank()) _internalState.update { it.copy(editState = it.editState.copy(showTitleError = true)) }
+            else _internalState.update { it.copy(editState = it.editState.copy(showTitleError = false)) }
+
+            if (editAuthor.isBlank()) _internalState.update { it.copy(editState = it.editState.copy(showAuthorError = true)) }
+            else _internalState.update { it.copy(editState = it.editState.copy(showAuthorError = false)) }
+
             return
         }
 
         viewModelScope.launch {
-            _internalState.update {
-                it.copy(
-                    isSaving = true,
-                    errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
-                )
-            }
+            _internalState.update { it.copy(isSaving = true) }
+
             editBookUseCase(
                 bookId = book.id,
                 title = editTitle,
@@ -210,16 +200,11 @@ class BookDetailsViewModel @Inject constructor(
                         ),
                         isInEditMode = false,
                         isSaving = false,
-                        errorState = mapper.getErrorState(BookDetailsErrorType.NONE),
                     )
                 }
             }.onFailure { _ ->
-                _internalState.update {
-                    it.copy(
-                        isSaving = false,
-                        errorState = mapper.getErrorState(BookDetailsErrorType.SAVING_FAILED),
-                    )
-                }
+                _events.emit(DetailsEvent.Error(DetailsErrorType.SAVING_FAILED))
+                _internalState.update { it.copy(isSaving = false) }
             }
         }
     }
@@ -232,13 +217,4 @@ class BookDetailsViewModel @Inject constructor(
             Log.d("BookDetailsViewModel", "---> Session data cleared")
         }
     }
-}
-
-enum class BookDetailsErrorType {
-    NONE,
-    LOADING_BOOK_FAILED,
-    UPDATING_STATUS_FAILED,
-    SAVING_FAILED,
-    TITLE_REQUIRED,
-    AUTHOR_REQUIRED,
 }

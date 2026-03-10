@@ -14,7 +14,6 @@ data class ConfirmBookUiState(
 
 data class ConfirmBookScreenState(
     val isSaving: Boolean = false,
-    val error: String? = null,
     val screenValues: ConfirmBookScreenValues = ConfirmBookScreenValues(),
     val manualFormData: ConfirmBookManualFormData? = null,
     val titleInput: String = "",

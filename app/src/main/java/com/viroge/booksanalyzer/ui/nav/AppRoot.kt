@@ -6,10 +6,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -19,7 +23,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -28,13 +34,12 @@ import com.viroge.booksanalyzer.ui.AppEvent
 import com.viroge.booksanalyzer.ui.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.activityViewModel
 import com.viroge.booksanalyzer.ui.common.util.truncate
-import com.viroge.booksanalyzer.ui.components.snackbar.PvAppSnackbarController
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
+import com.viroge.booksanalyzer.ui.components.snackbar.PvAppSnackbarController
 
 @Composable
 fun AppRoot() {
 
-    val sharedViewModel: MainSharedViewModel = activityViewModel()
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -56,7 +61,7 @@ fun AppRoot() {
     CompositionLocalProvider(value = LocalAppSnackbar provides snackbarController) {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.surface,
-            snackbarHost = { SnackbarHost(snackbarHostState) },
+            snackbarHost = {},
             bottomBar = {
                 AnimatedVisibility(
                     visible = showBottomBar,
@@ -78,59 +83,82 @@ fun AppRoot() {
                     )
                 }
             },
-        ) { rootPadding ->
+        ) { innerPadding ->
 
-            val snackbar = LocalAppSnackbar.current
+            Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .consumeWindowInsets(innerPadding)
+                ) {
+                    AppSnackbarHandler()
+                    AppNavHost(navController = navController)
+                }
 
-            LaunchedEffect(key1 = Unit) {
-                sharedViewModel.events.collect { event ->
-                    val titleLimit = 44
-
-                    when (event) {
-                        is AppEvent.BookDeleted -> {
-                            val normalizedTitle = event.title.truncate(limit = titleLimit)
-                            snackbar.show(
-                                message = "Book \"$normalizedTitle\" deleted.",
-                                actionLabel = "Undo",
-                                withDismissAction = true,
-                                duration = SnackbarDuration.Long,
-                                onActionPerformed = { sharedViewModel.undoMarkToDelete() },
-                            )
-                        }
-
-                        is AppEvent.BookDeletingFailed -> {
-                            val normalizedTitle = event.title.truncate(limit = titleLimit)
-                            snackbar.show(
-                                message = "Deleting book \"$normalizedTitle\" failed.",
-                                duration = SnackbarDuration.Short,
-                            )
-                        }
-
-                        is AppEvent.BookRestoreFailed -> {
-                            val normalizedTitle = event.title.truncate(limit = titleLimit)
-                            snackbar.show(
-                                message = "Restoring book \"$normalizedTitle\" failed.",
-                                duration = SnackbarDuration.Short,
-                            )
-                        }
-
-                        is AppEvent.BookRestoreSuccess -> {
-                            val normalizedTitle = event.title.truncate(limit = titleLimit)
-                            snackbar.show(
-                                message = "Book \"$normalizedTitle\" restored.",
-                                duration = SnackbarDuration.Short,
-                            )
-                        }
-                    }
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .statusBarsPadding()
+                        .padding(top = 8.dp)
+                        .fillMaxWidth()
+                ) { data ->
+                    Snackbar(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        snackbarData = data,
+                    )
                 }
             }
+        }
+    }
+}
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = rootPadding.calculateBottomPadding()),
-            ) {
-                AppNavHost(navController = navController)
+
+@Composable
+fun AppSnackbarHandler() {
+    val sharedViewModel: MainSharedViewModel = activityViewModel()
+    val snackbar = LocalAppSnackbar.current
+
+    LaunchedEffect(key1 = Unit) {
+        sharedViewModel.events.collect { event ->
+            val titleLimit = 44
+
+            when (event) {
+                is AppEvent.BookDeleted -> {
+                    val normalizedTitle = event.title.truncate(limit = titleLimit)
+                    snackbar.show(
+                        message = "Book \"$normalizedTitle\" deleted.",
+                        actionLabel = "Undo",
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Long,
+                        onActionPerformed = { sharedViewModel.undoMarkToDelete() },
+                    )
+                }
+
+                is AppEvent.BookDeletingFailed -> {
+                    val normalizedTitle = event.title.truncate(limit = titleLimit)
+                    snackbar.show(
+                        message = "Deleting book \"$normalizedTitle\" failed.",
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+
+                is AppEvent.BookRestoreFailed -> {
+                    val normalizedTitle = event.title.truncate(limit = titleLimit)
+                    snackbar.show(
+                        message = "Restoring book \"$normalizedTitle\" failed.",
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+
+                is AppEvent.BookRestoreSuccess -> {
+                    val normalizedTitle = event.title.truncate(limit = titleLimit)
+                    snackbar.show(
+                        message = "Book \"$normalizedTitle\" restored.",
+                        duration = SnackbarDuration.Short,
+                    )
+                }
             }
         }
     }

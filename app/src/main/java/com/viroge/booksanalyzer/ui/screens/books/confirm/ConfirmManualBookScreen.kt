@@ -2,8 +2,10 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -44,22 +46,16 @@ fun ConfirmManualBookScreen(
             )
         }
     ) { screenPadding ->
+
         Column(
             modifier = Modifier
-                .padding(screenPadding)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .padding(top = screenPadding.calculateTopPadding()),
         ) {
             if (state.screenState.isSaving) {
                 PvLinearProgressIndicator(modifier = Modifier.padding(top = 12.dp))
-            }
-
-            state.screenState.error?.let { msg ->
-                Text(
-                    text = msg,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
-                )
             }
 
             PvBookCoverHeader(

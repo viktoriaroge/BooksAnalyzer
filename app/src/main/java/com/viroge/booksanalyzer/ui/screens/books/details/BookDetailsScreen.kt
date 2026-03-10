@@ -92,18 +92,6 @@ fun BookDetailsScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            if (state.screenState.errorState.showError) {
-                Spacer(Modifier.height(height = 16.dp))
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    text = stringResource(state.screenState.errorState.errorMessage),
-                    color = MaterialTheme.colorScheme.error,
-                )
-                Spacer(Modifier.height(height = 16.dp))
-            }
-
             Text(
                 modifier = Modifier
                     .fillMaxSize()

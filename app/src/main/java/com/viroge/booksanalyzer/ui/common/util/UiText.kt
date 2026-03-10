@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.common.util
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -23,6 +24,19 @@ sealed class UiText {
                 }.toTypedArray()
 
                 stringResource(resId, *resolvedArgs)
+            }
+        }
+    }
+
+    fun asString(context: Context): String {
+        return when (this) {
+            is DynamicString -> value
+            is StringResource -> {
+                val resolvedArgs = args.map {
+                    if (it is UiText) it.asString(context) else it
+                }.toTypedArray()
+
+                context.getString(resId, *resolvedArgs)
             }
         }
     }
