@@ -4,6 +4,7 @@ import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.domain.BooksPage
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
+import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import kotlinx.coroutines.flow.Flow
 
@@ -47,7 +48,7 @@ interface BooksRepository {
     )
 
     suspend fun insertFromBook(
-        book: Book,
+        book: TempBook,
     ): InsertBookResult
 
     suspend fun editBook(

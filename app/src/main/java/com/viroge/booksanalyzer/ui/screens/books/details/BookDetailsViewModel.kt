@@ -114,7 +114,7 @@ class BookDetailsViewModel @Inject constructor(
                     showTitleError = false,
                     editAuthors = book.authors,
                     showAuthorError = false,
-                    editPublishedYear = book.year.orEmpty(),
+                    editYear = book.year.orEmpty(),
                     editIsbn13 = book.isbn13.orEmpty(),
                     editIsbn10 = book.isbn10.orEmpty(),
                 ),
@@ -131,7 +131,7 @@ class BookDetailsViewModel @Inject constructor(
                     showTitleError = false,
                     editAuthors = "",
                     showAuthorError = false,
-                    editPublishedYear = "",
+                    editYear = "",
                     editIsbn13 = "",
                     editIsbn10 = "",
                 ),
@@ -148,7 +148,7 @@ class BookDetailsViewModel @Inject constructor(
     }
 
     fun updateEditPublishedYear(value: String) {
-        _internalState.update { it.copy(editState = it.editState.copy(editPublishedYear = value)) }
+        _internalState.update { it.copy(editState = it.editState.copy(editYear = value)) }
     }
 
     fun updateEditIsbn13(value: String) {
@@ -184,7 +184,7 @@ class BookDetailsViewModel @Inject constructor(
                 bookId = book.id,
                 title = editTitle,
                 authors = editState.editAuthors,
-                year = editState.editPublishedYear.trim().takeIf { it.isNotEmpty() },
+                year = editState.editYear.trim().takeIf { it.isNotEmpty() },
                 isbn13 = editState.editIsbn13.trim().takeIf { it.isNotEmpty() },
                 isbn10 = editState.editIsbn10.trim().takeIf { it.isNotEmpty() },
                 coverUrl = coverPickerStateProvider.getSelected()?.url ?: book.url,
@@ -194,7 +194,7 @@ class BookDetailsViewModel @Inject constructor(
                         editState = BookDetailsEditState(
                             editTitle = "",
                             editAuthors = "",
-                            editPublishedYear = "",
+                            editYear = "",
                             editIsbn13 = "",
                             editIsbn10 = "",
                         ),

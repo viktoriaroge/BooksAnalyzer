@@ -7,7 +7,7 @@ import com.viroge.booksanalyzer.data.SearchHistoryRepository
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
-import com.viroge.booksanalyzer.domain.model.ReadingStatus
+import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import com.viroge.booksanalyzer.domain.provider.BookSearchStateProvider
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
@@ -214,29 +214,32 @@ class SearchBookViewModel @Inject constructor(
 
     fun selectBook(book: Book) {
         bookSearchStateProvider.clear()
-        bookSelectionStateProvider.selectTempBook(book)
+        val tempBook = TempBook(
+            source = book.source,
+            sourceId = book.sourceId,
+            title = book.title,
+            authors = book.authors,
+            year = book.publishedYear,
+            isbn13 = book.isbn13,
+            isbn10 = book.isbn10,
+            coverUrl = book.coverUrl,
+            coverRequestHeaders = book.coverRequestHeaders,
+        )
+        bookSelectionStateProvider.selectTempBook(tempBook)
     }
 
     fun setManualPrefill(query: String, mode: SearchMode) {
-        // TODO: Later, cleanup the use of a full Book data model:
-        val tempBook = Book(
+        val tempBook = TempBook(
+            source = BookSource.MANUAL,
+            sourceId = null,
             title = bookSearchStateProvider.getTitleFromManualPrefill(query, mode),
             authors = bookSearchStateProvider.getAuthorFromManualPrefill(query, mode)
                 .split(",").map { it.trim() }.filter { it.isNotBlank() },
-            publishedYear = "",
+            year = null,
             isbn13 = bookSearchStateProvider.getIsbnFromManualPrefill(query, mode),
-            source = BookSource.MANUAL,
+            isbn10 = null,
             coverUrl = null,
-
-            // Not necessary for now. Add later if necessary for book cover selection:
-            id = "",
-            sourceId = null,
-            status = ReadingStatus.NOT_STARTED,
-            createdAtEpochMs = 0,
-            lastOpenAtEpochMs = 0,
-            lastMarkedToDelete = 0,
-            toBeDeleted = false,
-            coverRequestHeaders = emptyMap(),
+            coverRequestHeaders = null,
         )
         bookSelectionStateProvider.selectTempBook(tempBook)
         bookSearchStateProvider.setManualPrefill(query, mode)

@@ -17,10 +17,34 @@ data class BookDetailsScreenState(
     val isSaving: Boolean = false,
     val isInEditMode: Boolean = false,
 
+    val editState: BookDetailsEditState = BookDetailsEditState(),
+
     val screenValues: BookDetailsScreenValues = BookDetailsScreenValues(),
     val editScreenValues: BookDetailsEditScreenValues = BookDetailsEditScreenValues(),
     val deleteDialogValues: BookDetailsDeleteDialogValues = BookDetailsDeleteDialogValues(),
-    val editState: BookDetailsEditState = BookDetailsEditState(),
+)
+
+data class BookDetailsEditState(
+    val editTitle: String = "",
+    val showTitleError: Boolean = false,
+    val editAuthors: String = "",
+    val showAuthorError: Boolean = false,
+    val editYear: String = "",
+    val editIsbn13: String = "",
+    val editIsbn10: String = "",
+)
+
+data class BookDetailsDataState(
+    val id: String,
+    val title: String,
+    val authors: String,
+    val year: String?,
+    val isbn13: String?,
+    val isbn10: String?,
+    val url: String?,
+    val headers: Map<String, String>,
+    val status: BookReadingStatusUi = BookReadingStatusUi.NotStarted,
+    val source: BookSourceUi = BookSourceUi.Manual,
 )
 
 data class BookDetailsScreenValues(
@@ -53,27 +77,4 @@ data class BookDetailsDeleteDialogValues(
     val message: UiText = UiText.DynamicString(""),
     @param:StringRes val deleteButtonText: Int = R.string.empty_text,
     @param:StringRes val cancelButtonText: Int = R.string.empty_text,
-)
-
-data class BookDetailsEditState(
-    val editTitle: String = "",
-    val showTitleError: Boolean = false,
-    val editAuthors: String = "",
-    val showAuthorError: Boolean = false,
-    val editPublishedYear: String = "",
-    val editIsbn13: String = "",
-    val editIsbn10: String = "",
-)
-
-data class BookDetailsDataState(
-    val id: String,
-    val title: String,
-    val authors: String,
-    val year: String?,
-    val isbn13: String?,
-    val isbn10: String?,
-    val url: String?,
-    val headers: Map<String, String>,
-    val status: BookReadingStatusUi = BookReadingStatusUi.NotStarted,
-    val source: BookSourceUi = BookSourceUi.Manual,
 )

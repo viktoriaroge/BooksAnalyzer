@@ -13,6 +13,7 @@ import com.viroge.booksanalyzer.domain.PageTokenHandler.makePageToken
 import com.viroge.booksanalyzer.domain.PageTokenHandler.parsePageToken
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
+import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -93,7 +94,7 @@ class BooksRepositoryImpl @Inject constructor(
 
 
     override suspend fun insertFromBook(
-        book: Book,
+        book: TempBook,
     ): InsertBookResult {
 
         book.isbn13?.let { isbn13OfBook ->
@@ -139,7 +140,7 @@ class BooksRepositoryImpl @Inject constructor(
             }
         }
 
-        val key = titleKey(book.title, book.authors, book.publishedYear)
+        val key = titleKey(book.title, book.authors, book.year)
         bookDao.findByTitleKey(titleKey = key)?.let { existing ->
             bookDao.upsert(
                 book = existing.copy(
@@ -153,19 +154,20 @@ class BooksRepositoryImpl @Inject constructor(
             )
         }
 
+        // Not in DB, add a new entry:
         val id = UUID.randomUUID().toString()
         val entity = BookEntity(
             bookId = id,
-            titleKey = titleKey(book.title, book.authors, book.publishedYear),
+            titleKey = key,
             sourceId = book.sourceId,
             source = book.source.name,
             title = book.title,
             authors = book.authors.joinToString(separator = ", "),
-            publishedYear = book.publishedYear,
-            isbn13 = book.isbn13,
-            isbn10 = book.isbn10,
-            coverUrl = book.coverUrl,
-            status = book.status.name,
+            publishedYear = book.year?.trim()?.takeIf { it.isNotBlank() },
+            isbn13 = book.isbn13?.trim()?.takeIf { it.isNotBlank() },
+            isbn10 = book.isbn10?.trim()?.takeIf { it.isNotBlank() },
+            coverUrl = book.coverUrl?.trim()?.takeIf { it.isNotBlank() },
+            status = ReadingStatus.NOT_STARTED.name,
             createdAtEpochMs = System.currentTimeMillis(),
             lastOpenAtEpochMs = System.currentTimeMillis(),
             lastMarkedToDelete = 0,

@@ -33,9 +33,11 @@ fun ConfirmManualBookScreen(
     onOpenCoverPicker: () -> Unit,
     onSave: () -> Unit,
 ) {
-    state.screenState.manualFormData ?: return
+    if (!state.screenState.isInManualMode) return
     val book = state.bookData ?: return
+
     val screenValues = state.screenState.screenValues
+    val editState = state.screenState.editState
 
     Scaffold(
         topBar = {
@@ -85,10 +87,19 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = state.screenState.titleInput,
+                value = editState.editTitle,
                 onValueChange = { onTitleChange(it) },
                 label = { Text(stringResource(screenValues.manualTitleLabel)) },
                 singleLine = true,
+                isError = editState.showTitleError,
+                supportingText = {
+                    if (editState.showTitleError) {
+                        Text(
+                            text = stringResource(screenValues.manualTitleError),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
             )
 
             Spacer(Modifier.height(12.dp))
@@ -96,10 +107,19 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = state.screenState.authorsInput,
+                value = editState.editAuthors,
                 onValueChange = { onAuthorsChange(it) },
                 label = { Text(stringResource(screenValues.manualAuthorLabel)) },
                 singleLine = true,
+                isError = editState.showAuthorError,
+                supportingText = {
+                    if (editState.showAuthorError) {
+                        Text(
+                            text = stringResource(screenValues.manualAuthorError),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
             )
 
             Spacer(Modifier.height(12.dp))
@@ -107,7 +127,7 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = state.screenState.yearInput,
+                value = editState.editYear,
                 onValueChange = { onYearChange(it) },
                 label = { Text(stringResource(screenValues.manualYearLabel)) },
                 singleLine = true,
@@ -118,7 +138,7 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = state.screenState.isbn13Input,
+                value = editState.editIsbn13,
                 onValueChange = { onIsbnChange(it) },
                 label = { Text(stringResource(screenValues.manualIsbn13Label)) },
                 singleLine = true,
@@ -130,7 +150,6 @@ fun ConfirmManualBookScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 onClick = { onSave() },
-                enabled = !state.screenState.isSaving && state.screenState.titleInput.isNotBlank(),
             ) {
                 Text(text = stringResource(screenValues.manualSaveButtonLabel))
             }

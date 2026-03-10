@@ -25,6 +25,12 @@
     <string name="book_source_short_open_library">O</string>
     <string name="book_source_short_added_manually">I</string>
 
+    <string name="app_root_event_book_deleted">\"%1$s\" has been banished from the chronicle.</string>
+    <string name="app_root_event_book_deleted_undo">Restore</string>
+    <string name="app_root_event_book_delete_failed">The spirit of \"%1$s\" resists—it clings to the chronicle!</string>
+    <string name="app_root_event_book_restored">\"%1$s\" has been summoned back from the void.</string>
+    <string name="app_root_event_book_restore_failed">The path is blocked. \"%1$s\" remains lost to the shadows.</string>
+
     <string name="book_cover_picker_name">Summon a New Visage</string>
     <string name="book_cover_picker_input_field_label">Inscribe the Image Path (URL)</string>
 
@@ -62,7 +68,7 @@
     <string name="book_details_screen_in_edit_save_in_progress_button">Sealing…</string>
     <string name="book_details_screen_in_edit_cancel_button">Discard</string>
     <string name="book_details_screen_error_book_loading">The Tome could not be summoned at this time.</string>
-    <string name="book_details_screen_error_saving">The Scribe’s hand faltered… the changes could not be sealed.</string>
+    <string name="book_details_screen_error_saving">The Scribe\'s hand faltered… the changes could not be sealed.</string>
     <string name="book_details_screen_in_edit_title_error">A Tome cannot exist without its Title.</string>
     <string name="book_details_screen_in_edit_author_error">A Tome cannot exist without its Maker.</string>
     <string name="book_details_screen_error_status_update">The Nature of the Bond could not be altered.</string>
@@ -92,12 +98,14 @@
     <string name="confirm_book_screen_save_button_label">Commit to Chronicle</string>
     <string name="confirm_book_screen_manual_form_instruction_text">Provide the Book\'s Essence. The Title is required.</string>
     <string name="confirm_book_screen_manual_form_title_label">Title</string>
+    <string name="confirm_book_screen_manual_form_title_error">A Tome cannot exist without its Title.</string>
     <string name="confirm_book_screen_manual_form_author_label">Authors (separated by commas)</string>
+    <string name="confirm_book_screen_manual_form_author_error">A Tome cannot exist without its Maker.</string>
     <string name="confirm_book_screen_manual_form_year_label">Year of Origin</string>
     <string name="confirm_book_screen_manual_form_isbn13_label">ISBN-13 (optional)</string>
     <string name="confirm_book_screen_manual_form_cover_url_label">Visage Link (optional)</string>
     <string name="confirm_book_screen_manual_form_save_button_label">Commit to Chronicle</string>
-    <string name="confirm_book_screen_error_saving">The Scribe’s hand faltered… the changes could not be sealed.</string>
+    <string name="confirm_book_screen_error_saving">The Scribe\'s hand faltered… the changes could not be sealed.</string>
 
     <string name="settings_screen_name">Scriptorium</string>
     <string name="settings_screen_profile_section_title">The Soul-Bearer</string>

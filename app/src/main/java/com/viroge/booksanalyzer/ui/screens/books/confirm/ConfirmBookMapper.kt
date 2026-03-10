@@ -4,7 +4,7 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
-import com.viroge.booksanalyzer.domain.model.library.SearchMode
+import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 import javax.inject.Inject
@@ -21,7 +21,9 @@ class ConfirmBookMapper @Inject constructor() {
 
         manualInstruction = R.string.confirm_book_screen_manual_form_instruction_text,
         manualTitleLabel = R.string.confirm_book_screen_manual_form_title_label,
+        manualTitleError = R.string.confirm_book_screen_manual_form_title_error,
         manualAuthorLabel = R.string.confirm_book_screen_manual_form_author_label,
+        manualAuthorError = R.string.confirm_book_screen_manual_form_author_error,
         manualYearLabel = R.string.confirm_book_screen_manual_form_year_label,
         manualIsbn13Label = R.string.confirm_book_screen_manual_form_isbn13_label,
         manualCoverUrlLabel = R.string.confirm_book_screen_manual_form_cover_url_label,
@@ -29,7 +31,7 @@ class ConfirmBookMapper @Inject constructor() {
     )
 
     fun mapToDataState(
-        book: Book,
+        book: TempBook,
         selectedCandidate: BookCoverCandidate?,
     ): ConfirmBookDataState = ConfirmBookDataState(
         title = book.title,
@@ -37,22 +39,8 @@ class ConfirmBookMapper @Inject constructor() {
         isbn13 = book.isbn13,
         source = BookSourceUi.fromDomain(book.source),
         url = selectedCandidate?.url ?: book.coverUrl,
-        headers = selectedCandidate?.headers ?: book.coverRequestHeaders,
+        headers = selectedCandidate?.headers ?: book.coverRequestHeaders ?: emptyMap(),
     )
-
-    fun mapToManualFormData(
-        prefillQuery: String?,
-        prefillMode: SearchMode?,
-    ): ConfirmBookManualFormData? {
-        val query = prefillQuery ?: return null
-        val mode = prefillMode ?: return null
-
-        return ConfirmBookManualFormData(
-            title = if (mode == SearchMode.ALL || mode == SearchMode.TITLE) query else "",
-            authors = if (mode == SearchMode.AUTHOR) query else "",
-            isbn13 = if (mode == SearchMode.ISBN) query else "",
-        )
-    }
 
     fun mapToTempBookForCoverPicker(
         title: String,

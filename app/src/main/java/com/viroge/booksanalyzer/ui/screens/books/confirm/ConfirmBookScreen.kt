@@ -32,7 +32,9 @@ fun ConfirmBookScreen(
     onBack: () -> Unit,
     onSave: () -> Unit,
 ) {
+    if (state.screenState.isInManualMode) return
     val book = state.bookData ?: return
+
     val values = state.screenState.screenValues
 
     Scaffold(

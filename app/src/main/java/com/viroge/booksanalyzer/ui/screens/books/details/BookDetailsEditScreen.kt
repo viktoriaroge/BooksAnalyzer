@@ -135,7 +135,7 @@ fun BookDetailsEditScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = editState.editPublishedYear,
+                value = editState.editYear,
                 onValueChange = onUpdateEditPublishedYear,
                 label = { Text(stringResource(values.yearLabel)) },
                 singleLine = true,

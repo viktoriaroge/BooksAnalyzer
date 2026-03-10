@@ -11,12 +11,11 @@ data class ConfirmBookUiState(
 
 data class ConfirmBookScreenState(
     val isSaving: Boolean = false,
+    val isInManualMode: Boolean = false,
+
+    val editState: ConfirmBookEditState = ConfirmBookEditState(),
+
     val screenValues: ConfirmBookScreenValues = ConfirmBookScreenValues(),
-    val manualFormData: ConfirmBookManualFormData? = null,
-    val titleInput: String = "",
-    val authorsInput: String = "",
-    val yearInput: String = "",
-    val isbn13Input: String = "",
 )
 
 data class ConfirmBookDataState(
@@ -28,10 +27,13 @@ data class ConfirmBookDataState(
     val headers: Map<String, String>,
 )
 
-data class ConfirmBookManualFormData(
-    val title: String,
-    val authors: String,
-    val isbn13: String,
+data class ConfirmBookEditState(
+    val editTitle: String = "",
+    val showTitleError: Boolean = false,
+    val editAuthors: String = "",
+    val showAuthorError: Boolean = false,
+    val editYear: String = "",
+    val editIsbn13: String = "",
 )
 
 data class ConfirmBookScreenValues(
@@ -45,7 +47,9 @@ data class ConfirmBookScreenValues(
 
     @param:StringRes val manualInstruction: Int = R.string.empty_text,
     @param:StringRes val manualTitleLabel: Int = R.string.empty_text,
+    @param:StringRes val manualTitleError: Int = R.string.empty_text,
     @param:StringRes val manualAuthorLabel: Int = R.string.empty_text,
+    @param:StringRes val manualAuthorError: Int = R.string.empty_text,
     @param:StringRes val manualYearLabel: Int = R.string.empty_text,
     @param:StringRes val manualIsbn13Label: Int = R.string.empty_text,
     @param:StringRes val manualCoverUrlLabel: Int = R.string.empty_text,

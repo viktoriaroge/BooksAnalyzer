@@ -1,6 +1,6 @@
 package com.viroge.booksanalyzer.domain.provider
 
-import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.TempBook
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -14,17 +14,17 @@ class BookSelectionStateProvider @Inject constructor() {
      * when the copy is not kept in the DB and cannot be obtained from there.
      * NOTE: This is an unreliable source, currently used for search results.
      */
-    private val _selectedTempBook = MutableStateFlow<Book?>(value = null)
-    val selectedTempBook: StateFlow<Book?> = _selectedTempBook
+    private val _selectedTempBook = MutableStateFlow<TempBook?>(value = null)
+    val selectedTempBook: StateFlow<TempBook?> = _selectedTempBook
 
     private val _selectedBookId = MutableStateFlow<String?>(value = null)
     val selectedBookId: StateFlow<String?> = _selectedBookId
 
-    fun getSelectedTempBook(): Book? = _selectedTempBook.value
+    fun getSelectedTempBook(): TempBook? = _selectedTempBook.value
     fun getSelectedBookId(): String? = _selectedBookId.value
 
     fun selectTempBook(
-        book: Book,
+        book: TempBook,
     ) {
         _selectedTempBook.value = book
     }

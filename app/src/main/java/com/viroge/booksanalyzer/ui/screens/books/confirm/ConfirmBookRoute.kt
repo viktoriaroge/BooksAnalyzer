@@ -8,7 +8,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerSheet
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
@@ -77,10 +76,7 @@ fun ConfirmBookRoute(
         onYearChange = vm::onYearChange,
         onIsbnChange = vm::onIsbnChange,
         onOpenCoverPicker = {
-            val tempBook = vm.getTemporaryBookForCoverPicker(
-                source = BookSource.MANUAL,
-                coverUrl = null,
-            )
+            val tempBook = vm.getTemporaryBookForCoverPicker()
             coverPickerVM.openCoverPicker(
                 originalCoverUrl = tempBook.coverUrl,
                 originalCoverRequestHeaders = tempBook.coverRequestHeaders,
