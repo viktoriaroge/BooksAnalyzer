@@ -56,7 +56,6 @@ class ConfirmBookViewModel @Inject constructor(
         ConfirmBookUiState(
             screenState = newState,
             bookData = selectedBook?.let { mapper.mapToDataState(it, pickerState.selectedCandidate) },
-            selectedBook = selectedBook,
         )
     }.stateIn(
         scope = viewModelScope,

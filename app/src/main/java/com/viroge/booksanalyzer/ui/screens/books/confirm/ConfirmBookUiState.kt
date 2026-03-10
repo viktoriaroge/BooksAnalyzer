@@ -2,14 +2,11 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import androidx.annotation.StringRes
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
 data class ConfirmBookUiState(
     val screenState: ConfirmBookScreenState = ConfirmBookScreenState(),
     val bookData: ConfirmBookDataState? = null,
-
-    val selectedBook: Book? = null, // TODO: To be later removed
 )
 
 data class ConfirmBookScreenState(
