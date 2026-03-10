@@ -2,9 +2,7 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 sealed interface ConfirmEvent {
 
-    data class Saved(
-        val bookId: String,
-    ) : ConfirmEvent
+    data object Saved : ConfirmEvent
 
     data class Error(
         val message: String,

@@ -39,7 +39,7 @@ fun CoverPickerSheet(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    if (!state.isOpen) return
+    if (!state.screenState.isOpen) return
 
     ModalBottomSheet(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -53,31 +53,32 @@ fun CoverPickerSheet(
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
                     .padding(horizontal = 16.dp),
-                text = stringResource(state.screenValues.screenTitle), style = MaterialTheme.typography.titleLarge
+                text = stringResource(state.screenState.screenValues.screenTitle),
+                style = MaterialTheme.typography.titleLarge
             )
 
             // Manual url input:
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = state.manualUrlInput,
+                value = state.screenState.manualUrlInput,
                 onValueChange = onManualUrlChange,
-                label = { Text(stringResource(state.screenValues.inputFieldLabel)) },
+                label = { Text(stringResource(state.screenState.screenValues.inputFieldLabel)) },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
                 trailingIcon = {
                     IconButton(onClick = onAddManualUrl) {
-                        Icon(state.screenValues.inputFieldIcon, contentDescription = "")
+                        Icon(state.screenState.screenValues.inputFieldIcon, contentDescription = "")
                     }
                 }
             )
 
-            if (state.isLoading) {
+            if (state.screenState.isLoading) {
                 CircularProgressIndicator()
                 Spacer(Modifier.height(24.dp))
                 return@ModalBottomSheet
             }
 
-            val allItems = state.manualBookCovers + state.bookCovers
+            val allItems = state.coverState.manualBookCovers + state.coverState.bookCovers
             // Grid with image candidates:
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -89,10 +90,10 @@ fun CoverPickerSheet(
                 items(allItems.size) { idx ->
                     val candidate = allItems[idx]
                     CoverChoiceTile(
-                        url = candidate.url ?: "",
+                        url = candidate.url,
                         requestHeaders = candidate.headers,
-                        selected = candidate == state.selectedCover,
-                        onClick = { onSelect(candidate.url ?: "") }
+                        selected = candidate == state.coverState.selectedCandidate,
+                        onClick = { onSelect(candidate.url) }
                     )
                 }
             }

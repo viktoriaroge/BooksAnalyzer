@@ -39,9 +39,9 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
-import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
-import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
 import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvItemCard
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar

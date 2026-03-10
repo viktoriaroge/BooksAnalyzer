@@ -29,7 +29,7 @@ class ConfirmBookMapperTest {
             toBeDeleted = false,
         )
 
-        val result = mapper.mapToDataState(book)
+        val result = mapper.mapToDataState(book, pickerState.selectedCandidate)
 
         assertEquals("Author 1, Author 2", result.authors)
         assertEquals(R.string.book_source_full_google_books, result.sourceBadgeTextRes)

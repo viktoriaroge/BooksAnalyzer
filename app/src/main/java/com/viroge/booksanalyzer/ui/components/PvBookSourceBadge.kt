@@ -20,6 +20,17 @@ fun PvBookSourceBadge(
     modifier: Modifier = Modifier,
     @StringRes sourceTextRes: Int,
 ) {
+    PvBookSourceBadge(
+        modifier = modifier,
+        sourceText = stringResource(sourceTextRes),
+    )
+}
+
+@Composable
+fun PvBookSourceBadge(
+    modifier: Modifier = Modifier,
+    sourceText: String,
+) {
     Box(
         modifier = modifier
             .clip(shape = RoundedCornerShape(size = 6.dp))
@@ -27,7 +38,7 @@ fun PvBookSourceBadge(
             .padding(horizontal = 6.dp, vertical = 2.dp),
     ) {
         Text(
-            text = stringResource(sourceTextRes),
+            text = sourceText,
             color = MaterialTheme.colorScheme.inverseSurface,
             style = MaterialTheme.typography.labelSmall,
         )

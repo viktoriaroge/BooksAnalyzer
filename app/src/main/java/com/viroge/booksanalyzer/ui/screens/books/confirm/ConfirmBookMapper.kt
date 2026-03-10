@@ -5,6 +5,8 @@ import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
+import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
+import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 import javax.inject.Inject
 
 class ConfirmBookMapper @Inject constructor() {
@@ -28,23 +30,22 @@ class ConfirmBookMapper @Inject constructor() {
 
     fun mapToDataState(
         book: Book,
+        selectedCandidate: BookCoverCandidate?,
     ): ConfirmBookDataState = ConfirmBookDataState(
         title = book.title,
         authors = book.authors.joinToString(separator = ", "),
         isbn13 = book.isbn13,
-        sourceBadgeTextRes = when (book.source) {
-            BookSource.GOOGLE_BOOKS -> R.string.book_source_full_google_books
-            BookSource.OPEN_LIBRARY -> R.string.book_source_full_open_library
-            BookSource.MANUAL -> R.string.book_source_full_added_manually
-        },
+        source = BookSourceUi.fromDomain(book.source),
+        url = selectedCandidate?.url ?: book.coverUrl,
+        headers = selectedCandidate?.headers ?: book.coverRequestHeaders,
     )
 
     fun mapToManualFormData(
         prefillQuery: String?,
         prefillMode: SearchMode?,
-    ): ConfirmBookManualFormData {
-        val query = prefillQuery ?: ""
-        val mode = prefillMode ?: SearchMode.ALL
+    ): ConfirmBookManualFormData? {
+        val query = prefillQuery ?: return null
+        val mode = prefillMode ?: return null
 
         return ConfirmBookManualFormData(
             title = if (mode == SearchMode.ALL || mode == SearchMode.TITLE) query else "",

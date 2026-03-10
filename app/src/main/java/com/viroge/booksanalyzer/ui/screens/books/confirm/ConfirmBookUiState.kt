@@ -2,29 +2,34 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import androidx.annotation.StringRes
 import com.viroge.booksanalyzer.R
+import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
 data class ConfirmBookUiState(
+    val screenState: ConfirmBookScreenState = ConfirmBookScreenState(),
+    val bookData: ConfirmBookDataState? = null,
+
+    val selectedBook: Book? = null, // TODO: To be later removed
+)
+
+data class ConfirmBookScreenState(
     val isSaving: Boolean = false,
     val error: String? = null,
     val screenValues: ConfirmBookScreenValues = ConfirmBookScreenValues(),
-
-    val bookData: ConfirmBookDataState? = null,
-
     val manualFormData: ConfirmBookManualFormData? = null,
     val titleInput: String = "",
     val authorsInput: String = "",
     val yearInput: String = "",
     val isbn13Input: String = "",
-
-    val selectedCoverUrl: String? = null,
-    val selectedCoverHeaders: Map<String, String> = emptyMap(),
 )
 
 data class ConfirmBookDataState(
     val title: String,
     val authors: String,
     val isbn13: String?,
-    @param:StringRes val sourceBadgeTextRes: Int,
+    val source: BookSourceUi,
+    val url: String?,
+    val headers: Map<String, String>,
 )
 
 data class ConfirmBookManualFormData(

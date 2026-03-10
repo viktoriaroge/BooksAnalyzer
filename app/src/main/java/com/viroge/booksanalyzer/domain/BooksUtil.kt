@@ -32,6 +32,18 @@ object BooksUtil {
 
     fun titleKey(
         title: String,
+        authors: String,
+        year: String?,
+    ): String {
+        val t = normalize(input = title)
+        val a = normalize(input = authors.split(",").map { it.trim() }.firstOrNull().orEmpty())
+        val y = year ?: ""
+
+        return generateKey(titlePart = t, authorPart = a, yearPart = y)
+    }
+
+    fun titleKey(
+        title: String,
         authors: List<String>,
         year: String?,
     ): String {
@@ -39,8 +51,16 @@ object BooksUtil {
         val a = normalize(input = authors.firstOrNull().orEmpty())
         val y = year ?: ""
 
+        return generateKey(titlePart = t, authorPart = a, yearPart = y)
+    }
+
+    private fun generateKey(
+        titlePart: String,
+        authorPart: String,
+        yearPart: String,
+    ): String {
         // if authors/year missing, still stable; duplicates are still likely the same book:
-        return listOf(t, a, y).joinToString(separator = "|")
+        return listOf(titlePart, authorPart, yearPart).joinToString(separator = "|")
     }
 
     fun mergeAndRank(list: List<Book>): List<Book> {

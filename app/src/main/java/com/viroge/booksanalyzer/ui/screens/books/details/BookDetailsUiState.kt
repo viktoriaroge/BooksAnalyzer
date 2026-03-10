@@ -2,11 +2,16 @@ package com.viroge.booksanalyzer.ui.screens.books.details
 
 import androidx.annotation.StringRes
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.ui.common.util.UiText
+import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
+import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
 data class BookDetailsUiState(
-    val book: Book? = null,
+    val screenState: BookDetailsScreenState = BookDetailsScreenState(),
+    val bookData: BookDetailsDataState? = null,
+)
+
+data class BookDetailsScreenState(
     val isLoading: Boolean = false,
     val isDeleting: Boolean = false,
     val isSaving: Boolean = false,
@@ -23,7 +28,6 @@ data class BookDetailsScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
     @param:StringRes val originLabel: Int = R.string.empty_text,
     @param:StringRes val deleteButtonText: Int = R.string.empty_text,
-    @param:StringRes val sourceBadgeTextRes: Int = R.string.empty_text,
 )
 
 data class BookDetailsEditScreenValues(
@@ -56,6 +60,19 @@ data class BookDetailsEditState(
     val editPublishedYear: String = "",
     val editIsbn13: String = "",
     val editIsbn10: String = "",
+)
+
+data class BookDetailsDataState(
+    val id: String,
+    val title: String,
+    val authors: String,
+    val year: String?,
+    val isbn13: String?,
+    val isbn10: String?,
+    val url: String?,
+    val headers: Map<String, String>,
+    val status: BookReadingStatusUi = BookReadingStatusUi.NotStarted,
+    val source: BookSourceUi = BookSourceUi.Manual,
 )
 
 data class BookDetailsErrorState(

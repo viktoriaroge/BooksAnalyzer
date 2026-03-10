@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.model.library.LibraryFilters
 import com.viroge.booksanalyzer.domain.model.library.LibrarySort
-import com.viroge.booksanalyzer.domain.model.ReadingStatus
+import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
+    private val bookSelectionStateProvider: BookSelectionStateProvider,
     booksRepo: BooksRepository,
 ) : ViewModel() {
 
@@ -94,6 +96,10 @@ class LibraryViewModel @Inject constructor(
     fun onClearFilters() {
         statusFilter.value = null
         sort.value = LibrarySort.ADDED
+    }
+
+    fun selectBook(bookId: String) {
+        bookSelectionStateProvider.selectBookId(bookId)
     }
 }
 

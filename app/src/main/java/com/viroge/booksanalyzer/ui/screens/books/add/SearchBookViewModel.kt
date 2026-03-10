@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.data.SearchHistoryRepository
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
+import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
+import com.viroge.booksanalyzer.domain.provider.BookSearchStateProvider
+import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +28,8 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class)
 @HiltViewModel
 class SearchBookViewModel @Inject constructor(
+    private val bookSelectionStateProvider: BookSelectionStateProvider,
+    private val bookSearchStateProvider: BookSearchStateProvider,
     private val booksRepo: BooksRepository,
     private val historyRepo: SearchHistoryRepository,
 ) : ViewModel() {
@@ -204,6 +208,16 @@ class SearchBookViewModel @Inject constructor(
                 messages = lastMessages,
             )
         }
+    }
+
+    fun selectBook(book: Book) {
+        bookSearchStateProvider.clear()
+        bookSelectionStateProvider.selectTempBook(book)
+    }
+
+    fun setManualPrefill(query: String, mode: SearchMode) {
+        bookSelectionStateProvider.clearTempSelection()
+        bookSearchStateProvider.setManualPrefill(query, mode)
     }
 }
 

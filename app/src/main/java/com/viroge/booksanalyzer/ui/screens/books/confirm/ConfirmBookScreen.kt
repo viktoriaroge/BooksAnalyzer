@@ -32,8 +32,8 @@ fun ConfirmBookScreen(
     onBack: () -> Unit,
     onSave: () -> Unit,
 ) {
-    val values = state.screenValues
     val book = state.bookData ?: return
+    val values = state.screenState.screenValues
 
     Scaffold(
         topBar = {
@@ -50,11 +50,11 @@ fun ConfirmBookScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState()),
         ) {
-            if (state.isSaving) {
+            if (state.screenState.isSaving) {
                 PvLinearProgressIndicator(modifier = Modifier.padding(top = 12.dp))
             }
 
-            state.error?.let { msg ->
+            state.screenState.error?.let { msg ->
                 Text(
                     text = msg,
                     color = MaterialTheme.colorScheme.error,
@@ -63,8 +63,8 @@ fun ConfirmBookScreen(
             }
 
             PvBookCoverHeader(
-                imageUrl = state.selectedCoverUrl,
-                headersForBookCover = state.selectedCoverHeaders,
+                imageUrl = book.url,
+                headersForBookCover = book.headers,
             )
 
             Button(
@@ -107,7 +107,7 @@ fun ConfirmBookScreen(
                     text = stringResource(values.sourceLabel),
                     style = MaterialTheme.typography.bodySmall,
                 )
-                PvBookSourceBadge(sourceTextRes = book.sourceBadgeTextRes)
+                PvBookSourceBadge(sourceText = book.source.label.asString())
             }
 
             Button(
@@ -115,7 +115,7 @@ fun ConfirmBookScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 onClick = onSave,
-                enabled = !state.isSaving,
+                enabled = !state.screenState.isSaving,
             ) {
                 Text(text = stringResource(values.saveButtonLabel))
             }

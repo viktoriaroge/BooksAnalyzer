@@ -12,7 +12,6 @@ fun AddBookRoute(
 
     val searchVm: SearchBookViewModel = hiltViewModel()
     val mode by searchVm.modeState.collectAsState()
-    val flowVm: AddBookFlowViewModel = hiltViewModel()
 
     BookSearchScreen(
         vm = searchVm,
@@ -20,12 +19,12 @@ fun AddBookRoute(
         onQueryChanged = { searchVm.changeQuery(newValue = it) },
         onModeChanged = { searchVm.changeSearchMode(newMode = it) },
         onSelectBook = { book ->
-            flowVm.setBook(book)
+            searchVm.selectBook(book)
             onGoToConfirm()
         },
         onRefresh = { searchVm.refresh() },
         onManualAdd = { prefill ->
-            flowVm.setManualPrefill(prefill, mode)
+            searchVm.setManualPrefill(prefill, mode)
             onGoToConfirm()
         },
     )

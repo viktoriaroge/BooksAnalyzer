@@ -5,13 +5,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun LibraryRoute(
-    onOpenBook: (String) -> Unit,
+    onOpenBook: () -> Unit,
 ) {
 
     val vm: LibraryViewModel = hiltViewModel()
 
     LibraryScreen(
         vm = vm,
-        onOpenBook = onOpenBook,
+        onOpenBook = { bookId ->
+            vm.selectBook(bookId)
+            onOpenBook()
+        },
     )
 }

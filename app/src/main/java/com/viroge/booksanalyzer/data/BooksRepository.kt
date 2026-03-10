@@ -1,8 +1,8 @@
 package com.viroge.booksanalyzer.data
 
 import com.viroge.booksanalyzer.data.local.books.InsertBookResult
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.BooksPage
+import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +15,10 @@ interface BooksRepository {
     fun observeBook(
         bookId: String,
     ): Flow<Book?>
+
+    suspend fun getBook(
+        bookId: String,
+    ): Book?
 
     suspend fun updateStatus(
         bookId: String,
@@ -44,8 +48,17 @@ interface BooksRepository {
 
     suspend fun insertFromBook(
         book: Book,
-        wasEdited: Boolean = false,
     ): InsertBookResult
+
+    suspend fun editBook(
+        bookId: String,
+        title: String,
+        authors: String,
+        year: String?,
+        isbn13: String?,
+        isbn10: String?,
+        coverUrl: String?,
+    )
 
     suspend fun searchPage(
         searchMode: SearchMode,

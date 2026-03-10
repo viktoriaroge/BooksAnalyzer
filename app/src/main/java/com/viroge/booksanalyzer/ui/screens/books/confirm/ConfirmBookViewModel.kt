@@ -1,127 +1,141 @@
 package com.viroge.booksanalyzer.ui.screens.books.confirm
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
-import com.viroge.booksanalyzer.domain.model.library.SearchMode
+import com.viroge.booksanalyzer.domain.provider.BookSearchStateProvider
+import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
+import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.SaveBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.ValidateAndGetManualBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ConfirmBookViewModel @Inject constructor(
-    private val saveBook: SaveBookUseCase,
+    private val bookSelectionStateProvider: BookSelectionStateProvider,
+    bookSearchStateProvider: BookSearchStateProvider,
+    private val coverPickerStateProvider: CoverPickerStateProvider,
+    private val saveBookUseCase: SaveBookUseCase,
     private val validateManualBook: ValidateAndGetManualBookUseCase,
     private val mapper: ConfirmBookMapper,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(ConfirmBookUiState())
-    val state = _state.asStateFlow()
-
     private val _events = MutableSharedFlow<ConfirmEvent>()
     val events = _events.asSharedFlow()
 
-    fun initializeWithBook(
-        book: Book?,
-        prefillQuery: String?,
-        prefillMode: SearchMode?,
-    ) {
-        _state.update { newState ->
-            val manualData = mapper.mapToManualFormData(prefillQuery, prefillMode)
-            newState.copy(
-                screenValues = mapper.getScreenValues(),
-                bookData = book?.let { mapper.mapToDataState(it) },
-                manualFormData = manualData,
-                titleInput = newState.titleInput.ifBlank { manualData.title },
-                authorsInput = newState.authorsInput.ifBlank { manualData.authors },
-                isbn13Input = newState.isbn13Input.ifBlank { manualData.isbn13 },
-            )
-        }
-    }
+    private val _internalState = MutableStateFlow(ConfirmBookScreenState())
+    val state = combine(
+        _internalState,
+        coverPickerStateProvider.state,
+        bookSelectionStateProvider.selectedTempBook, // temp book, not in DB
+        bookSearchStateProvider.prefillMode,
+        bookSearchStateProvider.prefillQuery,
+    ) { internalState, pickerState, selectedBook, prefillMode, prefillQuery ->
 
-    fun updateCover(
-        selectedCoverUrl: String?,
-        selectedCoverHeaders: Map<String, String>,
-    ) {
-        _state.update { newState ->
-            newState.copy(
-                selectedCoverUrl = selectedCoverUrl,
-                selectedCoverHeaders = selectedCoverHeaders,
-            )
-        }
-    }
+        val manualData = mapper.mapToManualFormData(prefillQuery, prefillMode)
+        val newState = internalState.copy(
+            screenValues = mapper.getScreenValues(),
 
-    fun saveBook(
-        book: Book,
-        selectedCoverUrl: String?,
-        selectedCoverHeaders: Map<String, String>?,
-    ) {
-        if (_state.value.isSaving) return
+            manualFormData = manualData,
+            titleInput = internalState.titleInput.ifBlank { manualData?.title ?: "" },
+            authorsInput = internalState.authorsInput.ifBlank { manualData?.authors ?: "" },
+            isbn13Input = internalState.isbn13Input.ifBlank { manualData?.isbn13 ?: "" },
+        )
+        ConfirmBookUiState(
+            screenState = newState,
+            bookData = selectedBook?.let { mapper.mapToDataState(it, pickerState.selectedCandidate) },
+            selectedBook = selectedBook,
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+        initialValue = ConfirmBookUiState()
+    )
+
+    fun saveBook(book: Book? = null) {
+        if (_internalState.value.isSaving) return
 
         viewModelScope.launch {
-            _state.update { it.copy(isSaving = true, error = null) }
+            _internalState.update { it.copy(isSaving = true, error = null) }
 
-            val finalBook = book.copy(
-                coverUrl = selectedCoverUrl ?: book.coverUrl,
-                coverRequestHeaders = selectedCoverHeaders ?: book.coverRequestHeaders,
+            val originalBook = book
+                ?: bookSelectionStateProvider.getSelectedTempBook()
+                ?: return@launch
+
+            val selectedCover = coverPickerStateProvider.getSelected()
+
+            val finalBook = originalBook.copy(
+                coverUrl = selectedCover?.url ?: originalBook.coverUrl,
+                coverRequestHeaders = selectedCover?.headers ?: originalBook.coverRequestHeaders,
             )
 
-            saveBook(finalBook)
+            saveBookUseCase(finalBook)
                 .onSuccess { result ->
-                    _events.emit(ConfirmEvent.Saved(result.bookId))
+                    bookSelectionStateProvider.selectBookId(result.bookId)
+                    _events.emit(ConfirmEvent.Saved)
                 }
                 .onFailure { t ->
                     val msg = t.message ?: "Failed to save book"
-                    _state.update { it.copy(error = msg) }
+                    _internalState.update { it.copy(error = msg) }
                     _events.emit(ConfirmEvent.Error(msg))
                 }
 
-            _state.update { it.copy(isSaving = false) }
+            _internalState.update { it.copy(isSaving = false) }
         }
     }
 
-    fun saveManualBook(
-        selectedCoverUrl: String?,
-        selectedCoverHeaders: Map<String, String>?,
-    ) {
-        val s = _state.value
+    fun saveManualBook() {
+        val state = _internalState.value
         validateManualBook(
-            title = s.titleInput,
-            authors = s.authorsInput,
-            year = s.yearInput,
-            isbn13 = s.isbn13Input,
+            title = state.titleInput,
+            authors = state.authorsInput,
+            year = state.yearInput,
+            isbn13 = state.isbn13Input,
         ).onSuccess { book ->
-            saveBook(book, selectedCoverUrl, selectedCoverHeaders)
+            saveBook(book)
         }.onFailure { t ->
-            _state.update { it.copy(error = t.message) }
+            _internalState.update { it.copy(error = t.message) }
         }
     }
 
-    fun onTitleChange(value: String) = _state.update { it.copy(titleInput = value) }
-    fun onAuthorsChange(value: String) = _state.update { it.copy(authorsInput = value) }
-    fun onYearChange(value: String) = _state.update { it.copy(yearInput = value) }
-    fun onIsbnChange(value: String) = _state.update { it.copy(isbn13Input = value) }
+    fun onTitleChange(value: String) = _internalState.update { it.copy(titleInput = value) }
+    fun onAuthorsChange(value: String) = _internalState.update { it.copy(authorsInput = value) }
+    fun onYearChange(value: String) = _internalState.update { it.copy(yearInput = value) }
+    fun onIsbnChange(value: String) = _internalState.update { it.copy(isbn13Input = value) }
 
     fun getTemporaryBookForCoverPicker(
         source: BookSource,
         coverUrl: String?,
     ): Book {
-        val s = _state.value
+        val state = _internalState.value
         return mapper.mapToTempBookForCoverPicker(
-            s.titleInput,
-            s.authorsInput,
-            s.yearInput,
-            s.isbn13Input,
-            source,
-            coverUrl,
+            title = state.titleInput,
+            authors = state.authorsInput,
+            publishedYear = state.yearInput,
+            isbn13 = state.isbn13Input,
+            source = source,
+            coverUrl = coverUrl,
         )
+    }
+
+    fun clearSessionData() {
+        viewModelScope.launch {
+            delay(500) // Delay the cleanup until the screen is actually off-screen
+            coverPickerStateProvider.clear()
+            bookSelectionStateProvider.clearTempSelection()
+            Log.d("ConfirmBookViewModel", "---> Session data cleared")
+        }
     }
 }

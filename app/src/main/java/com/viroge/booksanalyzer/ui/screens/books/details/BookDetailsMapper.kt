@@ -1,23 +1,19 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.model.BookSource
+import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import com.viroge.booksanalyzer.ui.common.util.UiText
+import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
+import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 import javax.inject.Inject
 
 class BookDetailsMapper @Inject constructor() {
 
-    fun getScreenValues(
-        source: BookSource,
-    ): BookDetailsScreenValues = BookDetailsScreenValues(
+    fun getScreenValues(): BookDetailsScreenValues = BookDetailsScreenValues(
         screenName = R.string.book_details_screen_name,
         originLabel = R.string.book_details_screen_source_label,
         deleteButtonText = R.string.book_details_screen_delete_default_button,
-        sourceBadgeTextRes = when (source) {
-            BookSource.GOOGLE_BOOKS -> R.string.book_source_full_google_books
-            BookSource.OPEN_LIBRARY -> R.string.book_source_full_open_library
-            BookSource.MANUAL -> R.string.book_source_full_added_manually
-        },
     )
 
     fun getEditScreenValues(): BookDetailsEditScreenValues = BookDetailsEditScreenValues(
@@ -53,9 +49,26 @@ class BookDetailsMapper @Inject constructor() {
         errorMessage = when (errorType) {
             BookDetailsErrorType.NONE -> R.string.empty_text
             BookDetailsErrorType.SAVING_FAILED -> R.string.book_details_screen_error_saving
-            BookDetailsErrorType.TITLE_REQUIRED -> R.string.book_details_screen_error_title_required
             BookDetailsErrorType.LOADING_BOOK_FAILED -> R.string.book_details_screen_error_book_loading
             BookDetailsErrorType.UPDATING_STATUS_FAILED -> R.string.book_details_screen_error_status_update
+            BookDetailsErrorType.TITLE_REQUIRED -> R.string.book_details_screen_error_title_required
+            BookDetailsErrorType.AUTHOR_REQUIRED -> R.string.book_details_screen_error_author_required
         }
+    )
+
+    fun mapToDataState(
+        book: Book,
+        selectedCandidate: BookCoverCandidate?,
+    ): BookDetailsDataState = BookDetailsDataState(
+        id = book.id,
+        title = book.title,
+        authors = book.authors.joinToString(separator = ", "),
+        year = book.publishedYear,
+        isbn13 = book.isbn13,
+        isbn10 = book.isbn10,
+        url = selectedCandidate?.url ?: book.coverUrl,
+        headers = selectedCandidate?.headers ?: book.coverRequestHeaders,
+        source = BookSourceUi.fromDomain(book.source),
+        status = BookReadingStatusUi.fromDomain(book.status),
     )
 }

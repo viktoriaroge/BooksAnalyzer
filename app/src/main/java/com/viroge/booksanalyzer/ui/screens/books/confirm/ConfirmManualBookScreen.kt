@@ -31,8 +31,9 @@ fun ConfirmManualBookScreen(
     onOpenCoverPicker: () -> Unit,
     onSave: () -> Unit,
 ) {
-    val screenValues = state.screenValues
-    state.manualFormData ?: return
+    state.screenState.manualFormData ?: return
+    val book = state.bookData ?: return
+    val screenValues = state.screenState.screenValues
 
     Scaffold(
         topBar = {
@@ -49,11 +50,11 @@ fun ConfirmManualBookScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState()),
         ) {
-            if (state.isSaving) {
+            if (state.screenState.isSaving) {
                 PvLinearProgressIndicator(modifier = Modifier.padding(top = 12.dp))
             }
 
-            state.error?.let { msg ->
+            state.screenState.error?.let { msg ->
                 Text(
                     text = msg,
                     color = MaterialTheme.colorScheme.error,
@@ -62,8 +63,8 @@ fun ConfirmManualBookScreen(
             }
 
             PvBookCoverHeader(
-                imageUrl = state.selectedCoverUrl,
-                headersForBookCover = state.selectedCoverHeaders,
+                imageUrl = book.url,
+                headersForBookCover = book.headers,
             )
 
             Button(
@@ -88,7 +89,7 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = state.titleInput,
+                value = state.screenState.titleInput,
                 onValueChange = { onTitleChange(it) },
                 label = { Text(stringResource(screenValues.manualTitleLabel)) },
                 singleLine = true,
@@ -99,7 +100,7 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = state.authorsInput,
+                value = state.screenState.authorsInput,
                 onValueChange = { onAuthorsChange(it) },
                 label = { Text(stringResource(screenValues.manualAuthorLabel)) },
                 singleLine = true,
@@ -110,7 +111,7 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = state.yearInput,
+                value = state.screenState.yearInput,
                 onValueChange = { onYearChange(it) },
                 label = { Text(stringResource(screenValues.manualYearLabel)) },
                 singleLine = true,
@@ -121,7 +122,7 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = state.isbn13Input,
+                value = state.screenState.isbn13Input,
                 onValueChange = { onIsbnChange(it) },
                 label = { Text(stringResource(screenValues.manualIsbn13Label)) },
                 singleLine = true,
@@ -133,7 +134,7 @@ fun ConfirmManualBookScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 onClick = { onSave() },
-//                enabled = !isSaving && title.isNotBlank(),
+                enabled = !state.screenState.isSaving && state.screenState.titleInput.isNotBlank(),
             ) {
                 Text(text = stringResource(screenValues.manualSaveButtonLabel))
             }

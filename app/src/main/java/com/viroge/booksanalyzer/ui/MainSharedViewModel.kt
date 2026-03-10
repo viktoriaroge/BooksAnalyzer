@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.data.DeleteBooksScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -26,7 +25,7 @@ class MainSharedViewModel @Inject constructor(
     private val _events = MutableSharedFlow<AppEvent>()
     val events: SharedFlow<AppEvent> = _events
 
-    private var lastDeletedBook: Book? = null
+    private var lastDeletedBook: MarkedBook? = null
 
     private val _isSplashTimerFinished = MutableStateFlow(false)
     private var _isDoneCleaningUp = MutableStateFlow(value = false)
@@ -57,17 +56,20 @@ class MainSharedViewModel @Inject constructor(
         }
     }
 
-    fun markToDelete(book: Book) {
+    fun markToDelete(bookId: String, title: String) {
         viewModelScope.launch {
-            runCatching { booksRepo.markBookToDelete(book.id) }
+            runCatching { booksRepo.markBookToDelete(bookId) }
                 .onSuccess { deletedBookData ->
-                    lastDeletedBook = book
+                    lastDeletedBook = MarkedBook(
+                        id = bookId,
+                        title = title,
+                    )
 
                     if (deletedBookData != null) {
-                        _events.emit(AppEvent.BookDeleted(id = book.id, title = book.title))
+                        _events.emit(AppEvent.BookDeleted(id = bookId, title = title))
                     }
                 }
-                .onFailure { _ -> _events.emit(AppEvent.BookDeletingFailed(title = book.title)) }
+                .onFailure { _ -> _events.emit(AppEvent.BookDeletingFailed(title = title)) }
         }
     }
 
@@ -84,6 +86,11 @@ class MainSharedViewModel @Inject constructor(
         }
     }
 }
+
+data class MarkedBook(
+    val id: String,
+    val title: String,
+)
 
 sealed interface AppEvent {
 

@@ -30,8 +30,6 @@ import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 @Composable
 fun BookDetailsEditScreen(
     state: BookDetailsUiState,
-    headersForBookCover: Map<String, String>,
-    selectedCoverUrl: String?,
     onSaveEdits: () -> Unit,
     onCancelEdit: () -> Unit,
     onUpdateEditTitle: (String) -> Unit,
@@ -41,9 +39,11 @@ fun BookDetailsEditScreen(
     onUpdateEditIsbn10: (String) -> Unit,
     onOpenCoverPicker: () -> Unit,
 ) {
-    val book = state.book ?: return
-    val editState = state.editState
-    val values = state.editScreenValues
+    val book = state.bookData ?: return
+    if (!state.screenState.isInEditMode) return
+
+    val editState = state.screenState.editState
+    val values = state.screenState.editScreenValues
 
     val scrollState = rememberScrollState()
 
@@ -72,10 +72,9 @@ fun BookDetailsEditScreen(
                 .fillMaxSize(),
         ) {
 
-            val coverToShow = selectedCoverUrl ?: book.coverUrl ?: ""
             PvBookCoverHeader(
-                imageUrl = coverToShow,
-                headersForBookCover = headersForBookCover,
+                imageUrl = book.url,
+                headersForBookCover = book.headers,
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -88,13 +87,13 @@ fun BookDetailsEditScreen(
                 Text(text = stringResource(values.changeCoverButtonText))
             }
 
-            if (state.errorState.showError) {
+            if (state.screenState.errorState.showError) {
                 Spacer(Modifier.height(height = 16.dp))
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    text = stringResource(state.errorState.errorMessage),
+                    text = stringResource(state.screenState.errorState.errorMessage),
                     color = MaterialTheme.colorScheme.error,
                 )
             }
@@ -162,10 +161,10 @@ fun BookDetailsEditScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 onClick = onSaveEdits,
-                enabled = !state.isSaving,
+                enabled = !state.screenState.isSaving,
             ) {
                 Text(
-                    text = if (state.isSaving) stringResource(values.saveChangesInProgressButtonText)
+                    text = if (state.screenState.isSaving) stringResource(values.saveChangesInProgressButtonText)
                     else stringResource(values.saveChangesButtonText)
                 )
             }

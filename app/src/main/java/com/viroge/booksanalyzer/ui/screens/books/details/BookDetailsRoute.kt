@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -21,46 +22,53 @@ import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
 fun BookDetailsRoute(
     onBack: () -> Unit,
 ) {
-
     val sharedVM: MainSharedViewModel = activityViewModel()
-    val vm: BookDetailsViewModel = hiltViewModel()
-    val coverPickerVM: CoverPickerViewModel = hiltViewModel()
 
-    val state by vm.state.collectAsState()
+    val coverPickerVM: CoverPickerViewModel = hiltViewModel()
     val coverPickerState by coverPickerVM.state.collectAsState()
+
+    val vm: BookDetailsViewModel = hiltViewModel()
+    val state by vm.state.collectAsState()
+    val bookData = state.bookData
 
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    when {
-        state.isInEditMode -> BookDetailsEditScreen(
-            state = state,
-            selectedCoverUrl = coverPickerState.selectedCover.url,
-            headersForBookCover = coverPickerState.selectedCover.headers,
-            onSaveEdits = {
-                vm.saveEdits(
-                    selectedCoverUrl = coverPickerState.selectedCover.url,
-                    selectedCoverHeaders = coverPickerState.selectedCover.headers,
-                )
-            },
-            onCancelEdit = vm::exitEditMode,
-            onUpdateEditTitle = vm::updateEditTitle,
-            onUpdateEditAuthors = vm::updateEditAuthors,
-            onUpdateEditPublishedYear = vm::updateEditPublishedYear,
-            onUpdateEditIsbn13 = vm::updateEditIsbn13,
-            onUpdateEditIsbn10 = vm::updateEditIsbn10,
-            onOpenCoverPicker = { state.book?.let(coverPickerVM::openCoverPicker) }
-        )
-
-        else -> BookDetailsScreen(
-            state = state,
-            selectedCoverUrl = coverPickerState.selectedCover.url,
-            headersForBookCover = coverPickerState.selectedCover.headers,
-            onBack = onBack,
-            onStatusChange = vm::setStatus,
-            onDelete = { showDeleteDialog = true },
-            onEdit = vm::enterEditMode,
-        )
+    BackHandler(enabled = true) {
+        vm.clearSessionData()
+        onBack()
     }
+
+    BookDetailsScreen(
+        state = state,
+        onBack = {
+            vm.clearSessionData()
+            onBack()
+        },
+        onStatusChange = { vm.setStatus(it.domainStatus) },
+        onDelete = { showDeleteDialog = true },
+        onEdit = vm::enterEditMode,
+    )
+
+    BookDetailsEditScreen(
+        state = state,
+        onSaveEdits = vm::saveEdits,
+        onCancelEdit = vm::exitEditMode,
+        onUpdateEditTitle = vm::updateEditTitle,
+        onUpdateEditAuthors = vm::updateEditAuthors,
+        onUpdateEditPublishedYear = vm::updateEditPublishedYear,
+        onUpdateEditIsbn13 = vm::updateEditIsbn13,
+        onUpdateEditIsbn10 = vm::updateEditIsbn10,
+        onOpenCoverPicker = {
+            bookData ?: return@BookDetailsEditScreen
+
+            coverPickerVM.openCoverPicker(
+                originalCoverUrl = bookData.url,
+                originalCoverRequestHeaders = bookData.headers,
+                source = bookData.source.domainSource,
+                isbn13 = bookData.isbn13,
+            )
+        }
+    )
 
     CoverPickerSheet(
         state = coverPickerState,
@@ -71,7 +79,7 @@ fun BookDetailsRoute(
     )
 
     if (showDeleteDialog) {
-        val dialogValues = state.deleteDialogValues
+        val dialogValues = state.screenState.deleteDialogValues
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = {
@@ -86,8 +94,12 @@ fun BookDetailsRoute(
                 TextButton(
                     onClick = {
                         showDeleteDialog = false
-                        state.book?.let {
-                            sharedVM.markToDelete(book = it)
+                        bookData?.let {
+                            sharedVM.markToDelete(
+                                bookId = it.id,
+                                title = it.title,
+                            )
+                            vm.clearSessionData()
                             onBack()
                         }
                     }) { Text(text = stringResource(dialogValues.deleteButtonText)) }

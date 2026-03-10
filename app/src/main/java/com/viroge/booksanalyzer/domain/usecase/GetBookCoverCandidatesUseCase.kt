@@ -1,6 +1,6 @@
 package com.viroge.booksanalyzer.domain.usecase
 
-import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import com.viroge.booksanalyzer.domain.model.BookSource
 import javax.inject.Inject
 
@@ -10,8 +10,12 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
 
     private val protocolRegex = Regex("^http://", RegexOption.IGNORE_CASE)
 
-    operator fun invoke(book: Book): List<BookCoverCandidate> {
-        val candidates = getCoverCandidates(book)
+    operator fun invoke(
+        coverUrl: String?,
+        source: BookSource,
+        isbn13: String?,
+    ): List<BookCoverCandidate> {
+        val candidates = getCoverCandidates(coverUrl, source, isbn13)
 
         return if (containsDefaultCover(candidates)) candidates
         else listOf(getDefaultCover()) + candidates
@@ -30,12 +34,16 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
      * Get a list of cover candidates. Each candidate contains a pair of data:
      * First: the url, Second: a map of headers needed to load it.
      */
-    private fun getCoverCandidates(book: Book): List<BookCoverCandidate> {
+    private fun getCoverCandidates(
+        coverUrl: String?,
+        source: BookSource,
+        isbn13: String?,
+    ): List<BookCoverCandidate> {
         val list = mutableListOf<String>() // urls
-        val url = book.coverUrl?.trim().orEmpty()
+        val url = coverUrl?.trim().orEmpty()
 
         if (url.isNotBlank()) {
-            when (book.source) {
+            when (source) {
                 BookSource.GOOGLE_BOOKS -> list += googleUpgrades(url)
                 BookSource.OPEN_LIBRARY -> list += openLibraryUpgrades(url)
                 BookSource.MANUAL -> {}
@@ -43,14 +51,14 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
         }
 
         // OpenLibrary by ISBN if not added already:
-        book.isbn13?.trim()?.takeIf { it.isNotBlank() }?.let { isbn ->
+        isbn13?.trim()?.takeIf { it.isNotBlank() }?.let { isbn ->
             list += "https://covers.openlibrary.org/b/isbn/$isbn-XL.jpg"
             list += "https://covers.openlibrary.org/b/isbn/$isbn-L.jpg"
             list += "https://covers.openlibrary.org/b/isbn/$isbn-M.jpg"
         }
 
         // Always include original at the end as fallback:
-        book.coverUrl?.let { original -> if (original.isNotBlank()) list += original }
+        coverUrl?.let { original -> if (original.isNotBlank()) list += original }
 
         return list.distinct().map { attachCoverHeaders(url = it) }
     }
@@ -80,8 +88,3 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
         }
     }
 }
-
-data class BookCoverCandidate(
-    val url: String,
-    val headers: Map<String, String>,
-)
