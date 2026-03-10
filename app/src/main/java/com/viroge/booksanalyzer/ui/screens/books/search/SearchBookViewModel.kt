@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.BooksRepository
 import com.viroge.booksanalyzer.data.SearchHistoryRepository
+import com.viroge.booksanalyzer.domain.BooksUtil
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.model.library.SearchMode
-import com.viroge.booksanalyzer.domain.provider.BookSearchStateProvider
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
@@ -31,7 +31,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchBookViewModel @Inject constructor(
     private val bookSelectionStateProvider: BookSelectionStateProvider,
-    private val bookSearchStateProvider: BookSearchStateProvider,
     private val booksRepo: BooksRepository,
     private val historyRepo: SearchHistoryRepository,
 ) : ViewModel() {
@@ -213,7 +212,6 @@ class SearchBookViewModel @Inject constructor(
     }
 
     fun selectBook(book: Book) {
-        bookSearchStateProvider.clear()
         val tempBook = TempBook(
             source = book.source,
             sourceId = book.sourceId,
@@ -232,17 +230,34 @@ class SearchBookViewModel @Inject constructor(
         val tempBook = TempBook(
             source = BookSource.MANUAL,
             sourceId = null,
-            title = bookSearchStateProvider.getTitleFromManualPrefill(query, mode),
-            authors = bookSearchStateProvider.getAuthorFromManualPrefill(query, mode)
-                .split(",").map { it.trim() }.filter { it.isNotBlank() },
+            title = when (mode) {
+                SearchMode.ALL,
+                SearchMode.TITLE -> BooksUtil.normalizeForManualInput(string = query)
+
+                SearchMode.ISBN,
+                SearchMode.AUTHOR -> ""
+            },
+            authors = when (mode) {
+                SearchMode.AUTHOR -> BooksUtil.normalizeForManualInput(string = query)
+                    .split(",").map { it.trim() }.filter { it.isNotBlank() }
+
+                SearchMode.ALL,
+                SearchMode.TITLE,
+                SearchMode.ISBN -> emptyList()
+            },
             year = null,
-            isbn13 = bookSearchStateProvider.getIsbnFromManualPrefill(query, mode),
+            isbn13 = when (mode) {
+                SearchMode.ALL,
+                SearchMode.TITLE,
+                SearchMode.AUTHOR -> ""
+
+                SearchMode.ISBN -> query
+            },
             isbn10 = null,
             coverUrl = null,
             coverRequestHeaders = null,
         )
         bookSelectionStateProvider.selectTempBook(tempBook)
-        bookSearchStateProvider.setManualPrefill(query, mode)
     }
 }
 

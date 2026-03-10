@@ -3,8 +3,8 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
+import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.SaveBookUseCase
@@ -97,8 +97,6 @@ class ConfirmBookViewModel @Inject constructor(
         if (_internalState.value.isSaving) return
 
         viewModelScope.launch {
-            _internalState.update { it.copy(isSaving = true) }
-
             val book = bookSelectionStateProvider.getSelectedTempBook() ?: return@launch
             val editState = _internalState.value.editState
 
@@ -115,6 +113,9 @@ class ConfirmBookViewModel @Inject constructor(
 
                 return@launch
             }
+
+            _internalState.update { it.copy(isSaving = true) }
+
             val editedBook = book.copy(
                 title = editState.editTitle,
                 authors = editState.editAuthors.split(",").map { it.trim() },
@@ -141,15 +142,17 @@ class ConfirmBookViewModel @Inject constructor(
     fun onYearChange(value: String) = _internalState.update { it.copy(editState = it.editState.copy(editYear = value)) }
     fun onIsbnChange(value: String) = _internalState.update { it.copy(editState = it.editState.copy(editIsbn13 = value)) }
 
-    fun getTemporaryBookForCoverPicker(): Book {
+    fun getTempManualBookForCoverPicker(): TempBook? {
+        val book = bookSelectionStateProvider.getSelectedTempBook() ?: return null
+
         val editState = _internalState.value.editState
-        return mapper.mapToTempBookForCoverPicker(
+        return book.copy(
             title = editState.editTitle,
-            authors = editState.editAuthors,
-            publishedYear = editState.editYear,
+            authors = editState.editAuthors.split(",").map { it.trim() },
+            year = editState.editYear,
             isbn13 = editState.editIsbn13,
-            source = BookSource.MANUAL,
             coverUrl = coverPickerStateProvider.getSelected()?.url,
+            coverRequestHeaders = coverPickerStateProvider.getSelected()?.headers,
         )
     }
 

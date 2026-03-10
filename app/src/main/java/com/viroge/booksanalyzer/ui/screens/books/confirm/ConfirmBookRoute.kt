@@ -76,10 +76,11 @@ fun ConfirmBookRoute(
         onYearChange = vm::onYearChange,
         onIsbnChange = vm::onIsbnChange,
         onOpenCoverPicker = {
-            val tempBook = vm.getTemporaryBookForCoverPicker()
+            val tempBook = vm.getTempManualBookForCoverPicker() ?: return@ConfirmManualBookScreen
+
             coverPickerVM.openCoverPicker(
                 originalCoverUrl = tempBook.coverUrl,
-                originalCoverRequestHeaders = tempBook.coverRequestHeaders,
+                originalCoverRequestHeaders = tempBook.coverRequestHeaders ?: emptyMap(),
                 source = tempBook.source,
                 isbn13 = tempBook.isbn13,
             )
