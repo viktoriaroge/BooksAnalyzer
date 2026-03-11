@@ -5,7 +5,7 @@ import com.viroge.booksanalyzer.domain.BooksPage
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.model.TempBook
-import com.viroge.booksanalyzer.domain.model.library.SearchMode
+import com.viroge.booksanalyzer.domain.model.SearchMode
 import kotlinx.coroutines.flow.Flow
 
 interface BooksRepository {

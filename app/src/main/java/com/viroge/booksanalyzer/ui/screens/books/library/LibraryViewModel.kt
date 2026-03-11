@@ -2,111 +2,84 @@ package com.viroge.booksanalyzer.ui.screens.books.library
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.domain.model.Book
-import com.viroge.booksanalyzer.domain.model.ReadingStatus
-import com.viroge.booksanalyzer.domain.model.library.LibraryFilters
-import com.viroge.booksanalyzer.domain.model.library.LibrarySort
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
+import com.viroge.booksanalyzer.domain.usecase.ObserveLibraryDataUseCase
+import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val bookSelectionStateProvider: BookSelectionStateProvider,
-    booksRepo: BooksRepository,
+    private val observeLibraryDataUseCase: ObserveLibraryDataUseCase,
+    private val mapper: LibraryMapper,
 ) : ViewModel() {
 
-    private val allBooks: Flow<List<Book>> = booksRepo.observeLibrary()
-    private val query = MutableStateFlow(value = "")
-    private val statusFilter = MutableStateFlow<ReadingStatus?>(value = null) // null == All
-    private val sort = MutableStateFlow(value = LibrarySort.ADDED)
+    private val _statusFilter = MutableStateFlow<BookReadingStatusUi?>(value = null) // null == All
+    private val _query = MutableStateFlow(value = "")
+    private val _sort: MutableStateFlow<LibrarySortUi> = MutableStateFlow(value = LibrarySortUi.Added)
 
-    val filters: StateFlow<LibraryFilters> =
-        combine(statusFilter, sort) { status, sort ->
-            LibraryFilters(status, sort)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-            initialValue = LibraryFilters()
-        )
+    val filters: StateFlow<LibraryFilters> = combine(_statusFilter, _sort) { status, sort ->
+        LibraryFilters(status, sort)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+        initialValue = LibraryFilters()
+    )
 
-    val uiState: StateFlow<LibraryUiState> =
-        combine(allBooks, query, statusFilter, sort) { books, q, status, sort ->
-            val qq = q.trim().lowercase()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val state: StateFlow<LibraryUiState> = combine(
+        _query,
+        _statusFilter,
+        _sort,
+    ) { q, status, sort ->
+        observeLibraryDataUseCase(q, status?.domainStatus, sort.domainSource)
+            .map { data ->
+                LibraryUiState(
+                    currentBooks = data.currentlyReading.map { mapper.mapToData(it) },
+                    allBooks = data.books.map { mapper.mapToData(it) },
 
-            var filtered = books
+                    query = q,
+                    selectedStatus = status,
+                    sortState = sort,
 
-            if (status != null) {
-                filtered = filtered.filter { it.status == status }
+                    screenValues = mapper.getScreenValues(),
+                )
             }
-
-            if (qq.isNotBlank()) {
-                filtered = filtered.filter {
-                    it.title.lowercase().contains(other = qq) ||
-                            it.authors.joinToString(separator = ", ").lowercase().contains(other = qq) ||
-                            (it.isbn13?.contains(other = qq) == true) ||
-                            (it.isbn10?.contains(other = qq) == true)
-                }
-            }
-
-            val sorted = when (sort) {
-                LibrarySort.ADDED -> filtered.sortedByDescending { it.createdAtEpochMs }
-                LibrarySort.RECENT -> filtered.sortedByDescending { it.lastOpenAtEpochMs }
-                LibrarySort.TITLE -> filtered.sortedBy { it.title.lowercase() }
-                LibrarySort.AUTHOR -> filtered.sortedBy { it.authors.getOrNull(0)?.lowercase() }
-            }
-
-            val currentlyReading = filtered
-                .sortedByDescending { it.lastOpenAtEpochMs } // always by most recent
-                .filter { it.status == ReadingStatus.READING }
-                .take(n = 5) // max 5 books
-
-            LibraryUiState(
-                query = q,
-                selectedStatus = status,
-                sort = sort,
-                currentlyReading = currentlyReading,
-                books = sorted,
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-            initialValue = LibraryUiState()
-        )
+    }.flatMapLatest {
+        it
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+        initialValue = LibraryUiState()
+    )
 
     fun onQueryChange(value: String) {
-        query.value = value
+        _query.value = value
     }
 
-    fun onStatusChange(status: ReadingStatus?) {
-        statusFilter.value = status
+    fun onStatusChange(status: BookReadingStatusUi?) {
+        _statusFilter.value = status
     }
 
-    fun onSortChange(newSort: LibrarySort) {
-        sort.value = newSort
+    fun onSortChange(newSort: LibrarySortUi) {
+        _sort.value = newSort
     }
 
     fun onClearFilters() {
-        statusFilter.value = null
-        sort.value = LibrarySort.ADDED
+        _statusFilter.value = null
+        _sort.value = LibrarySortUi.Added
     }
 
     fun selectBook(bookId: String) {
         bookSelectionStateProvider.selectBookId(bookId)
     }
 }
-
-data class LibraryUiState(
-    val query: String = "",
-    val selectedStatus: ReadingStatus? = null,
-    val sort: LibrarySort = LibrarySort.ADDED,
-    val currentlyReading: List<Book> = emptyList(),
-    val books: List<Book> = emptyList(),
-)

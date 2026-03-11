@@ -22,21 +22,19 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.model.library.LibraryFilters
-import com.viroge.booksanalyzer.domain.model.library.LibrarySort
-import com.viroge.booksanalyzer.domain.model.ReadingStatus
-import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
+import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 
 @Composable
 fun LibraryFiltersSheet(
     filters: LibraryFilters,
-    onStatusChange: (ReadingStatus?) -> Unit,
-    onSortChange: (LibrarySort) -> Unit,
+    onStatusChange: (BookReadingStatusUi?) -> Unit,
+    onSortChange: (LibrarySortUi) -> Unit,
     onClear: () -> Unit,
 ) {
     Column(
@@ -88,11 +86,12 @@ fun LibraryFiltersSheet(
                 label = { Text(text = stringResource(R.string.search_mode_all)) }
             )
 
-            ReadingStatus.entries.forEach { status ->
+            val statusOptions = remember { BookReadingStatusUi.allOptions() }
+            statusOptions.forEach { status ->
                 FilterChip(
                     selected = filters.status == status,
                     onClick = { onStatusChange(status) },
-                    label = { Text(text = StatusMapper.getUiModel(status).text) }
+                    label = { Text(text = status.label.asString()) }
                 )
             }
         }
@@ -113,7 +112,8 @@ fun LibraryFiltersSheet(
         HorizontalDivider(thickness = 1.dp)
         Spacer(modifier = Modifier.height(16.dp))
 
-        LibrarySort.entries.forEachIndexed { index, sort ->
+        val sortOptions = remember { LibrarySortUi.allOptions() }
+        sortOptions.forEachIndexed { index, sort ->
             if (index != 0) {
                 HorizontalDivider(
                     modifier = Modifier
@@ -128,7 +128,7 @@ fun LibraryFiltersSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
-                label = LibrarySortMapper.getUiModel(sort).text,
+                label = sort.label.asString(),
                 selected = filters.sort == sort,
                 onClick = { onSortChange(sort) },
             )

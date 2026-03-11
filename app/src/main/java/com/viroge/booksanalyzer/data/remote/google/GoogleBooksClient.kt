@@ -2,7 +2,7 @@ package com.viroge.booksanalyzer.data.remote.google
 
 import com.viroge.booksanalyzer.data.remote.NetworkErrorMapper
 import com.viroge.booksanalyzer.domain.BooksUtil.normalizeIsbn
-import com.viroge.booksanalyzer.domain.model.library.SearchMode
+import com.viroge.booksanalyzer.domain.model.SearchMode
 
 class GoogleBooksClient(
     private val api: GoogleBooksApi,

@@ -44,16 +44,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.model.Book
-import com.viroge.booksanalyzer.domain.model.library.LibraryFilters
-import com.viroge.booksanalyzer.domain.model.library.LibrarySort
-import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvItemCard
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
-import com.viroge.booksanalyzer.ui.screens.books.StatusMapper
+import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,7 +59,8 @@ fun LibraryScreen(
     onOpenBook: (String) -> Unit,
 ) {
 
-    val state = vm.uiState.collectAsState().value
+    val state = vm.state.collectAsState().value
+    val values = state.screenValues
     val filters by vm.filters.collectAsState()
 
     var showSearch by rememberSaveable { mutableStateOf(value = false) }
@@ -70,19 +68,19 @@ fun LibraryScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val currentListState = rememberLazyListState()
-    val currentOrderKey = remember(key1 = state.books) {
-        state.currentlyReading.joinToString(separator = "|") { it.id }
+    val currentOrderKey = remember(key1 = state.allBooks) {
+        state.currentBooks.joinToString(separator = "|") { it.id }
     }
     LaunchedEffect(key1 = currentOrderKey) {
         currentListState.scrollToItem(index = 0)
     }
 
     val fullListState = rememberLazyListState()
-    val fullOrderKey = remember(key1 = state.books) {
-        state.books.joinToString(separator = "|") { it.id }
+    val fullOrderKey = remember(key1 = state.allBooks) {
+        state.allBooks.joinToString(separator = "|") { it.id }
     }
     LaunchedEffect(key1 = fullOrderKey) {
-        if (state.sort == LibrarySort.RECENT) fullListState.scrollToItem(index = 0)
+        if (state.sortState == LibrarySortUi.Recent) fullListState.scrollToItem(index = 0)
     }
 
     if (showFilters) {
@@ -104,7 +102,7 @@ fun LibraryScreen(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             PvTopAppBar(
-                title = stringResource(R.string.library_screen_name),
+                title = stringResource(values.screenName),
                 actions = {
                     IconButton(onClick = { showSearch = !showSearch }) {
                         Icon(
@@ -158,7 +156,7 @@ fun LibraryScreen(
                 )
             }
 
-            if (state.books.isEmpty()) {
+            if (state.allBooks.isEmpty()) {
                 Spacer(Modifier.height(height = 16.dp))
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -182,7 +180,7 @@ fun LibraryScreen(
                     verticalArrangement = Arrangement.spacedBy(space = 8.dp),
                 ) {
                     // Currently Reading section
-                    if (state.currentlyReading.isNotEmpty()) {
+                    if (state.currentBooks.isNotEmpty()) {
                         item {
                             Text(
                                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -199,7 +197,7 @@ fun LibraryScreen(
                                 horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
                             ) {
                                 items(
-                                    items = state.currentlyReading,
+                                    items = state.currentBooks,
                                     key = { it.id },
                                 ) { book ->
                                     CurrentlyReadingCard(
@@ -224,7 +222,7 @@ fun LibraryScreen(
                     }
 
                     items(
-                        items = state.books,
+                        items = state.allBooks,
                         key = { it.id },
                     ) { book ->
                         BookRowCard(
@@ -246,12 +244,11 @@ fun ActiveFiltersRow(
 ) {
     val parts = buildList {
         filters.status?.let {
-            StatusMapper.getUiModel(status = it).text
-                .also { statusText -> add(statusText) }
+            it.label.asString().also { statusText -> add(statusText) }
         }
 
-        if (filters.sort != LibrarySort.ADDED) {
-            stringResource(R.string.library_sort_explanation_prefix, LibrarySortMapper.getUiModel(filters.sort).text)
+        if (filters.sort != LibrarySortUi.Added) {
+            stringResource(R.string.library_sort_explanation_prefix, filters.sort.label.asString())
                 .also { add(it) }
         }
     }
@@ -276,7 +273,7 @@ fun ActiveFiltersRow(
 
 @Composable
 fun CurrentlyReadingCard(
-    book: Book,
+    book: LibraryBookData,
     onClick: () -> Unit
 ) {
     PvItemCard(
@@ -292,16 +289,16 @@ fun CurrentlyReadingCard(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 PvBookCoverAsyncImage(
-                    url = book.coverUrl,
-                    requestHeaders = book.coverRequestHeaders,
+                    url = book.url,
+                    requestHeaders = book.headers,
                     size = PvBookCoverImageSize.MEDIUM,
                     modifier = Modifier.align(Alignment.Center),
                 )
                 PvBookSourceBadge(
-                    source = book.source,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(all = 2.dp),
+                    sourceText = book.source.shortLabel.asString(),
                 )
             }
 
@@ -318,7 +315,7 @@ fun CurrentlyReadingCard(
 
             if (book.authors.isNotEmpty()) {
                 Text(
-                    text = book.authors.joinToString(separator = ", "),
+                    text = book.authors,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
@@ -331,7 +328,7 @@ fun CurrentlyReadingCard(
 
 @Composable
 private fun BookRowCard(
-    book: Book,
+    book: LibraryBookData,
     onClick: () -> Unit,
 ) {
     PvItemCard(
@@ -346,8 +343,8 @@ private fun BookRowCard(
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
             PvBookCoverAsyncImage(
-                url = book.coverUrl,
-                requestHeaders = book.coverRequestHeaders,
+                url = book.url,
+                requestHeaders = book.headers,
                 size = PvBookCoverImageSize.SMALL,
             )
 
@@ -362,7 +359,7 @@ private fun BookRowCard(
                 if (book.authors.isNotEmpty()) {
                     Spacer(Modifier.height(height = 4.dp))
                     Text(
-                        text = book.authors.joinToString(separator = ", "),
+                        text = book.authors,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -370,10 +367,7 @@ private fun BookRowCard(
                     )
                 }
 
-                val meta = listOfNotNull(
-                    book.publishedYear?.toString(),
-                    book.isbn13
-                ).joinToString(separator = " • ")
+                val meta = listOfNotNull(book.year, book.isbn13).joinToString(separator = " • ")
 
                 if (meta.isNotBlank()) {
                     Spacer(Modifier.height(height = 4.dp))
@@ -386,13 +380,19 @@ private fun BookRowCard(
                 Spacer(modifier = Modifier.height(height = 8.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
                     BookStatusBadge(
-                        status = book.status,
                         modifier = Modifier.padding(all = 2.dp),
+                        statusText = book.status.label.asString(),
+                        statusColor = when (book.status) {
+                            BookReadingStatusUi.Abandoned -> MaterialTheme.colorScheme.errorContainer
+                            BookReadingStatusUi.Finished -> MaterialTheme.colorScheme.tertiaryContainer
+                            BookReadingStatusUi.NotStarted -> MaterialTheme.colorScheme.surfaceContainerHighest
+                            BookReadingStatusUi.Reading -> MaterialTheme.colorScheme.primaryContainer
+                        }
                     )
                     Spacer(modifier = Modifier.weight(weight = 1f))
                     PvBookSourceBadge(
-                        source = book.source,
                         modifier = Modifier.padding(all = 2.dp),
+                        sourceText = book.source.shortLabel.asString(),
                     )
                 }
             }
