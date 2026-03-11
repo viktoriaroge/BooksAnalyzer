@@ -10,6 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -24,8 +25,10 @@ class LibraryViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _statusFilter = MutableStateFlow<BookReadingStatusUi?>(value = null) // null == All
-    private val _query = MutableStateFlow(value = "")
     private val _sort: MutableStateFlow<LibrarySortUi> = MutableStateFlow(value = LibrarySortUi.Added)
+
+    private val _query = MutableStateFlow(value = "")
+    val query: StateFlow<String> = _query.asStateFlow()
 
     val filters: StateFlow<LibraryFilters> = combine(_statusFilter, _sort) { status, sort ->
         LibraryFilters(status, sort)
@@ -46,11 +49,8 @@ class LibraryViewModel @Inject constructor(
                 LibraryUiState(
                     currentBooks = data.currentlyReading.map { mapper.mapToData(it) },
                     allBooks = data.books.map { mapper.mapToData(it) },
-
-                    query = q,
                     selectedStatus = status,
                     sortState = sort,
-
                     screenValues = mapper.getScreenValues(),
                 )
             }

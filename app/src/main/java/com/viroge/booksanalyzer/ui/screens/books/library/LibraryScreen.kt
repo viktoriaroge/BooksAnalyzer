@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.library
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,38 +13,33 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
@@ -52,51 +48,22 @@ import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreen(
-    vm: LibraryViewModel,
+    state: LibraryUiState,
+    filters: LibraryFilters,
+    query: String,
+    currentListState: LazyListState,
+    fullListState: LazyListState,
+    showSearch: Boolean,
+    onToggleSearch: () -> Unit,
+    onHideSearch: () -> Unit,
+    onToggleFilters: () -> Unit,
+    onClearFilters: () -> Unit,
+    onQueryChange: (String) -> Unit,
     onOpenBook: (String) -> Unit,
 ) {
-
-    val state = vm.state.collectAsState().value
     val values = state.screenValues
-    val filters by vm.filters.collectAsState()
-
-    var showSearch by rememberSaveable { mutableStateOf(value = false) }
-    var showFilters by rememberSaveable { mutableStateOf(value = false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    val currentListState = rememberLazyListState()
-    val currentOrderKey = remember(key1 = state.allBooks) {
-        state.currentBooks.joinToString(separator = "|") { it.id }
-    }
-    LaunchedEffect(key1 = currentOrderKey) {
-        currentListState.scrollToItem(index = 0)
-    }
-
-    val fullListState = rememberLazyListState()
-    val fullOrderKey = remember(key1 = state.allBooks) {
-        state.allBooks.joinToString(separator = "|") { it.id }
-    }
-    LaunchedEffect(key1 = fullOrderKey) {
-        if (state.sortState == LibrarySortUi.Recent) fullListState.scrollToItem(index = 0)
-    }
-
-    if (showFilters) {
-        ModalBottomSheet(
-            sheetState = sheetState,
-            onDismissRequest = { showFilters = false },
-            containerColor = MaterialTheme.colorScheme.surface,
-        ) {
-            LibraryFiltersSheet(
-                filters = filters,
-                onStatusChange = vm::onStatusChange,
-                onSortChange = vm::onSortChange,
-                onClear = vm::onClearFilters,
-            )
-        }
-    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -104,17 +71,19 @@ fun LibraryScreen(
             PvTopAppBar(
                 title = stringResource(values.screenName),
                 actions = {
-                    IconButton(onClick = { showSearch = !showSearch }) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = null,
-                        )
-                    }
-                    IconButton(onClick = { showFilters = !showFilters }) {
-                        Icon(
-                            imageVector = Icons.Default.Tune,
-                            contentDescription = null,
-                        )
+                    if (state.allBooks.isNotEmpty()) {
+                        IconButton(onClick = onToggleSearch) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null,
+                            )
+                        }
+                        IconButton(onClick = onToggleFilters) {
+                            Icon(
+                                imageVector = Icons.Default.Tune,
+                                contentDescription = null,
+                            )
+                        }
                     }
                 },
             )
@@ -128,24 +97,28 @@ fun LibraryScreen(
         ) {
 
             ActiveFiltersRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                values = values,
                 filters = filters,
-                onClearFilters = vm::onClearFilters,
+                onClearFilters = onClearFilters,
             )
 
+            val focusRequester = remember { FocusRequester() }
             if (showSearch) {
                 OutlinedTextField(
-                    value = state.query,
-                    onValueChange = vm::onQueryChange,
-                    modifier = Modifier.fillMaxWidth(),
+                    value = query,
+                    onValueChange = onQueryChange,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                     singleLine = true,
-                    placeholder = { Text(text = stringResource(R.string.library_screen_search_placeholder)) },
+                    placeholder = { Text(text = stringResource(values.searchPlaceholder)) },
                     trailingIcon = {
                         IconButton(onClick = {
-                            if (state.query.isBlank()) {
-                                showSearch = false
-                            } else {
-                                vm.onQueryChange(value = "")
-                            }
+                            if (query.isBlank()) onHideSearch()
+                            else onQueryChange("")
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
@@ -154,73 +127,69 @@ fun LibraryScreen(
                         }
                     },
                 )
+                LaunchedEffect(Unit) { focusRequester.requestFocus() }
             }
 
-            if (state.allBooks.isEmpty()) {
-                Spacer(Modifier.height(height = 16.dp))
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = stringResource(R.string.library_screen_empty_state_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(Modifier.height(height = 8.dp))
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = stringResource(R.string.library_screen_empty_state_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
+            // Content with books
+            LazyColumn(
+                state = fullListState,
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(space = 8.dp),
+            ) {
 
-            } else {
-                LazyColumn(
-                    state = fullListState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(space = 8.dp),
-                ) {
-                    // Currently Reading section
-                    if (state.currentBooks.isNotEmpty()) {
-                        item {
-                            Text(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                text = stringResource(R.string.library_screen_currently_reading_section_title).uppercase(),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-
-                        item {
-                            LazyRow(
-                                state = currentListState,
-                                contentPadding = PaddingValues(horizontal = 16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
-                            ) {
-                                items(
-                                    items = state.currentBooks,
-                                    key = { it.id },
-                                ) { book ->
-                                    CurrentlyReadingCard(
-                                        book = book,
-                                        onClick = { onOpenBook(book.id) },
-                                    )
-                                }
-                            }
-                        }
-
-                        item { Spacer(modifier = Modifier.height(height = 16.dp)) }
-                    }
-
-                    // A list of all saved books
+                // Empty state
+                if (state.allBooks.isEmpty()) {
                     item {
+                        Spacer(Modifier.height(height = 16.dp))
                         Text(
                             modifier = Modifier.padding(horizontal = 16.dp),
-                            text = stringResource(R.string.library_screen_all_section_title).uppercase(),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            text = stringResource(values.emptyStateTitle),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Spacer(Modifier.height(height = 8.dp))
+                        Text(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            text = stringResource(values.emptyStateText),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
+                }
 
+                // Currently Reading section
+                if (state.currentBooks.isNotEmpty()) {
+                    stickyHeader {
+                        Surface(Modifier.fillMaxWidth()) {
+                            SectionHeader(text = stringResource(values.currentlyReadingSectionTitle).uppercase())
+                        }
+                    }
+                    item {
+                        LazyRow(
+                            state = currentListState,
+                            contentPadding = PaddingValues(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
+                        ) {
+                            items(
+                                items = state.currentBooks,
+                                key = { it.id },
+                            ) { book ->
+                                CurrentlyReadingCard(
+                                    book = book,
+                                    onClick = { onOpenBook(book.id) },
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // A list of all saved books
+                if (state.allBooks.isNotEmpty()) {
+                    stickyHeader {
+                        Surface(Modifier.fillMaxWidth()) {
+                            SectionHeader(text = stringResource(values.allBooksSectionTitle).uppercase())
+                        }
+                    }
                     items(
                         items = state.allBooks,
                         key = { it.id },
@@ -237,36 +206,59 @@ fun LibraryScreen(
 }
 
 @Composable
+fun SectionHeader(
+    modifier: Modifier = Modifier,
+    text: String,
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}
+
+@Composable
 fun ActiveFiltersRow(
+    values: LibraryScreenValues,
     filters: LibraryFilters,
     onClearFilters: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val parts = buildList {
+    val context = LocalContext.current
+    val filterText = remember(filters, values) {
+        val parts = mutableListOf<String>()
+
         filters.status?.let {
-            it.label.asString().also { statusText -> add(statusText) }
+            parts.add(it.label.asString(context))
+        }
+        if (filters.sort != LibrarySortUi.Added) {
+            val sortLabel = filters.sort.label.asString(context)
+            parts.add(context.getString(values.activeSortText, sortLabel))
         }
 
-        if (filters.sort != LibrarySortUi.Added) {
-            stringResource(R.string.library_sort_explanation_prefix, filters.sort.label.asString())
-                .also { add(it) }
-        }
+        parts.joinToString(separator = " • ")
     }
-    if (parts.isEmpty()) return
+    if (filterText.isEmpty()) return
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = parts.joinToString(separator = " • "),
-            style = MaterialTheme.typography.bodySmall
+            text = filterText,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        TextButton(onClick = onClearFilters) {
-            Text(text = stringResource(R.string.library_screen_filter_button_clear_label))
+        TextButton(
+            onClick = onClearFilters,
+            contentPadding = PaddingValues(horizontal = 8.dp)
+        ) {
+            Text(text = stringResource(values.clearFilterText))
         }
     }
 }
@@ -367,12 +359,10 @@ private fun BookRowCard(
                     )
                 }
 
-                val meta = listOfNotNull(book.year, book.isbn13).joinToString(separator = " • ")
-
-                if (meta.isNotBlank()) {
+                if (book.meta?.trim()?.isNotBlank() ?: false) {
                     Spacer(Modifier.height(height = 4.dp))
                     Text(
-                        text = meta,
+                        text = book.meta,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
