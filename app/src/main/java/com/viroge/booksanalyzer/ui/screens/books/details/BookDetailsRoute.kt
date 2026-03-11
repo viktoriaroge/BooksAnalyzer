@@ -19,7 +19,7 @@ import com.viroge.booksanalyzer.ui.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.activityViewModel
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
-import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerSheet
+import com.viroge.booksanalyzer.ui.screens.books.cover.BookCoverPickerSheet
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
 
 @Composable
@@ -86,7 +86,7 @@ fun BookDetailsRoute(
         }
     )
 
-    CoverPickerSheet(
+    BookCoverPickerSheet(
         state = coverPickerState,
         onManualUrlChange = coverPickerVM::onManualUrlChange,
         onAddManualUrl = coverPickerVM::addManualUrl,

@@ -32,7 +32,7 @@ import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CoverPickerSheet(
+fun BookCoverPickerSheet(
     state: BookCoverPickerUiState,
     onManualUrlChange: (String) -> Unit,
     onAddManualUrl: () -> Unit,
@@ -41,8 +41,10 @@ fun CoverPickerSheet(
 ) {
     if (!state.screenState.isOpen) return
 
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     ModalBottomSheet(
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        sheetState = sheetState,
         onDismissRequest = onDismiss,
     ) {
         Column(

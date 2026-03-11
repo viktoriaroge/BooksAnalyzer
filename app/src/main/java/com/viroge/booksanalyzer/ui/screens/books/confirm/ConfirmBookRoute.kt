@@ -9,7 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
-import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerSheet
+import com.viroge.booksanalyzer.ui.screens.books.cover.BookCoverPickerSheet
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
 
 @Composable
@@ -88,7 +88,7 @@ fun ConfirmBookRoute(
         onSave = vm::saveManualBook,
     )
 
-    CoverPickerSheet(
+    BookCoverPickerSheet(
         state = coverPickerState,
         onManualUrlChange = coverPickerVM::onManualUrlChange,
         onAddManualUrl = coverPickerVM::addManualUrl,

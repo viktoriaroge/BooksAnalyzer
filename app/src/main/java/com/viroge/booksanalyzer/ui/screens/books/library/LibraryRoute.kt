@@ -1,10 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.library
 
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -15,7 +11,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryRoute(
     onOpenBook: () -> Unit,
@@ -28,7 +23,6 @@ fun LibraryRoute(
 
     var showSearch by rememberSaveable { mutableStateOf(value = false) }
     var showFilters by rememberSaveable { mutableStateOf(value = false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val currentListState = rememberLazyListState()
     val currentOrderKey = remember(key1 = state.allBooks) {
@@ -64,19 +58,13 @@ fun LibraryRoute(
         },
     )
 
-    if (showFilters) {
-        ModalBottomSheet(
-            sheetState = sheetState,
-            onDismissRequest = { showFilters = false },
-            containerColor = MaterialTheme.colorScheme.surface,
-        ) {
-            LibraryFiltersSheet(
-                screenValues = state.screenValues,
-                filters = filters,
-                onStatusChange = vm::onStatusChange,
-                onSortChange = vm::onSortChange,
-                onClear = vm::onClearFilters,
-            )
-        }
-    }
+    LibraryFiltersSheet(
+        screenValues = state.screenValues,
+        showFilters = showFilters,
+        filters = filters,
+        onStatusChange = vm::onStatusChange,
+        onSortChange = vm::onSortChange,
+        onClear = vm::onClearFilters,
+        onDismiss = { showFilters = false },
+    )
 }
