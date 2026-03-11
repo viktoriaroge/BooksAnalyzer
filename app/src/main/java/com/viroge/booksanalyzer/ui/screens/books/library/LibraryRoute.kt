@@ -1,5 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.library
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,6 +15,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun LibraryRoute(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onOpenBook: () -> Unit,
 ) {
 
@@ -41,6 +45,8 @@ fun LibraryRoute(
     }
 
     LibraryScreen(
+        sharedTransitionScope = sharedTransitionScope,
+        animatedVisibilityScope = animatedVisibilityScope,
         state = state,
         filters = filters,
         query = query,

@@ -12,7 +12,6 @@ data class BookDetailsUiState(
 )
 
 data class BookDetailsScreenState(
-    val isLoading: Boolean = false,
     val isDeleting: Boolean = false,
     val isSaving: Boolean = false,
     val isInEditMode: Boolean = false,
@@ -35,6 +34,7 @@ data class BookDetailsEditState(
 )
 
 data class BookDetailsDataState(
+    val animationKey: String,
     val id: String,
     val title: String,
     val authors: String,

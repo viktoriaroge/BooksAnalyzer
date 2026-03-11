@@ -70,7 +70,6 @@ class BookDetailsViewModel @Inject constructor(
             screenValues = mapper.getScreenValues(),
             editScreenValues = mapper.getEditScreenValues(),
             deleteDialogValues = mapper.getDeleteDialogValues(),
-            isLoading = selectedBook?.let { false } ?: true,
         )
 
         val bookData = selectedBook?.let { mapper.mapToDataState(it, pickerState.selectedCandidate) }
@@ -83,9 +82,7 @@ class BookDetailsViewModel @Inject constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-        initialValue = BookDetailsUiState(
-            screenState = BookDetailsScreenState(isLoading = true)
-        )
+        initialValue = BookDetailsUiState()
     )
 
     init {

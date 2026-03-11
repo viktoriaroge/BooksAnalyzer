@@ -1,5 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.confirm
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,12 +23,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.ui.components.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
-import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmBookScreen(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     state: ConfirmBookUiState,
     onOpenCoverPicker: () -> Unit,
     onBack: () -> Unit,
@@ -52,11 +55,11 @@ fun ConfirmBookScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState()),
         ) {
-            if (state.screenState.isSaving) {
-                PvLinearProgressIndicator(modifier = Modifier.padding(top = 12.dp))
-            }
 
             PvBookCoverHeader(
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+                animationKey = book.animationKey,
                 imageUrl = book.url,
                 headersForBookCover = book.headers,
             )

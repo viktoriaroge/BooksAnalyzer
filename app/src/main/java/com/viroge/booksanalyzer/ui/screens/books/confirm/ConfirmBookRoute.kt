@@ -1,6 +1,8 @@
 package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +16,8 @@ import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
 
 @Composable
 fun ConfirmBookRoute(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onBack: () -> Unit,
     onBookSaved: () -> Unit,
 ) {
@@ -47,6 +51,8 @@ fun ConfirmBookRoute(
     }
 
     ConfirmBookScreen(
+        sharedTransitionScope = sharedTransitionScope,
+        animatedVisibilityScope = animatedVisibilityScope,
         state = state,
         onOpenCoverPicker = {
             bookData ?: return@ConfirmBookScreen
@@ -66,6 +72,8 @@ fun ConfirmBookRoute(
     )
 
     ConfirmManualBookScreen(
+        sharedTransitionScope = sharedTransitionScope,
+        animatedVisibilityScope = animatedVisibilityScope,
         state = state,
         onBack = {
             vm.clearSessionData()

@@ -1,6 +1,8 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
@@ -24,6 +26,8 @@ import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
 
 @Composable
 fun BookDetailsRoute(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onBack: () -> Unit,
 ) {
     val sharedVM: MainSharedViewModel = activityViewModel()
@@ -55,6 +59,8 @@ fun BookDetailsRoute(
     }
 
     BookDetailsScreen(
+        sharedTransitionScope = sharedTransitionScope,
+        animatedVisibilityScope = animatedVisibilityScope,
         state = state,
         onBack = {
             vm.clearSessionData()
@@ -66,6 +72,8 @@ fun BookDetailsRoute(
     )
 
     BookDetailsEditScreen(
+        sharedTransitionScope = sharedTransitionScope,
+        animatedVisibilityScope = animatedVisibilityScope,
         state = state,
         onSaveEdits = vm::saveEdits,
         onCancelEdit = vm::exitEditMode,

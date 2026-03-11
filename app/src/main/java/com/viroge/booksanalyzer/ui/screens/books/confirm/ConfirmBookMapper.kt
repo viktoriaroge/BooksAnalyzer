@@ -1,12 +1,10 @@
 package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.model.Book
-import com.viroge.booksanalyzer.domain.model.BookSource
-import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
+import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import javax.inject.Inject
 
 class ConfirmBookMapper @Inject constructor() {
@@ -34,37 +32,12 @@ class ConfirmBookMapper @Inject constructor() {
         book: TempBook,
         selectedCandidate: BookCoverCandidate?,
     ): ConfirmBookDataState = ConfirmBookDataState(
+        animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13),
         title = book.title,
         authors = book.authors.joinToString(separator = ", "),
         isbn13 = book.isbn13,
         source = BookSourceUi.fromDomain(book.source),
         url = selectedCandidate?.url ?: book.coverUrl,
         headers = selectedCandidate?.headers ?: book.coverRequestHeaders ?: emptyMap(),
-    )
-
-    fun mapToTempBookForCoverPicker(
-        title: String,
-        authors: String,
-        publishedYear: String?,
-        isbn13: String?,
-        source: BookSource,
-        coverUrl: String?,
-    ): Book = Book(
-        title = title,
-        authors = authors.split(",").map { it.trim() }.filter { it.isNotBlank() },
-        publishedYear = publishedYear,
-        isbn13 = isbn13,
-        source = source,
-        coverUrl = coverUrl,
-
-        // Not necessary for now. Add later if necessary for book cover selection:
-        id = "",
-        sourceId = null,
-        status = ReadingStatus.NOT_STARTED,
-        createdAtEpochMs = 0,
-        lastOpenAtEpochMs = 0,
-        lastMarkedToDelete = 0,
-        toBeDeleted = false,
-        coverRequestHeaders = emptyMap(),
     )
 }

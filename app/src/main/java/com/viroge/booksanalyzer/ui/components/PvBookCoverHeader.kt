@@ -1,5 +1,7 @@
 package com.viroge.booksanalyzer.ui.components
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +21,9 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun PvBookCoverHeader(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    animationKey: String,
     modifier: Modifier = Modifier,
     imageUrl: String?,
     headersForBookCover: Map<String, String>,
@@ -49,14 +54,20 @@ fun PvBookCoverHeader(
         )
 
         // Cover image:
-        PvBookCoverAsyncImage(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(vertical = 32.dp)
-                .shadow(12.dp, RoundedCornerShape(12.dp)),
-            url = imageUrl,
-            requestHeaders = headersForBookCover,
-            size = PvBookCoverImageSize.XXLARGE,
-        )
+        with(sharedTransitionScope) {
+            PvBookCoverAsyncImage(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(vertical = 32.dp)
+                    .shadow(12.dp, RoundedCornerShape(12.dp))
+                    .sharedElement(
+                        rememberSharedContentState(key = animationKey),
+                        animatedVisibilityScope = animatedVisibilityScope
+                    ),
+                url = imageUrl,
+                requestHeaders = headersForBookCover,
+                size = PvBookCoverImageSize.XXLARGE,
+            )
+        }
     }
 }

@@ -35,6 +35,7 @@ data class LibraryFilters(
 )
 
 data class LibraryBookData(
+    val animationKey: String,
     val id: String,
     val title: String,
     val authors: String,

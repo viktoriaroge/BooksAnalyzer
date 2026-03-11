@@ -1,5 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.search
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,10 +47,13 @@ import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvItemCard
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
+import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookSearchScreen(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     vm: SearchBookViewModel,
     onLoadMore: () -> Unit,
     onQueryChanged: (String) -> Unit,
@@ -152,6 +157,8 @@ fun BookSearchScreen(
 
                 is SearchUiState.Partial -> {
                     BooksList(
+                        sharedTransitionScope,
+                        animatedVisibilityScope,
                         selectedState.query,
                         selectedState.items,
                         onSelectBook,
@@ -165,6 +172,8 @@ fun BookSearchScreen(
 
                 is SearchUiState.Success -> {
                     BooksList(
+                        sharedTransitionScope,
+                        animatedVisibilityScope,
                         selectedState.query,
                         selectedState.items,
                         onSelectBook,
@@ -225,6 +234,8 @@ fun SearchModeChips(
 
 @Composable
 private fun BooksList(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     query: String,
     items: List<Book>,
     onSelect: (Book) -> Unit,
@@ -249,11 +260,19 @@ private fun BooksList(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                 ) {
-                    PvBookCoverAsyncImage(
-                        url = book.coverUrl,
-                        requestHeaders = book.coverRequestHeaders,
-                        size = PvBookCoverImageSize.XSMALL,
-                    )
+                    with(sharedTransitionScope) {
+                        PvBookCoverAsyncImage(
+                            url = book.coverUrl,
+                            requestHeaders = book.coverRequestHeaders,
+                            size = PvBookCoverImageSize.XSMALL,
+                            modifier = Modifier.sharedElement(
+                                rememberSharedContentState(
+                                    key = BookTransitionKey.calculate(book.title, book.authors, book.isbn13)
+                                ),
+                                animatedVisibilityScope = animatedVisibilityScope
+                            ),
+                        )
+                    }
 
                     Column(modifier = Modifier.weight(weight = 1f)) {
 

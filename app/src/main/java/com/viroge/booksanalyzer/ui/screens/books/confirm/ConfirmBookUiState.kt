@@ -19,6 +19,7 @@ data class ConfirmBookScreenState(
 )
 
 data class ConfirmBookDataState(
+    val animationKey: String,
     val title: String,
     val authors: String,
     val isbn13: String?,

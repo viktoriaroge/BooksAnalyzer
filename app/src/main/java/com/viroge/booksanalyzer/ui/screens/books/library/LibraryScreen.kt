@@ -1,5 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.library
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +52,8 @@ import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 
 @Composable
 fun LibraryScreen(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     state: LibraryUiState,
     filters: LibraryFilters,
     query: String,
@@ -175,6 +179,8 @@ fun LibraryScreen(
                                 key = { it.id },
                             ) { book ->
                                 CurrentlyReadingCard(
+                                    sharedTransitionScope = sharedTransitionScope,
+                                    animatedVisibilityScope = animatedVisibilityScope,
                                     book = book,
                                     onClick = { onOpenBook(book.id) },
                                 )
@@ -195,6 +201,8 @@ fun LibraryScreen(
                         key = { it.id },
                     ) { book ->
                         BookRowCard(
+                            sharedTransitionScope = sharedTransitionScope,
+                            animatedVisibilityScope = animatedVisibilityScope,
                             book = book,
                             onClick = { onOpenBook(book.id) },
                         )
@@ -265,6 +273,8 @@ fun ActiveFiltersRow(
 
 @Composable
 fun CurrentlyReadingCard(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     book: LibraryBookData,
     onClick: () -> Unit
 ) {
@@ -280,12 +290,19 @@ fun CurrentlyReadingCard(
             Box(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                PvBookCoverAsyncImage(
-                    url = book.url,
-                    requestHeaders = book.headers,
-                    size = PvBookCoverImageSize.MEDIUM,
-                    modifier = Modifier.align(Alignment.Center),
-                )
+                with(sharedTransitionScope) {
+                    PvBookCoverAsyncImage(
+                        url = book.url,
+                        requestHeaders = book.headers,
+                        size = PvBookCoverImageSize.MEDIUM,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .sharedElement(
+                                rememberSharedContentState(key = book.animationKey),
+                                animatedVisibilityScope = animatedVisibilityScope
+                            ),
+                    )
+                }
                 PvBookSourceBadge(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -320,6 +337,8 @@ fun CurrentlyReadingCard(
 
 @Composable
 private fun BookRowCard(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     book: LibraryBookData,
     onClick: () -> Unit,
 ) {
@@ -334,11 +353,19 @@ private fun BookRowCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
-            PvBookCoverAsyncImage(
-                url = book.url,
-                requestHeaders = book.headers,
-                size = PvBookCoverImageSize.SMALL,
-            )
+
+            with(sharedTransitionScope) {
+                PvBookCoverAsyncImage(
+                    url = book.url,
+                    requestHeaders = book.headers,
+                    size = PvBookCoverImageSize.SMALL,
+                    modifier = Modifier
+                        .sharedElement(
+                            rememberSharedContentState(key = book.animationKey),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        ),
+                )
+            }
 
             Column(modifier = Modifier.weight(weight = 1f)) {
                 Text(

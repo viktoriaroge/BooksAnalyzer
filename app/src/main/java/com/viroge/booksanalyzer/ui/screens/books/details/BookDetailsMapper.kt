@@ -6,6 +6,7 @@ import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import com.viroge.booksanalyzer.ui.common.util.UiText
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
+import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import javax.inject.Inject
 
 class BookDetailsMapper @Inject constructor() {
@@ -50,6 +51,7 @@ class BookDetailsMapper @Inject constructor() {
         book: Book,
         selectedCandidate: BookCoverCandidate?,
     ): BookDetailsDataState = BookDetailsDataState(
+        animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13),
         id = book.id,
         title = book.title,
         authors = book.authors.joinToString(separator = ", "),
