@@ -66,7 +66,7 @@ fun BookDetailsRoute(
             vm.clearSessionData()
             onBack()
         },
-        onStatusChange = { vm.setStatus(it.domainStatus) },
+        onStatusChange = vm::setStatus,
         onDelete = { showDeleteDialog = true },
         onEdit = vm::enterEditMode,
     )

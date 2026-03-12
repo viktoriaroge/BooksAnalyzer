@@ -11,6 +11,7 @@ import com.viroge.booksanalyzer.domain.usecase.EditBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.MarkBookAsOpenedUseCase
 import com.viroge.booksanalyzer.domain.usecase.ObserveBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.UpdateBookStatusUseCase
+import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -90,12 +91,12 @@ class BookDetailsViewModel @Inject constructor(
     }
 
     fun setStatus(
-        status: ReadingStatus,
+        status: BookReadingStatusUi,
     ) {
         viewModelScope.launch {
             val bookId = bookSelectionStateProvider.getSelectedBookId() ?: return@launch
 
-            updateBookStatus(bookId, status)
+            updateBookStatus(bookId, status.domainStatus)
                 .onFailure { _ -> _events.emit(DetailsEvent.Error(DetailsErrorType.UPDATING_STATUS_FAILED)) }
         }
     }
