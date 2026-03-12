@@ -21,13 +21,8 @@ fun SearchBookRoute(
     onGoToConfirm: () -> Unit,
 ) {
 
-    val vm: SearchBookViewModel = hiltViewModel()
-    val state by vm.uiState.collectAsState()
-    val mode by vm.modeState.collectAsState()
-    val query by vm.queryState.collectAsState()
-    val recent by vm.recentQueries.collectAsState()
-    val canLoadMore by vm.canLoadMore.collectAsState()
-    val isLoadingMore by vm.isLoadingMore.collectAsState()
+    val vm: BookSearchViewModel = hiltViewModel()
+    val state by vm.state.collectAsState()
 
     var confirmClear by remember { mutableStateOf(value = false) }
 
@@ -35,11 +30,6 @@ fun SearchBookRoute(
         sharedTransitionScope = sharedTransitionScope,
         animatedVisibilityScope = animatedVisibilityScope,
         state = state,
-        query = query,
-        mode = mode,
-        recent = recent,
-        canLoadMore = canLoadMore,
-        isLoadingMore = isLoadingMore,
         onLoadMore = vm::loadMore,
         onRefresh = vm::refresh,
         onQueryChanged = vm::changeQuery,
@@ -47,7 +37,7 @@ fun SearchBookRoute(
         onRemoveRecentSearch = vm::removeRecent,
         onClearRecentSearches = { confirmClear = true },
         onManualAdd = { prefill ->
-            vm.setManualPrefill(prefill, mode)
+            vm.setManualPrefill(prefill, state.mode)
             onGoToConfirm()
         },
         onSelectBook = { book ->
@@ -56,29 +46,29 @@ fun SearchBookRoute(
         },
     )
 
-    when (val selectedState = state) {
-        is SearchUiState.Idle -> {
+    when (val screenState = state.screenState) {
+        is SearchScreenState.Idle -> {
             if (confirmClear) {
                 AlertDialog(
                     onDismissRequest = { confirmClear = false },
                     title = {
-                        Text(text = stringResource(selectedState.searchHistoryDialogValues.title))
+                        Text(text = stringResource(screenState.searchHistoryDialogValues.title))
                     },
                     text = {
-                        Text(text = stringResource(selectedState.searchHistoryDialogValues.text))
+                        Text(text = stringResource(screenState.searchHistoryDialogValues.text))
                     },
                     confirmButton = {
                         TextButton(
                             onClick = {
                                 confirmClear = false
                                 vm.clearRecents()
-                            }) { Text(text = stringResource(selectedState.searchHistoryDialogValues.clearButtonText)) }
+                            }) { Text(text = stringResource(screenState.searchHistoryDialogValues.clearButtonText)) }
                     },
                     dismissButton = {
                         TextButton(
                             onClick = {
                                 confirmClear = false
-                            }) { Text(text = stringResource(selectedState.searchHistoryDialogValues.cancelButtonText)) }
+                            }) { Text(text = stringResource(screenState.searchHistoryDialogValues.cancelButtonText)) }
                     },
                 )
             }

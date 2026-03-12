@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.SearchMode
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
@@ -47,12 +46,7 @@ import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 fun BookSearchScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    state: SearchUiState,
-    query: String,
-    mode: SearchMode,
-    recent: List<String>,
-    canLoadMore: Boolean,
-    isLoadingMore: Boolean,
+    state: BookSearchUiState,
     onLoadMore: () -> Unit,
     onRefresh: () -> Unit,
     onQueryChanged: (String) -> Unit,
@@ -65,7 +59,7 @@ fun BookSearchScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
-        topBar = { PvTopAppBar(title = stringResource(R.string.search_screen_name)) },
+        topBar = { PvTopAppBar(title = stringResource(state.screenValues.screenName)) },
     ) { screenPadding ->
 
         Column(
@@ -75,15 +69,15 @@ fun BookSearchScreen(
         ) {
 
             SearchModeChips(
-                selected = mode,
+                selected = state.mode,
                 onSelect = { onModeChanged(it) },
             )
 
             OutlinedTextField(
-                value = query,
+                value = state.query,
                 onValueChange = { onQueryChanged(it) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(text = stringResource(R.string.search_screen_search_field_hint)) },
+                label = { Text(text = stringResource(state.screenValues.searchFieldHint)) },
                 singleLine = true,
                 trailingIcon = {
                     IconButton(onClick = { onQueryChanged("") }) {
@@ -95,27 +89,27 @@ fun BookSearchScreen(
                 }
             )
 
-            when (state) {
-                is SearchUiState.Idle -> {
+            when (val screenState = state.screenState) {
+                is SearchScreenState.Idle -> {
                     RecentSearchesSection(
-                        values = state.recentSearchesValues,
-                        recent = recent,
+                        values = screenState.recentSearchesValues,
+                        recent = state.recent,
                         onPick = onQueryChanged,
                         onDeleteOne = onRemoveRecentSearch,
                         onClearAll = onClearRecentSearches,
                     )
                 }
 
-                SearchUiState.Loading -> {
+                SearchScreenState.Loading -> {
                     Spacer(Modifier.height(height = 4.dp))
                     PvLinearProgressIndicator()
                 }
 
-                is SearchUiState.Error -> {
+                is SearchScreenState.Error -> {
                     Spacer(Modifier.height(height = 16.dp))
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        text = state.message,
+                        text = screenState.message,
                         color = MaterialTheme.colorScheme.error,
                     )
 
@@ -125,15 +119,15 @@ fun BookSearchScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         onClick = { onRefresh() }) {
-                        Text(text = stringResource(state.errorStateValues.refreshButtonText))
+                        Text(text = stringResource(screenState.errorStateValues.refreshButtonText))
                     }
                 }
 
-                is SearchUiState.Empty -> {
+                is SearchScreenState.Empty -> {
                     Spacer(Modifier.height(height = 16.dp))
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        text = customAnnotatedString(state.emptyStateValues.noResultsText, state.query),
+                        text = customAnnotatedString(screenState.emptyStateValues.noResultsText, state.query),
                     )
 
                     Spacer(Modifier.height(height = 8.dp))
@@ -142,36 +136,36 @@ fun BookSearchScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         onClick = { onManualAdd(state.query) }) {
-                        Text(text = stringResource(state.emptyStateValues.manualButtonText))
+                        Text(text = stringResource(screenState.emptyStateValues.manualButtonText))
                     }
                 }
 
-                is SearchUiState.Partial -> {
+                is SearchScreenState.Partial -> {
                     BooksList(
-                        contentStateValues = state.contentStateValues,
+                        contentStateValues = screenState.contentStateValues,
                         sharedTransitionScope = sharedTransitionScope,
                         animatedVisibilityScope = animatedVisibilityScope,
                         query = state.query,
-                        items = state.items,
+                        items = screenState.items,
                         onSelect = onSelectBook,
-                        canLoadMore = canLoadMore,
-                        isLoadingMore = isLoadingMore,
+                        canLoadMore = state.canLoadMore,
+                        isLoadingMore = state.isLoadingMore,
                         onLoadMore = onLoadMore,
                         onManualAdd = onManualAdd,
                         showingPartialResults = true,
                     )
                 }
 
-                is SearchUiState.Success -> {
+                is SearchScreenState.Success -> {
                     BooksList(
-                        contentStateValues = state.contentStateValues,
+                        contentStateValues = screenState.contentStateValues,
                         sharedTransitionScope = sharedTransitionScope,
                         animatedVisibilityScope = animatedVisibilityScope,
                         query = state.query,
-                        items = state.items,
+                        items = screenState.items,
                         onSelect = onSelectBook,
-                        canLoadMore = canLoadMore,
-                        isLoadingMore = isLoadingMore,
+                        canLoadMore = state.canLoadMore,
+                        isLoadingMore = state.isLoadingMore,
                         onLoadMore = onLoadMore,
                         onManualAdd = onManualAdd,
                     )

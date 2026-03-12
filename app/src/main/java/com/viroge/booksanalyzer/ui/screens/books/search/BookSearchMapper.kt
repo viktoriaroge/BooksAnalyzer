@@ -5,7 +5,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SearchMapper @Inject constructor() {
+class BookSearchMapper @Inject constructor() {
+
+    fun getScreenValues(): SearchScreenValues = SearchScreenValues(
+        screenName = R.string.search_screen_name,
+        searchFieldHint = R.string.search_screen_search_field_hint,
+    )
 
     fun getRecentSearchesValues(): RecentSearchesValues = RecentSearchesValues(
         sectionText = R.string.search_screen_recent_searches_section_text,

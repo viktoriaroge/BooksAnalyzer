@@ -17,7 +17,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
@@ -25,45 +25,68 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
-class SearchBookViewModel @Inject constructor(
+class BookSearchViewModel @Inject constructor(
     private val bookSelectionStateProvider: BookSelectionStateProvider,
     private val searchBooksUseCase: SearchBooksUseCase,
     getSearchHistoryUseCase: GetSearchHistoryUseCase,
     private val manageHistoryUseCase: ManageSearchHistoryUseCase,
-    private val mapper: SearchMapper,
+    private val mapper: BookSearchMapper,
 ) : ViewModel() {
 
-    val recentQueries: StateFlow<List<String>> = getSearchHistoryUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList()
-        )
-
-    private val query = MutableStateFlow("")
-    val queryState = query.asStateFlow()
-
-    private val mode = MutableStateFlow(SearchMode.ALL)
-    val modeState = mode.asStateFlow()
-
-    private val _uiState = MutableStateFlow<SearchUiState>(
-        SearchUiState.Idle(
+    private val _screenState: MutableStateFlow<SearchScreenState> = MutableStateFlow(
+        SearchScreenState.Idle(
             recentSearchesValues = mapper.getRecentSearchesValues(),
             searchHistoryDialogValues = mapper.getSearchHistoryDialogValues(),
         )
     )
-    val uiState = _uiState.asStateFlow()
 
-    private val _canLoadMore = MutableStateFlow(false)
-    val canLoadMore = _canLoadMore.asStateFlow()
+    private val _loadingIndicator: MutableStateFlow<LoadingIndicator> = MutableStateFlow(
+        LoadingIndicator(
+            canLoadMore = false,
+            isLoadingMore = false,
+        )
+    )
+    private val _query: MutableStateFlow<String> = MutableStateFlow("")
+    private val _mode: MutableStateFlow<SearchMode> = MutableStateFlow(SearchMode.ALL)
 
-    private val _isLoadingMore = MutableStateFlow(false)
-    val isLoadingMore = _isLoadingMore.asStateFlow()
+    val state: StateFlow<BookSearchUiState> = combine(
+        getSearchHistoryUseCase(),
+        _screenState,
+        _loadingIndicator,
+        _query,
+        _mode
+    ) { recent, screenState, loadingIndicator, query, mode ->
+        BookSearchUiState(
+            isLoadingMore = loadingIndicator.isLoadingMore,
+            canLoadMore = loadingIndicator.canLoadMore,
+            query = query,
+            mode = mode,
+            recent = recent,
+            screenState = screenState,
+            screenValues = mapper.getScreenValues(),
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = BookSearchUiState(
+            isLoadingMore = false,
+            canLoadMore = false,
+            query = "",
+            mode = SearchMode.ALL,
+            recent = emptyList(),
+            screenState = SearchScreenState.Idle(
+                recentSearchesValues = mapper.getRecentSearchesValues(),
+                searchHistoryDialogValues = mapper.getSearchHistoryDialogValues()
+            ),
+            screenValues = mapper.getScreenValues(),
+        )
+    )
 
     private var nextToken: String? = null
     private var lastQuery: String = ""
@@ -71,17 +94,17 @@ class SearchBookViewModel @Inject constructor(
     private var lastMessages: List<String> = emptyList()
 
     init {
-        query.map { it.trim() }
+        _query.map { it.trim() }
             .onEach { q -> if (q.length < 2) reset() }
             .debounce(800)
             .distinctUntilChanged()
             .onEach { q -> if (q.length >= 2) searchFirstPage(q) }
             .launchIn(viewModelScope)
 
-        mode.drop(1)
+        _mode.drop(1)
             .debounce(500)
             .distinctUntilChanged()
-            .onEach { searchFirstPage(query.value) }
+            .onEach { searchFirstPage(_query.value) }
             .launchIn(viewModelScope)
     }
 
@@ -92,60 +115,80 @@ class SearchBookViewModel @Inject constructor(
         nextToken = null
         currentItems = emptyList()
         lastMessages = emptyList()
-        _canLoadMore.value = false
-        _isLoadingMore.value = false
+        _loadingIndicator.update {
+            it.copy(
+                canLoadMore = false,
+                isLoadingMore = false,
+            )
+        }
 
         onSearchExecuted(q)
-        _uiState.value = SearchUiState.Loading
+        _screenState.value = SearchScreenState.Loading
 
-        val result = searchBooksUseCase(q, mode.value, null)
+        val result = searchBooksUseCase(q, _mode.value, null)
 
         currentItems = result.items
         lastMessages = result.messages
         nextToken = result.nextToken
-        _canLoadMore.value = nextToken != null
+        _loadingIndicator.update {
+            it.copy(
+                canLoadMore = nextToken != null,
+            )
+        }
 
-        _uiState.value = produceUiState(q)
+        _screenState.value = produceUiState(q)
     }
 
     fun loadMore() {
         val token = nextToken ?: return
-        if (_isLoadingMore.value) return
+        if (_loadingIndicator.value.isLoadingMore) return
 
         viewModelScope.launch {
-            _isLoadingMore.value = true
+            _loadingIndicator.update {
+                it.copy(
+                    isLoadingMore = true,
+                )
+            }
 
-            val result = searchBooksUseCase(lastQuery, mode.value, token)
+            val result = searchBooksUseCase(lastQuery, _mode.value, token)
 
             currentItems = mergeAndRank(currentItems + result.items)
             lastMessages = (lastMessages + result.messages).distinct()
             nextToken = result.nextToken
-            _canLoadMore.value = nextToken != null
+            _loadingIndicator.update {
+                it.copy(
+                    canLoadMore = nextToken != null,
+                )
+            }
 
-            _uiState.value = produceUiState(lastQuery)
-            _isLoadingMore.value = false
+            _screenState.value = produceUiState(lastQuery)
+            _loadingIndicator.update {
+                it.copy(
+                    isLoadingMore = false,
+                )
+            }
         }
     }
 
-    private fun produceUiState(q: String): SearchUiState = when {
+    private fun produceUiState(q: String): SearchScreenState = when {
         currentItems.isEmpty() && lastMessages.isNotEmpty() ->
-            SearchUiState.Error(
+            SearchScreenState.Error(
                 message = lastMessages.first(),
                 errorStateValues = mapper.getErrorStateValues(),
             )
 
-        currentItems.isEmpty() -> SearchUiState.Empty(
+        currentItems.isEmpty() -> SearchScreenState.Empty(
             query = q,
             emptyStateValues = mapper.getEmptyStateValues(),
         )
 
-        lastMessages.isEmpty() -> SearchUiState.Success(
+        lastMessages.isEmpty() -> SearchScreenState.Success(
             query = q,
             items = currentItems,
             contentStateValues = mapper.getContentStateValues(),
         )
 
-        else -> SearchUiState.Partial(
+        else -> SearchScreenState.Partial(
             query = q,
             items = currentItems,
             messages = lastMessages,
@@ -154,15 +197,15 @@ class SearchBookViewModel @Inject constructor(
     }
 
     fun refresh() {
-        viewModelScope.launch { searchFirstPage(query.value) }
+        viewModelScope.launch { searchFirstPage(_query.value) }
     }
 
     fun changeQuery(newValue: String) {
-        query.value = newValue
+        _query.value = newValue
     }
 
     fun changeSearchMode(newMode: SearchMode) {
-        mode.value = newMode
+        _mode.value = newMode
     }
 
     private fun onSearchExecuted(q: String) {
@@ -182,9 +225,13 @@ class SearchBookViewModel @Inject constructor(
         lastQuery = ""
         currentItems = emptyList()
         lastMessages = emptyList()
-        _canLoadMore.value = false
-        _isLoadingMore.value = false
-        _uiState.value = SearchUiState.Idle(
+        _loadingIndicator.update {
+            it.copy(
+                canLoadMore = false,
+                isLoadingMore = false,
+            )
+        }
+        _screenState.value = SearchScreenState.Idle(
             recentSearchesValues = mapper.getRecentSearchesValues(),
             searchHistoryDialogValues = mapper.getSearchHistoryDialogValues(),
         )
@@ -239,3 +286,8 @@ class SearchBookViewModel @Inject constructor(
         bookSelectionStateProvider.selectTempBook(tempBook)
     }
 }
+
+data class LoadingIndicator(
+    val canLoadMore: Boolean,
+    val isLoadingMore: Boolean,
+)
