@@ -8,15 +8,17 @@ import com.viroge.booksanalyzer.domain.BooksUtil.splitIsbns
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
+import com.viroge.booksanalyzer.domain.model.TempBook
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Deprecated("This util will get fully dropped after refactoring is done")
 @Singleton
 class BookMapper @Inject constructor(
     private val bookCoverHeaders: BookCoverHeaders,
 ) {
 
-    fun map(item: GoogleVolumeItem): Book {
+    fun map(item: GoogleVolumeItem): TempBook {
         val isbn13 = item.volumeInfo.industryIdentifiers.firstOrNull {
             it.type.equals(
                 other = "ISBN_13", ignoreCase = true
@@ -35,26 +37,20 @@ class BookMapper @Inject constructor(
             newValue = "https://"
         )
 
-        return Book(
-            id = "", // not important for network construction
+        return TempBook(
             sourceId = item.id,
             source = BookSource.GOOGLE_BOOKS,
             title = item.volumeInfo.title,
             authors = item.volumeInfo.authors,
-            publishedYear = year,
+            year = year,
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = coverUrl,
             coverRequestHeaders = getCoverHeaders(url = coverUrl),
-            status = ReadingStatus.NOT_STARTED,
-            createdAtEpochMs = 0, // not important for network construction
-            lastOpenAtEpochMs = 0, // not important for network construction
-            lastMarkedToDelete = 0, // not important for network construction
-            toBeDeleted = false, // not important for network construction
         )
     }
 
-    fun mapOrNull(doc: OpenLibraryDoc): Book? {
+    fun mapOrNull(doc: OpenLibraryDoc): TempBook? {
         val title = doc.title?.takeIf { it.isNotBlank() } ?: return null
         val id = doc.key ?: return null
 
@@ -66,47 +62,18 @@ class BookMapper @Inject constructor(
             "https://covers.openlibrary.org/b/id/$coverId-L.jpg"
         }
 
-        return Book(
-            id = "", // not important for network construction
+        return TempBook(
             sourceId = id,
             source = BookSource.OPEN_LIBRARY,
             title = title,
             authors = doc.authorName,
-            publishedYear = doc.firstPublishYear?.toString(),
+            year = doc.firstPublishYear?.toString(),
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = coverUrl,
             coverRequestHeaders = getCoverHeaders(url = coverUrl),
-            status = ReadingStatus.NOT_STARTED,
-            createdAtEpochMs = 0, // not important for network construction
-            lastOpenAtEpochMs = 0, // not important for network construction
-            lastMarkedToDelete = 0, // not important for network construction
-            toBeDeleted = false, // not important for network construction
         )
     }
-
-    fun mapFromManualInput(
-        title: String,
-        authors: String,
-        year: String?,
-        isbn13: String?,
-    ): Book = Book(
-        id = "", // not important for network construction
-        source = BookSource.MANUAL,
-        sourceId = null,
-        title = title,
-        authors = authors.split(",").map { it.trim() }.filter { it.isNotBlank() }.ifEmpty { listOf("") },
-        publishedYear = year,
-        isbn13 = isbn13?.takeIf { it.isNotBlank() },
-        isbn10 = null,
-        coverUrl = null,
-        coverRequestHeaders = emptyMap(),
-        status = ReadingStatus.NOT_STARTED,
-        createdAtEpochMs = 0, // not important for network construction
-        lastOpenAtEpochMs = 0, // not important for network construction
-        lastMarkedToDelete = 0, // not important for network construction
-        toBeDeleted = false, // not important for network construction
-    )
 
     fun map(entity: BookEntity): Book = Book(
         id = entity.bookId,

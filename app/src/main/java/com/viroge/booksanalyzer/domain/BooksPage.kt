@@ -1,9 +1,9 @@
 package com.viroge.booksanalyzer.domain
 
-import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.TempBook
 
 data class BooksPage(
-    val items: List<Book>,
+    val items: List<TempBook>,
     val errors: List<Throwable>,
     val nextToken: String?, // null => no more
 )

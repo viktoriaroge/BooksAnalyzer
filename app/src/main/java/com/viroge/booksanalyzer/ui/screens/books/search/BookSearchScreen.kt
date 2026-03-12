@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.SearchMode
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
 import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
@@ -54,7 +53,7 @@ fun BookSearchScreen(
     onRemoveRecentSearch: (String) -> Unit,
     onClearRecentSearches: () -> Unit,
     onManualAdd: (String) -> Unit,
-    onSelectBook: (Book) -> Unit,
+    onSelectBook: (SearchBookDataState) -> Unit,
 ) {
 
     Scaffold(
@@ -200,8 +199,8 @@ private fun BooksList(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     query: String,
-    items: List<Book>,
-    onSelect: (Book) -> Unit,
+    items: List<SearchBookDataState>,
+    onSelect: (SearchBookDataState) -> Unit,
     canLoadMore: Boolean,
     isLoadingMore: Boolean,
     onLoadMore: () -> Unit,
@@ -225,8 +224,8 @@ private fun BooksList(
                 ) {
                     with(sharedTransitionScope) {
                         PvBookCoverAsyncImage(
-                            url = book.coverUrl,
-                            requestHeaders = book.coverRequestHeaders,
+                            url = book.url,
+                            requestHeaders = book.headers,
                             size = PvBookCoverImageSize.XSMALL,
                             modifier = Modifier.sharedElement(
                                 rememberSharedContentState(
@@ -249,22 +248,17 @@ private fun BooksList(
                         if (book.authors.isNotEmpty()) {
                             Spacer(Modifier.height(height = 4.dp))
                             Text(
-                                text = book.authors.joinToString(separator = ", "),
+                                text = book.authors,
                                 style = MaterialTheme.typography.bodyMedium,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
                         }
 
-                        val meta = listOfNotNull(
-                            book.publishedYear,
-                            book.isbn13,
-                        ).joinToString(separator = " • ")
-
-                        if (meta.isNotBlank()) {
+                        if (book.meta.isNotBlank()) {
                             Spacer(Modifier.height(height = 4.dp))
                             Text(
-                                text = meta,
+                                text = book.meta,
                                 style = MaterialTheme.typography.bodySmall,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -285,9 +279,8 @@ private fun BooksList(
                                 overflow = TextOverflow.Ellipsis,
                             )
                             PvBookSourceBadge(
-                                source = book.source,
+                                sourceText = book.source.label.asString(),
                                 modifier = Modifier.padding(all = 2.dp),
-                                showFullSourceName = showingPartialResults,
                             )
                         }
                     }

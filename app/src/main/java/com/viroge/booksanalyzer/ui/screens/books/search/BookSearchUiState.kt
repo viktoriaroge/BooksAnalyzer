@@ -2,8 +2,8 @@ package com.viroge.booksanalyzer.ui.screens.books.search
 
 import androidx.annotation.StringRes
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.SearchMode
+import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
 data class BookSearchUiState(
     val isLoadingMore: Boolean,
@@ -26,13 +26,13 @@ sealed interface SearchScreenState {
 
     data class Success(
         val query: String,
-        val items: List<Book>,
+        val items: List<SearchBookDataState>,
         val contentStateValues: ContentStateValues,
     ) : SearchScreenState
 
     data class Partial(
         val query: String,
-        val items: List<Book>,
+        val items: List<SearchBookDataState>,
         val messages: List<String>,
         val contentStateValues: ContentStateValues,
     ) : SearchScreenState
@@ -47,6 +47,20 @@ sealed interface SearchScreenState {
         val errorStateValues: ErrorStateValues,
     ) : SearchScreenState
 }
+
+data class SearchBookDataState(
+    val animationKey: String,
+    val title: String,
+    val authors: String,
+    val year: String?,
+    val isbn13: String?,
+    val isbn10: String?,
+    val meta: String,
+    val source: BookSourceUi,
+    val sourceId: String?,
+    val url: String?,
+    val headers: Map<String, String>,
+)
 
 data class SearchScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,

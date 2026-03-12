@@ -1,8 +1,8 @@
 package com.viroge.booksanalyzer.domain.usecase
 
 import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.SearchMode
+import com.viroge.booksanalyzer.domain.model.TempBook
 import javax.inject.Inject
 
 class SearchBooksUseCase @Inject constructor(
@@ -35,7 +35,7 @@ class SearchBooksUseCase @Inject constructor(
 }
 
 data class SearchResult(
-    val items: List<Book>,
+    val items: List<TempBook>,
     val messages: List<String>,
     val nextToken: String?,
 )

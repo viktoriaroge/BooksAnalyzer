@@ -1,6 +1,11 @@
 package com.viroge.booksanalyzer.ui.screens.books.search
 
 import com.viroge.booksanalyzer.R
+import com.viroge.booksanalyzer.domain.model.BookSource
+import com.viroge.booksanalyzer.domain.model.SearchMode
+import com.viroge.booksanalyzer.domain.model.TempBook
+import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
+import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,4 +46,79 @@ class BookSearchMapper @Inject constructor() {
         loadMoreInProgressButtonText = R.string.search_screen_load_more_button_in_progress_text,
         manualButtonText = R.string.search_screen_add_manually_button,
     )
+
+    fun mapToDataState(
+        book: TempBook,
+    ): SearchBookDataState = SearchBookDataState(
+        animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13),
+        title = book.title,
+        authors = book.authors.joinToString(separator = ", "),
+        year = book.year,
+        isbn13 = book.isbn13,
+        isbn10 = book.isbn10,
+        meta = listOfNotNull(book.year, book.isbn13).joinToString(separator = " • "),
+        source = BookSourceUi.fromDomain(book.source),
+        sourceId = book.sourceId,
+        url = book.coverUrl,
+        headers = book.coverRequestHeaders ?: emptyMap(),
+    )
+
+    fun mapToTempBook(
+        book: SearchBookDataState,
+    ): TempBook = TempBook(
+        source = book.source.domainSource,
+        sourceId = book.sourceId,
+        title = book.title,
+        authors = book.authors.split(",").map { it.trim() },
+        year = book.year,
+        isbn13 = book.isbn13,
+        isbn10 = book.isbn10,
+        coverUrl = book.url,
+        coverRequestHeaders = book.headers,
+    )
+
+    fun mapToTempBook(
+        query: String,
+        mode: SearchMode,
+    ): TempBook = TempBook(
+        source = BookSource.MANUAL,
+        sourceId = null,
+        title = when (mode) {
+            SearchMode.ALL,
+            SearchMode.TITLE -> normalizeForManualInput(string = query)
+
+            SearchMode.ISBN,
+            SearchMode.AUTHOR -> ""
+        },
+        authors = when (mode) {
+            SearchMode.AUTHOR -> normalizeForManualInput(string = query)
+                .split(",").map { it.trim() }.filter { it.isNotBlank() }
+
+            SearchMode.ALL,
+            SearchMode.TITLE,
+            SearchMode.ISBN -> emptyList()
+        },
+        year = null,
+        isbn13 = when (mode) {
+            SearchMode.ALL,
+            SearchMode.TITLE,
+            SearchMode.AUTHOR -> ""
+
+            SearchMode.ISBN -> query
+        },
+        isbn10 = null,
+        coverUrl = null,
+        coverRequestHeaders = null,
+    )
+
+    private fun normalizeForManualInput(
+        string: String,
+        delimiter: String = " ",
+        separator: String = " ",
+    ): String = string.split(delimiter)
+        .joinToString(separator = separator) { word ->
+            val lowercaseWord = word.lowercase()
+            if (lowercaseWord.length > 3) lowercaseWord.replaceFirstChar { char -> char.titlecase() } else lowercaseWord
+        }
+        .replaceFirstChar { char -> char.titlecase() } // always have the first word be capitalized
 }
