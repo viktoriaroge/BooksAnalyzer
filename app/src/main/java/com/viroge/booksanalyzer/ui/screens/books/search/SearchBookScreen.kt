@@ -25,8 +25,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -49,22 +47,21 @@ import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 fun BookSearchScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    vm: SearchBookViewModel,
+    state: SearchUiState,
+    query: String,
+    mode: SearchMode,
+    recent: List<String>,
+    canLoadMore: Boolean,
+    isLoadingMore: Boolean,
     onLoadMore: () -> Unit,
+    onRefresh: () -> Unit,
     onQueryChanged: (String) -> Unit,
     onModeChanged: (SearchMode) -> Unit,
-    onSelectBook: (Book) -> Unit,
-    onRefresh: () -> Unit,
-    onManualAdd: (String) -> Unit,
+    onRemoveRecentSearch: (String) -> Unit,
     onClearRecentSearches: () -> Unit,
+    onManualAdd: (String) -> Unit,
+    onSelectBook: (Book) -> Unit,
 ) {
-
-    val query by vm.queryState.collectAsState()
-    val recent by vm.recentQueries.collectAsState()
-    val canLoadMore by vm.canLoadMore.collectAsState()
-    val isLoadingMore by vm.isLoadingMore.collectAsState()
-    val mode by vm.modeState.collectAsState()
-    val state by vm.uiState.collectAsState()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -89,7 +86,7 @@ fun BookSearchScreen(
                 label = { Text(text = stringResource(R.string.search_screen_search_field_hint)) },
                 singleLine = true,
                 trailingIcon = {
-                    IconButton(onClick = { vm.changeQuery(newValue = "") }) {
+                    IconButton(onClick = { onQueryChanged("") }) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = null,
@@ -98,13 +95,13 @@ fun BookSearchScreen(
                 }
             )
 
-            when (val selectedState = state) {
+            when (state) {
                 is SearchUiState.Idle -> {
                     RecentSearchesSection(
-                        values = selectedState.recentSearchesValues,
+                        values = state.recentSearchesValues,
                         recent = recent,
-                        onPick = { picked -> vm.changeQuery(newValue = picked) },
-                        onDeleteOne = vm::removeRecent,
+                        onPick = onQueryChanged,
+                        onDeleteOne = onRemoveRecentSearch,
                         onClearAll = onClearRecentSearches,
                     )
                 }
@@ -118,7 +115,7 @@ fun BookSearchScreen(
                     Spacer(Modifier.height(height = 16.dp))
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        text = selectedState.message,
+                        text = state.message,
                         color = MaterialTheme.colorScheme.error,
                     )
 
@@ -128,7 +125,7 @@ fun BookSearchScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         onClick = { onRefresh() }) {
-                        Text(text = stringResource(selectedState.errorStateValues.refreshButtonText))
+                        Text(text = stringResource(state.errorStateValues.refreshButtonText))
                     }
                 }
 
@@ -136,7 +133,7 @@ fun BookSearchScreen(
                     Spacer(Modifier.height(height = 16.dp))
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        text = customAnnotatedString(selectedState.emptyStateValues.noResultsText, selectedState.query),
+                        text = customAnnotatedString(state.emptyStateValues.noResultsText, state.query),
                     )
 
                     Spacer(Modifier.height(height = 8.dp))
@@ -144,18 +141,18 @@ fun BookSearchScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
-                        onClick = { onManualAdd(selectedState.query) }) {
-                        Text(text = stringResource(selectedState.emptyStateValues.manualButtonText))
+                        onClick = { onManualAdd(state.query) }) {
+                        Text(text = stringResource(state.emptyStateValues.manualButtonText))
                     }
                 }
 
                 is SearchUiState.Partial -> {
                     BooksList(
-                        contentStateValues = selectedState.contentStateValues,
+                        contentStateValues = state.contentStateValues,
                         sharedTransitionScope = sharedTransitionScope,
                         animatedVisibilityScope = animatedVisibilityScope,
-                        query = selectedState.query,
-                        items = selectedState.items,
+                        query = state.query,
+                        items = state.items,
                         onSelect = onSelectBook,
                         canLoadMore = canLoadMore,
                         isLoadingMore = isLoadingMore,
@@ -167,11 +164,11 @@ fun BookSearchScreen(
 
                 is SearchUiState.Success -> {
                     BooksList(
-                        contentStateValues = selectedState.contentStateValues,
+                        contentStateValues = state.contentStateValues,
                         sharedTransitionScope = sharedTransitionScope,
                         animatedVisibilityScope = animatedVisibilityScope,
-                        query = selectedState.query,
-                        items = selectedState.items,
+                        query = state.query,
+                        items = state.items,
                         onSelect = onSelectBook,
                         canLoadMore = canLoadMore,
                         isLoadingMore = isLoadingMore,

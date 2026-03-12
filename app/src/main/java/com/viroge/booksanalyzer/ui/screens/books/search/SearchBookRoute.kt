@@ -24,26 +24,36 @@ fun SearchBookRoute(
     val vm: SearchBookViewModel = hiltViewModel()
     val state by vm.uiState.collectAsState()
     val mode by vm.modeState.collectAsState()
+    val query by vm.queryState.collectAsState()
+    val recent by vm.recentQueries.collectAsState()
+    val canLoadMore by vm.canLoadMore.collectAsState()
+    val isLoadingMore by vm.isLoadingMore.collectAsState()
 
     var confirmClear by remember { mutableStateOf(value = false) }
 
     BookSearchScreen(
         sharedTransitionScope = sharedTransitionScope,
         animatedVisibilityScope = animatedVisibilityScope,
-        vm = vm,
-        onLoadMore = { vm.loadMore() },
-        onQueryChanged = { vm.changeQuery(it) },
-        onModeChanged = { vm.changeSearchMode(it) },
-        onSelectBook = { book ->
-            vm.selectBook(book)
-            onGoToConfirm()
-        },
-        onRefresh = { vm.refresh() },
+        state = state,
+        query = query,
+        mode = mode,
+        recent = recent,
+        canLoadMore = canLoadMore,
+        isLoadingMore = isLoadingMore,
+        onLoadMore = vm::loadMore,
+        onRefresh = vm::refresh,
+        onQueryChanged = vm::changeQuery,
+        onModeChanged = vm::changeSearchMode,
+        onRemoveRecentSearch = vm::removeRecent,
+        onClearRecentSearches = { confirmClear = true },
         onManualAdd = { prefill ->
             vm.setManualPrefill(prefill, mode)
             onGoToConfirm()
         },
-        onClearRecentSearches = { confirmClear = true },
+        onSelectBook = { book ->
+            vm.selectBook(book)
+            onGoToConfirm()
+        },
     )
 
     when (val selectedState = state) {
