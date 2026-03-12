@@ -22,8 +22,8 @@ fun SearchBookRoute(
         animatedVisibilityScope = animatedVisibilityScope,
         vm = vm,
         onLoadMore = { vm.loadMore() },
-        onQueryChanged = { vm.changeQuery(newValue = it) },
-        onModeChanged = { vm.changeSearchMode(newMode = it) },
+        onQueryChanged = { vm.changeQuery(it) },
+        onModeChanged = { vm.changeSearchMode(it) },
         onSelectBook = { book ->
             vm.selectBook(book)
             onGoToConfirm()
