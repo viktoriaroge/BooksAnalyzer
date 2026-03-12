@@ -22,11 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.R
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RecentSearchesSection(
+    values: RecentSearchesValues,
     recent: List<String>,
     onPick: (String) -> Unit,
     onDeleteOne: (String) -> Unit,
@@ -49,12 +49,12 @@ fun RecentSearchesSection(
         ) {
 
             Text(
-                text = stringResource(R.string.search_screen_recent_searches_section_text),
+                text = stringResource(values.sectionText),
                 style = MaterialTheme.typography.titleSmall,
             )
 
             TextButton(onClick = onClearAll) {
-                Text(text = stringResource(R.string.search_screen_recent_searches_clear_button))
+                Text(text = stringResource(values.clearButtonText))
             }
         }
 

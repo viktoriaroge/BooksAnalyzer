@@ -35,6 +35,7 @@ class SearchBookViewModel @Inject constructor(
     private val searchBooksUseCase: SearchBooksUseCase,
     getSearchHistoryUseCase: GetSearchHistoryUseCase,
     private val manageHistoryUseCase: ManageSearchHistoryUseCase,
+    private val mapper: SearchMapper,
 ) : ViewModel() {
 
     val recentQueries: StateFlow<List<String>> = getSearchHistoryUseCase()
@@ -50,7 +51,12 @@ class SearchBookViewModel @Inject constructor(
     private val mode = MutableStateFlow(SearchMode.ALL)
     val modeState = mode.asStateFlow()
 
-    private val _uiState = MutableStateFlow<SearchUiState>(SearchUiState.Idle)
+    private val _uiState = MutableStateFlow<SearchUiState>(
+        SearchUiState.Idle(
+            recentSearchesValues = mapper.getRecentSearchesValues(),
+            searchHistoryDialogValues = mapper.getSearchHistoryDialogValues(),
+        )
+    )
     val uiState = _uiState.asStateFlow()
 
     private val _canLoadMore = MutableStateFlow(false)
@@ -121,15 +127,30 @@ class SearchBookViewModel @Inject constructor(
         }
     }
 
-    private fun produceUiState(q: String): SearchUiState {
-        return when {
-            currentItems.isEmpty() && lastMessages.isNotEmpty() ->
-                SearchUiState.Error(lastMessages.first())
+    private fun produceUiState(q: String): SearchUiState = when {
+        currentItems.isEmpty() && lastMessages.isNotEmpty() ->
+            SearchUiState.Error(
+                message = lastMessages.first(),
+                errorStateValues = mapper.getErrorStateValues(),
+            )
 
-            currentItems.isEmpty() -> SearchUiState.Empty(q)
-            lastMessages.isEmpty() -> SearchUiState.Success(q, currentItems)
-            else -> SearchUiState.Partial(q, currentItems, lastMessages)
-        }
+        currentItems.isEmpty() -> SearchUiState.Empty(
+            query = q,
+            emptyStateValues = mapper.getEmptyStateValues(),
+        )
+
+        lastMessages.isEmpty() -> SearchUiState.Success(
+            query = q,
+            items = currentItems,
+            contentStateValues = mapper.getContentStateValues(),
+        )
+
+        else -> SearchUiState.Partial(
+            query = q,
+            items = currentItems,
+            messages = lastMessages,
+            contentStateValues = mapper.getContentStateValues(),
+        )
     }
 
     fun refresh() {
@@ -163,7 +184,10 @@ class SearchBookViewModel @Inject constructor(
         lastMessages = emptyList()
         _canLoadMore.value = false
         _isLoadingMore.value = false
-        _uiState.value = SearchUiState.Idle
+        _uiState.value = SearchUiState.Idle(
+            recentSearchesValues = mapper.getRecentSearchesValues(),
+            searchHistoryDialogValues = mapper.getSearchHistoryDialogValues(),
+        )
     }
 
     fun selectBook(book: Book) {

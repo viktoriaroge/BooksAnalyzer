@@ -4,7 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import com.viroge.booksanalyzer.R
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class BookCoverMapper @Inject constructor() {
 
     fun getStaticScreenValues(): BookCoverPickerScreenValues = BookCoverPickerScreenValues(

@@ -6,7 +6,9 @@ import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ConfirmBookMapper @Inject constructor() {
 
     fun getScreenValues(): ConfirmBookScreenValues = ConfirmBookScreenValues(

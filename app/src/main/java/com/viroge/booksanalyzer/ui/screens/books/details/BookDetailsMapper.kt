@@ -8,7 +8,9 @@ import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class BookDetailsMapper @Inject constructor() {
 
     fun getScreenValues(): BookDetailsScreenValues = BookDetailsScreenValues(

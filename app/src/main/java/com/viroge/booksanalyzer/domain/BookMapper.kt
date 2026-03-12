@@ -9,7 +9,9 @@ import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class BookMapper @Inject constructor(
     private val bookCoverHeaders: BookCoverHeaders,
 ) {

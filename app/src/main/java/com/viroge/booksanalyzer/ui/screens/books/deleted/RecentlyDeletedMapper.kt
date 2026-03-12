@@ -4,7 +4,9 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class RecentlyDeletedBookMapper @Inject constructor() {
 
     fun getScreenValues(): RecentlyDeletedScreenValues = RecentlyDeletedScreenValues(

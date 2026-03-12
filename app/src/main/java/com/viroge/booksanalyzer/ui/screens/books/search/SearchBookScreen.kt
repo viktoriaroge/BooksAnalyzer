@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -25,13 +24,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -61,13 +56,11 @@ fun BookSearchScreen(
     onSelectBook: (Book) -> Unit,
     onRefresh: () -> Unit,
     onManualAdd: (String) -> Unit,
+    onClearRecentSearches: () -> Unit,
 ) {
 
     val query by vm.queryState.collectAsState()
-
     val recent by vm.recentQueries.collectAsState()
-    var confirmClear by remember { mutableStateOf(value = false) }
-
     val canLoadMore by vm.canLoadMore.collectAsState()
     val isLoadingMore by vm.isLoadingMore.collectAsState()
     val mode by vm.modeState.collectAsState()
@@ -106,12 +99,13 @@ fun BookSearchScreen(
             )
 
             when (val selectedState = state) {
-                SearchUiState.Idle -> {
+                is SearchUiState.Idle -> {
                     RecentSearchesSection(
+                        values = selectedState.recentSearchesValues,
                         recent = recent,
                         onPick = { picked -> vm.changeQuery(newValue = picked) },
                         onDeleteOne = vm::removeRecent,
-                        onClearAll = { confirmClear = true },
+                        onClearAll = onClearRecentSearches,
                     )
                 }
 
@@ -134,7 +128,7 @@ fun BookSearchScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         onClick = { onRefresh() }) {
-                        Text(text = stringResource(R.string.search_screen_refresh_button))
+                        Text(text = stringResource(selectedState.errorStateValues.refreshButtonText))
                     }
                 }
 
@@ -142,7 +136,7 @@ fun BookSearchScreen(
                     Spacer(Modifier.height(height = 16.dp))
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        text = customAnnotatedString(R.string.search_screen_no_results_error_text, selectedState.query),
+                        text = customAnnotatedString(selectedState.emptyStateValues.noResultsText, selectedState.query),
                     )
 
                     Spacer(Modifier.height(height = 8.dp))
@@ -151,63 +145,40 @@ fun BookSearchScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         onClick = { onManualAdd(selectedState.query) }) {
-                        Text(text = stringResource(R.string.search_screen_add_manually_button))
+                        Text(text = stringResource(selectedState.emptyStateValues.manualButtonText))
                     }
                 }
 
                 is SearchUiState.Partial -> {
                     BooksList(
-                        sharedTransitionScope,
-                        animatedVisibilityScope,
-                        selectedState.query,
-                        selectedState.items,
-                        onSelectBook,
-                        canLoadMore,
-                        isLoadingMore,
-                        onLoadMore,
-                        onManualAdd,
+                        contentStateValues = selectedState.contentStateValues,
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        query = selectedState.query,
+                        items = selectedState.items,
+                        onSelect = onSelectBook,
+                        canLoadMore = canLoadMore,
+                        isLoadingMore = isLoadingMore,
+                        onLoadMore = onLoadMore,
+                        onManualAdd = onManualAdd,
                         showingPartialResults = true,
                     )
                 }
 
                 is SearchUiState.Success -> {
                     BooksList(
-                        sharedTransitionScope,
-                        animatedVisibilityScope,
-                        selectedState.query,
-                        selectedState.items,
-                        onSelectBook,
-                        canLoadMore,
-                        isLoadingMore,
-                        onLoadMore,
-                        onManualAdd,
+                        contentStateValues = selectedState.contentStateValues,
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        query = selectedState.query,
+                        items = selectedState.items,
+                        onSelect = onSelectBook,
+                        canLoadMore = canLoadMore,
+                        isLoadingMore = isLoadingMore,
+                        onLoadMore = onLoadMore,
+                        onManualAdd = onManualAdd,
                     )
                 }
-            }
-
-            if (confirmClear) {
-                AlertDialog(
-                    onDismissRequest = { confirmClear = false },
-                    title = {
-                        Text(text = stringResource(R.string.search_screen_clear_history_dialog_title))
-                    },
-                    text = {
-                        Text(text = stringResource(R.string.search_screen_clear_history_dialog_text))
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                confirmClear = false
-                                vm.clearRecents()
-                            }) { Text(text = stringResource(R.string.search_screen_clear_history_clear_button)) }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                confirmClear = false
-                            }) { Text(text = stringResource(R.string.search_screen_clear_history_cancel_button)) }
-                    },
-                )
             }
         }
     }
@@ -234,6 +205,7 @@ fun SearchModeChips(
 
 @Composable
 private fun BooksList(
+    contentStateValues: ContentStateValues,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     query: String,
@@ -294,7 +266,7 @@ private fun BooksList(
                         }
 
                         val meta = listOfNotNull(
-                            book.publishedYear?.toString(),
+                            book.publishedYear,
                             book.isbn13,
                         ).joinToString(separator = " • ")
 
@@ -316,7 +288,7 @@ private fun BooksList(
                         ) {
                             Spacer(modifier = Modifier.weight(weight = 1f))
                             Text(
-                                text = stringResource(R.string.search_screen_source_label),
+                                text = stringResource(contentStateValues.sourceLabel),
                                 style = MaterialTheme.typography.bodySmall,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -335,11 +307,11 @@ private fun BooksList(
         item {
             if (showingPartialResults) {
                 Spacer(Modifier.height(height = 8.dp))
-                Text(text = stringResource(R.string.search_screen_partial_results_error_text))
+                Text(text = stringResource(contentStateValues.partialResultsText))
             }
 
             Spacer(Modifier.height(height = 8.dp))
-            Text(text = stringResource(R.string.search_screen_load_more_suggestion_text))
+            Text(text = stringResource(contentStateValues.loadMoreSuggestionText))
 
             if (canLoadMore) {
                 Spacer(Modifier.height(height = 8.dp))
@@ -350,8 +322,8 @@ private fun BooksList(
                 ) {
                     Text(
                         text =
-                            if (isLoadingMore) stringResource(R.string.search_screen_load_more_button_in_progress_text)
-                            else stringResource(R.string.search_screen_load_more_button_default_text)
+                            if (isLoadingMore) stringResource(contentStateValues.loadMoreInProgressButtonText)
+                            else stringResource(contentStateValues.loadMoreDefaultButtonText)
                     )
                 }
             }
@@ -361,7 +333,7 @@ private fun BooksList(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onManualAdd(query) },
             ) {
-                Text(text = stringResource(R.string.search_screen_add_manually_button))
+                Text(text = stringResource(contentStateValues.manualButtonText))
             }
 
             Spacer(Modifier.height(height = 16.dp))

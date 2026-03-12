@@ -2,7 +2,9 @@ package com.viroge.booksanalyzer.ui.screens.terms
 
 import com.viroge.booksanalyzer.R
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class TermsMapper @Inject constructor() {
 
     fun map(

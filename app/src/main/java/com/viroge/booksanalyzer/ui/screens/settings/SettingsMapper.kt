@@ -7,7 +7,9 @@ import androidx.compose.material.icons.filled.LocalLibrary
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.nav.Routes
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class SettingsMapper @Inject constructor() {
 
     fun map(
