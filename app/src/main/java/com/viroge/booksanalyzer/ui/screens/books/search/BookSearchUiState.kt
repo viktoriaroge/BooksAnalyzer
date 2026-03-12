@@ -2,14 +2,13 @@ package com.viroge.booksanalyzer.ui.screens.books.search
 
 import androidx.annotation.StringRes
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.model.SearchMode
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
 data class BookSearchUiState(
     val isLoadingMore: Boolean,
     val canLoadMore: Boolean,
     val query: String,
-    val mode: SearchMode,
+    val mode: BookSearchModeUi,
     val recent: List<String>,
     val screenState: SearchScreenState,
     val screenValues: SearchScreenValues,

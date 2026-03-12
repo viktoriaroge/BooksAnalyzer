@@ -120,7 +120,7 @@ class BookSearchViewModel @Inject constructor(
             isLoadingMore = loading.isLoadingMore,
             canLoadMore = _nextToken.value != null,
             query = q,
-            mode = mode,
+            mode = BookSearchModeUi.fromDomain(mode),
             recent = recent,
             screenState = screenState,
             screenValues = mapper.getScreenValues(),
@@ -132,7 +132,7 @@ class BookSearchViewModel @Inject constructor(
             isLoadingMore = false,
             canLoadMore = false,
             query = "",
-            mode = SearchMode.ALL,
+            mode = BookSearchModeUi.All,
             recent = emptyList(),
             screenState = SearchScreenState.Idle(
                 mapper.getRecentSearchesValues(),
@@ -146,8 +146,8 @@ class BookSearchViewModel @Inject constructor(
         _query.value = newValue
     }
 
-    fun changeSearchMode(newMode: SearchMode) {
-        _mode.value = newMode
+    fun changeSearchMode(newMode: BookSearchModeUi) {
+        _mode.value = newMode.domainStatus
     }
 
     fun refresh() {
@@ -218,8 +218,8 @@ class BookSearchViewModel @Inject constructor(
         bookSelectionStateProvider.selectTempBook(mapper.mapToTempBook(book))
     }
 
-    fun setManualPrefill(query: String, mode: SearchMode) {
-        bookSelectionStateProvider.selectTempBook(mapper.mapToTempBook(query, mode))
+    fun setManualPrefill(query: String, mode: BookSearchModeUi) {
+        bookSelectionStateProvider.selectTempBook(mapper.mapToTempBook(query, mode.domainStatus))
     }
 
     private enum class SearchPhase { Idle, Loading, DisplayingResults }

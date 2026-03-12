@@ -25,12 +25,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.domain.model.SearchMode
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
 import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
@@ -49,7 +49,7 @@ fun BookSearchScreen(
     onLoadMore: () -> Unit,
     onRefresh: () -> Unit,
     onQueryChanged: (String) -> Unit,
-    onModeChanged: (SearchMode) -> Unit,
+    onModeChanged: (BookSearchModeUi) -> Unit,
     onRemoveRecentSearch: (String) -> Unit,
     onClearRecentSearches: () -> Unit,
     onManualAdd: (String) -> Unit,
@@ -176,18 +176,20 @@ fun BookSearchScreen(
 
 @Composable
 fun SearchModeChips(
-    selected: SearchMode,
-    onSelect: (SearchMode) -> Unit,
+    selected: BookSearchModeUi,
+    onSelect: (BookSearchModeUi) -> Unit,
 ) {
+    val options = remember { BookSearchModeUi.allOptions() }
+
     Row(
         modifier = Modifier.padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
     ) {
-        for (mode in SearchMode.entries) {
+        options.forEach { mode ->
             FilterChip(
                 selected = selected == mode,
                 onClick = { onSelect(mode) },
-                label = { Text(text = SearchModeMapper.getUiModel(mode).text) },
+                label = { Text(text = mode.label.asString()) },
             )
         }
     }
