@@ -54,20 +54,17 @@ fun PvBookCoverHeader(
         )
 
         // Cover image:
-        with(sharedTransitionScope) {
-            PvBookCoverAsyncImage(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(vertical = 32.dp)
-                    .shadow(12.dp, RoundedCornerShape(12.dp))
-                    .sharedElement(
-                        rememberSharedContentState(key = animationKey),
-                        animatedVisibilityScope = animatedVisibilityScope
-                    ),
-                url = imageUrl,
-                requestHeaders = headersForBookCover,
-                size = PvBookCoverImageSize.XXLARGE,
-            )
-        }
+        PvBookCoverAsyncImage(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(vertical = 32.dp),
+            url = imageUrl,
+            requestHeaders = headersForBookCover,
+            size = PvBookCoverImageSize.XXLARGE,
+            animate = true,
+            animationKey = animationKey,
+            sharedTransitionScope = sharedTransitionScope,
+            animatedVisibilityScope = animatedVisibilityScope,
+        )
     }
 }

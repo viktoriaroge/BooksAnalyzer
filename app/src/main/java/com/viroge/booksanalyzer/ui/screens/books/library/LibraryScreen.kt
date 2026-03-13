@@ -290,19 +290,17 @@ fun CurrentlyReadingCard(
             Box(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                with(sharedTransitionScope) {
-                    PvBookCoverAsyncImage(
-                        url = book.url,
-                        requestHeaders = book.headers,
-                        size = PvBookCoverImageSize.MEDIUM,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .sharedElement(
-                                rememberSharedContentState(key = book.animationKey),
-                                animatedVisibilityScope = animatedVisibilityScope
-                            ),
-                    )
-                }
+                PvBookCoverAsyncImage(
+                    url = book.url,
+                    requestHeaders = book.headers,
+                    size = PvBookCoverImageSize.MEDIUM,
+                    modifier = Modifier.align(Alignment.Center),
+                    animate = true,
+                    animationKey = book.animationKey,
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedVisibilityScope = animatedVisibilityScope,
+                )
+
                 PvBookSourceBadge(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -354,18 +352,15 @@ private fun BookRowCard(
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
         ) {
 
-            with(sharedTransitionScope) {
-                PvBookCoverAsyncImage(
-                    url = book.url,
-                    requestHeaders = book.headers,
-                    size = PvBookCoverImageSize.SMALL,
-                    modifier = Modifier
-                        .sharedElement(
-                            rememberSharedContentState(key = book.animationKey),
-                            animatedVisibilityScope = animatedVisibilityScope
-                        ),
-                )
-            }
+            PvBookCoverAsyncImage(
+                url = book.url,
+                requestHeaders = book.headers,
+                size = PvBookCoverImageSize.SMALL,
+                animate = true,
+                animationKey = book.animationKey,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+            )
 
             Column(modifier = Modifier.weight(weight = 1f)) {
                 Text(

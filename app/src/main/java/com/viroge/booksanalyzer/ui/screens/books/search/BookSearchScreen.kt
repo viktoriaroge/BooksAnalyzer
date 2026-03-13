@@ -43,7 +43,6 @@ import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvItemCard
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
-import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -256,19 +255,15 @@ private fun BooksList(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                 ) {
-                    with(sharedTransitionScope) {
-                        PvBookCoverAsyncImage(
-                            url = book.url,
-                            requestHeaders = book.headers,
-                            size = PvBookCoverImageSize.XSMALL,
-                            modifier = Modifier.sharedElement(
-                                rememberSharedContentState(
-                                    key = book.animationKey
-                                ),
-                                animatedVisibilityScope = animatedVisibilityScope
-                            ),
-                        )
-                    }
+                    PvBookCoverAsyncImage(
+                        url = book.url,
+                        requestHeaders = book.headers,
+                        size = PvBookCoverImageSize.XSMALL,
+                        animate = true,
+                        animationKey = book.animationKey,
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    )
 
                     Column(modifier = Modifier.weight(weight = 1f)) {
 

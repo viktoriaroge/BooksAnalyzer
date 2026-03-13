@@ -2,11 +2,18 @@ package com.viroge.booksanalyzer.ui.components
 
 import android.util.Log
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -17,54 +24,104 @@ import com.viroge.booksanalyzer.R
 
 @Composable
 fun PvBookCoverAsyncImage(
+    modifier: Modifier = Modifier,
     url: String?,
     requestHeaders: Map<String, String>,
     @DrawableRes defaultImageRes: Int = R.drawable.ic_empty_book_cover,
     size: PvBookCoverImageSize = PvBookCoverImageSize.SMALL,
     contentScale: ContentScale = ContentScale.Crop,
-    modifier: Modifier = Modifier,
-) = AsyncImage(
-    modifier = modifier
-        .size(
-            width = when (size) {
-                PvBookCoverImageSize.XSMALL -> 60.dp
-                PvBookCoverImageSize.SMALL -> 80.dp
-                PvBookCoverImageSize.MEDIUM -> 120.dp
-                PvBookCoverImageSize.LARGE -> 160.dp
-                PvBookCoverImageSize.XLARGE -> 200.dp
-                PvBookCoverImageSize.XXLARGE -> 240.dp
-            },
-            height = when (size) {
-                PvBookCoverImageSize.XSMALL -> 90.dp
-                PvBookCoverImageSize.SMALL -> 120.dp
-                PvBookCoverImageSize.MEDIUM -> 180.dp
-                PvBookCoverImageSize.LARGE -> 240.dp
-                PvBookCoverImageSize.XLARGE -> 300.dp
-                PvBookCoverImageSize.XXLARGE -> 360.dp
-            },
-        )
-        .clip(RoundedCornerShape(12.dp)),
-    model = ImageRequest.Builder(context = LocalContext.current)
-        .data(data = url)
-        .memoryCacheKey(url)
-        .placeholderMemoryCacheKey(url)
-        .let { chain ->
-            for ((name, value) in requestHeaders) {
-                chain.addHeader(name, value)
+    // Animation parameters:
+    animate: Boolean = false,
+    animationKey: String? = null,
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedVisibilityScope: AnimatedVisibilityScope? = null,
+) {
+    Box(
+        modifier = modifier
+            .size(
+                width = when (size) {
+                    PvBookCoverImageSize.XSMALL -> 60.dp
+                    PvBookCoverImageSize.SMALL -> 80.dp
+                    PvBookCoverImageSize.MEDIUM -> 120.dp
+                    PvBookCoverImageSize.LARGE -> 160.dp
+                    PvBookCoverImageSize.XLARGE -> 200.dp
+                    PvBookCoverImageSize.XXLARGE -> 240.dp
+                },
+                height = when (size) {
+                    PvBookCoverImageSize.XSMALL -> 90.dp
+                    PvBookCoverImageSize.SMALL -> 120.dp
+                    PvBookCoverImageSize.MEDIUM -> 180.dp
+                    PvBookCoverImageSize.LARGE -> 240.dp
+                    PvBookCoverImageSize.XLARGE -> 300.dp
+                    PvBookCoverImageSize.XXLARGE -> 360.dp
+                },
+            )
+            .clip(RoundedCornerShape(12.dp))
+            .shadow(12.dp, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+
+        if (animate && animationKey != null && sharedTransitionScope != null && animatedVisibilityScope != null) {
+            with(sharedTransitionScope) {
+                PvAsyncImage(
+                    modifier = Modifier
+                        .sharedElement(
+                            rememberSharedContentState(
+                                key = animationKey
+                            ),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        ),
+                    url = url,
+                    requestHeaders = requestHeaders,
+                    defaultImageRes = defaultImageRes,
+                    contentScale = contentScale,
+                )
             }
-            chain
+        } else {
+            PvAsyncImage(
+                url = url,
+                requestHeaders = requestHeaders,
+                defaultImageRes = defaultImageRes,
+                contentScale = contentScale,
+            )
         }
-        .crossfade(enable = true)
-        .listener(
-            onCancel = { Log.println(Log.DEBUG, "CommonAsyncImage", "---> Loading Canceled for: $url") },
-            onError = { _, _ -> Log.println(Log.DEBUG, "CommonAsyncImage", "---> Loading Failed for: $url") },
-            onSuccess = { _, _ -> Log.println(Log.DEBUG, "CommonAsyncImage", "---> Loading Succeeded for: $url") },
-        )
-        .build(),
-    error = painterResource(id = defaultImageRes),
-    contentScale = contentScale,
-    contentDescription = null,
-)
+    }
+}
+
+@Composable
+private fun PvAsyncImage(
+    modifier: Modifier = Modifier,
+    url: String?,
+    requestHeaders: Map<String, String>,
+    @DrawableRes defaultImageRes: Int = R.drawable.ic_empty_book_cover,
+    contentScale: ContentScale = ContentScale.Crop,
+) {
+    AsyncImage(
+        modifier = modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(12.dp)),
+        model = ImageRequest.Builder(context = LocalContext.current)
+            .data(data = url)
+            .memoryCacheKey(url)
+            .placeholderMemoryCacheKey(url)
+            .let { chain ->
+                for ((name, value) in requestHeaders) {
+                    chain.addHeader(name, value)
+                }
+                chain
+            }
+            .crossfade(enable = true)
+            .listener(
+                onCancel = { Log.println(Log.DEBUG, "CommonAsyncImage", "---> Loading Canceled for: $url") },
+                onError = { _, _ -> Log.println(Log.DEBUG, "CommonAsyncImage", "---> Loading Failed for: $url") },
+                onSuccess = { _, _ -> Log.println(Log.DEBUG, "CommonAsyncImage", "---> Loading Succeeded for: $url") },
+            )
+            .build(),
+        error = painterResource(id = defaultImageRes),
+        contentScale = contentScale,
+        contentDescription = null,
+    )
+}
 
 enum class PvBookCoverImageSize {
     XSMALL,
