@@ -85,7 +85,7 @@ fun BookSearchScreen(
                 label = { Text(text = stringResource(state.screenValues.searchFieldHint)) },
                 singleLine = true,
                 trailingIcon = {
-                    IconButton(onClick = { onQueryChanged("") }) {
+                    IconButton(onClick = remember { { onQueryChanged("") } }) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = null,
@@ -103,14 +103,21 @@ fun BookSearchScreen(
                     }
                 ),
                 keyboardActions = KeyboardActions(
-                    onSearch = {
-                        focusManager.clearFocus()
-                        onRefresh()
+                    onSearch = remember {
+                        {
+                            focusManager.clearFocus()
+                            onRefresh()
+                        }
                     }
                 ),
             )
 
             when (val screenState = state.screenState) {
+                SearchScreenState.Loading -> {
+                    Spacer(Modifier.height(height = 4.dp))
+                    PvLinearProgressIndicator()
+                }
+
                 is SearchScreenState.Idle -> {
                     RecentSearchesSection(
                         values = screenState.recentSearchesValues,
@@ -119,29 +126,6 @@ fun BookSearchScreen(
                         onDeleteOne = onRemoveRecentSearch,
                         onClearAll = onClearRecentSearches,
                     )
-                }
-
-                SearchScreenState.Loading -> {
-                    Spacer(Modifier.height(height = 4.dp))
-                    PvLinearProgressIndicator()
-                }
-
-                is SearchScreenState.Error -> {
-                    Spacer(Modifier.height(height = 16.dp))
-                    Text(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        text = screenState.message,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-
-                    Spacer(Modifier.height(height = 8.dp))
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        onClick = { onRefresh() }) {
-                        Text(text = stringResource(screenState.errorStateValues.refreshButtonText))
-                    }
                 }
 
                 is SearchScreenState.Empty -> {
@@ -156,45 +140,52 @@ fun BookSearchScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
-                        onClick = { onManualAdd(state.query) }) {
+                        onClick = remember { { onManualAdd(state.query) } }) {
                         Text(text = stringResource(screenState.emptyStateValues.manualButtonText))
                     }
                 }
 
-                is SearchScreenState.Partial -> {
-                    BooksList(
-                        contentStateValues = screenState.contentStateValues,
-                        sharedTransitionScope = sharedTransitionScope,
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        query = state.query,
-                        items = screenState.items,
-                        onSelect = { book ->
-                            focusManager.clearFocus()
-                            onSelectBook(book)
-                        },
-                        canLoadMore = state.canLoadMore,
-                        isLoadingMore = state.isLoadingMore,
-                        onLoadMore = onLoadMore,
-                        onManualAdd = onManualAdd,
-                        showingPartialResults = true,
+                is SearchScreenState.Error -> {
+                    Spacer(Modifier.height(height = 16.dp))
+                    Text(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth(),
+                        text = stringResource(screenState.errorStateValues.errorMessage),
+                        color = MaterialTheme.colorScheme.error,
                     )
+
+                    Spacer(Modifier.height(height = 8.dp))
+                    Button(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth(),
+                        onClick = onRefresh
+                    ) {
+                        Text(text = stringResource(screenState.errorStateValues.refreshButtonText))
+                    }
                 }
 
-                is SearchScreenState.Success -> {
+                is SearchScreenState.Content -> {
                     BooksList(
                         contentStateValues = screenState.contentStateValues,
                         sharedTransitionScope = sharedTransitionScope,
                         animatedVisibilityScope = animatedVisibilityScope,
                         query = state.query,
                         items = screenState.items,
-                        onSelect = { book ->
-                            focusManager.clearFocus()
-                            onSelectBook(book)
+                        onSelect = remember {
+                            { book ->
+                                focusManager.clearFocus()
+                                onSelectBook(book)
+                            }
                         },
                         canLoadMore = state.canLoadMore,
                         isLoadingMore = state.isLoadingMore,
                         onLoadMore = onLoadMore,
                         onManualAdd = onManualAdd,
+
+                        showErrorMessage = screenState.showError,
+                        errorStateValues = screenState.errorStateValues,
                     )
                 }
             }
@@ -216,7 +207,7 @@ fun SearchModeChips(
         options.forEach { mode ->
             FilterChip(
                 selected = selected == mode,
-                onClick = { onSelect(mode) },
+                onClick = remember { { onSelect(mode) } },
                 label = { Text(text = mode.label.asString()) },
             )
         }
@@ -235,7 +226,9 @@ private fun BooksList(
     isLoadingMore: Boolean,
     onLoadMore: () -> Unit,
     onManualAdd: (String) -> Unit,
-    showingPartialResults: Boolean = false,
+
+    showErrorMessage: Boolean,
+    errorStateValues: ErrorStateValues,
 ) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -249,7 +242,7 @@ private fun BooksList(
         ) { book ->
             PvItemCard(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { onSelect(book) },
+                onClick = remember { { onSelect(book) } },
             ) {
                 Row(
                     modifier = Modifier.padding(all = 12.dp),
@@ -322,18 +315,22 @@ private fun BooksList(
             key = "footer",
             contentType = { "footer" },
         ) {
-            if (showingPartialResults) {
+            if (showErrorMessage) {
                 Spacer(Modifier.height(height = 8.dp))
-                Text(text = stringResource(contentStateValues.partialResultsText))
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(errorStateValues.errorMessage),
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
 
             Spacer(Modifier.height(height = 8.dp))
-            Text(text = stringResource(contentStateValues.loadMoreSuggestionText))
+            Text(text = stringResource(contentStateValues.additionalSuggestionText))
 
             if (canLoadMore) {
                 Spacer(Modifier.height(height = 8.dp))
                 Button(
-                    onClick = { onLoadMore() },
+                    onClick = onLoadMore,
                     enabled = !isLoadingMore,
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -348,7 +345,7 @@ private fun BooksList(
             Spacer(Modifier.height(height = 8.dp))
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { onManualAdd(query) },
+                onClick = remember { { onManualAdd(query) } },
             ) {
                 Text(text = stringResource(contentStateValues.manualButtonText))
             }

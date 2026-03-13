@@ -19,23 +19,29 @@ class SearchBooksUseCase @Inject constructor(
             pageToken = pageToken,
         )
 
-        val messages = page.errors.map { error ->
+        val error = page.errors.map { error ->
             val msg = error.message ?: error.javaClass.simpleName
-            if (msg.lowercase().contains("noconnection")) {
-                "Check your Internet connection."
-            } else msg
-        }.distinct()
+
+            if (msg.lowercase().contains("noconnection")) SearchError.NO_CONNECTION
+            else SearchError.UNKNOWN
+        }.distinct().firstOrNull() ?: SearchError.NONE
 
         return SearchResult(
             items = page.items,
-            messages = messages,
-            nextToken = page.nextToken
+            nextToken = page.nextToken,
+            error = error,
         )
     }
 }
 
 data class SearchResult(
     val items: List<TempBook>,
-    val messages: List<String>,
     val nextToken: String?,
+    val error: SearchError,
 )
+
+enum class SearchError {
+    NO_CONNECTION,
+    UNKNOWN,
+    NONE,
+}

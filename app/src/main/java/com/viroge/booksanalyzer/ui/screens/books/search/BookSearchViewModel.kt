@@ -9,6 +9,7 @@ import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.usecase.GetSearchHistoryUseCase
 import com.viroge.booksanalyzer.domain.usecase.ManageSearchHistoryUseCase
 import com.viroge.booksanalyzer.domain.usecase.SearchBooksUseCase
+import com.viroge.booksanalyzer.domain.usecase.SearchError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,7 +44,7 @@ class BookSearchViewModel @Inject constructor(
     private val _searchTrigger = MutableSharedFlow<Unit>(replay = 1)
         .apply { tryEmit(Unit) }
     private val _currentItems = MutableStateFlow<List<TempBook>>(emptyList())
-    private val _lastMessages = MutableStateFlow<List<String>>(emptyList())
+    private val _lastError = MutableStateFlow(SearchError.NONE)
     private val _nextToken = MutableStateFlow<String?>(null)
     private val _loadingIndicator = MutableStateFlow(LoadingIndicator(canLoadMore = false, isLoadingMore = false))
 
@@ -78,7 +79,7 @@ class BookSearchViewModel @Inject constructor(
                 lastQuery = q
                 lastMode = mode
                 _currentItems.value = result.items
-                _lastMessages.value = result.messages
+                _lastError.value = result.error
                 _nextToken.value = result.nextToken
 
                 manageHistoryUseCase.record(q)
@@ -93,21 +94,30 @@ class BookSearchViewModel @Inject constructor(
 
     private val screenState: Flow<SearchScreenState> = combine(
         _query,
-        _lastMessages,
+        _lastError,
         screenPhase,
         mappedItems
-    ) { q, messages, phase, items ->
+    ) { q, error, phase, items ->
         when (phase) {
+            SearchPhase.Loading -> SearchScreenState.Loading
+
             SearchPhase.Idle -> SearchScreenState.Idle(
                 recentSearchesValues = mapper.getRecentSearchesValues(),
                 searchHistoryDialogValues = mapper.getSearchHistoryDialogValues()
             )
 
-            SearchPhase.Loading -> SearchScreenState.Loading
             SearchPhase.DisplayingResults -> when {
-                items.isEmpty() && messages.isNotEmpty() -> SearchScreenState.Error(
-                    message = messages.first(),
-                    errorStateValues = mapper.getErrorStateValues()
+                items.isEmpty() && error != SearchError.NONE -> SearchScreenState.Error(
+                    errorStateValues = mapper.getErrorStateValues(error)
+                )
+
+                error != SearchError.NONE -> SearchScreenState.Content(
+                    query = q,
+                    items = items,
+                    contentStateValues = mapper.getContentStateValues(),
+
+                    showError = true,
+                    errorStateValues = mapper.getErrorStateValues(error),
                 )
 
                 items.isEmpty() -> SearchScreenState.Empty(
@@ -115,16 +125,9 @@ class BookSearchViewModel @Inject constructor(
                     emptyStateValues = mapper.getEmptyStateValues()
                 )
 
-                messages.isEmpty() -> SearchScreenState.Success(
+                else -> SearchScreenState.Content(
                     query = q,
                     items = items,
-                    contentStateValues = mapper.getContentStateValues()
-                )
-
-                else -> SearchScreenState.Partial(
-                    query = q,
-                    items = items,
-                    messages = messages,
                     contentStateValues = mapper.getContentStateValues()
                 )
             }
@@ -198,8 +201,9 @@ class BookSearchViewModel @Inject constructor(
             val result = searchBooksUseCase(q, _mode.value, token)
 
             _currentItems.value = mergeAndRank(_currentItems.value + result.items)
-            _lastMessages.value = (_lastMessages.value + result.messages).distinct()
-            _nextToken.value = result.nextToken
+            _lastError.value = result.error
+
+            if (result.error != SearchError.NO_CONNECTION) _nextToken.value = result.nextToken
 
             _loadingIndicator.update { it.copy(isLoadingMore = false) }
         }
@@ -207,7 +211,7 @@ class BookSearchViewModel @Inject constructor(
 
     private fun resetInternalData() {
         _currentItems.value = emptyList()
-        _lastMessages.value = emptyList()
+        _lastError.value = SearchError.NONE
         _nextToken.value = null
         _loadingIndicator.update { it.copy(isLoadingMore = false, canLoadMore = false) }
     }

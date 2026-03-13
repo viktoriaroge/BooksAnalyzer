@@ -4,6 +4,7 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.SearchMode
 import com.viroge.booksanalyzer.domain.model.TempBook
+import com.viroge.booksanalyzer.domain.usecase.SearchError
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import javax.inject.Inject
@@ -29,7 +30,12 @@ class BookSearchMapper @Inject constructor() {
         cancelButtonText = R.string.search_screen_clear_history_cancel_button,
     )
 
-    fun getErrorStateValues(): ErrorStateValues = ErrorStateValues(
+    fun getErrorStateValues(error: SearchError): ErrorStateValues = ErrorStateValues(
+        errorMessage = when (error) {
+            SearchError.NO_CONNECTION -> R.string.search_screen_error_message_no_connection
+            SearchError.UNKNOWN -> R.string.search_screen_error_message_unknown
+            SearchError.NONE -> R.string.empty_text
+        },
         refreshButtonText = R.string.search_screen_refresh_button,
     )
 
@@ -40,8 +46,7 @@ class BookSearchMapper @Inject constructor() {
 
     fun getContentStateValues(): ContentStateValues = ContentStateValues(
         sourceLabel = R.string.search_screen_source_label,
-        partialResultsText = R.string.search_screen_partial_results_error_text,
-        loadMoreSuggestionText = R.string.search_screen_load_more_suggestion_text,
+        additionalSuggestionText = R.string.search_screen_additional_suggestion_text,
         loadMoreDefaultButtonText = R.string.search_screen_load_more_button_default_text,
         loadMoreInProgressButtonText = R.string.search_screen_load_more_button_in_progress_text,
         manualButtonText = R.string.search_screen_add_manually_button,

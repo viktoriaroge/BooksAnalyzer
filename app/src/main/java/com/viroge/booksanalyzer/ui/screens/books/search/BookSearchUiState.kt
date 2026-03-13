@@ -26,27 +26,22 @@ sealed interface SearchScreenState {
         val searchHistoryDialogValues: SearchHistoryDialogValues,
     ) : SearchScreenState
 
-    data class Success(
-        val query: String,
-        val items: List<SearchBookDataState>,
-        val contentStateValues: ContentStateValues,
-    ) : SearchScreenState
-
-    data class Partial(
-        val query: String,
-        val items: List<SearchBookDataState>,
-        val messages: List<String>,
-        val contentStateValues: ContentStateValues,
-    ) : SearchScreenState
-
     data class Empty(
         val query: String,
         val emptyStateValues: EmptyStateValues,
     ) : SearchScreenState
 
     data class Error(
-        val message: String,
         val errorStateValues: ErrorStateValues,
+    ) : SearchScreenState
+
+    data class Content(
+        val query: String,
+        val items: List<SearchBookDataState>,
+        val contentStateValues: ContentStateValues,
+
+        val showError: Boolean = false,
+        val errorStateValues: ErrorStateValues = ErrorStateValues(),
     ) : SearchScreenState
 }
 
@@ -82,6 +77,7 @@ data class SearchHistoryDialogValues(
 )
 
 data class ErrorStateValues(
+    @param:StringRes val errorMessage: Int = R.string.empty_text,
     @param:StringRes val refreshButtonText: Int = R.string.empty_text,
 )
 
@@ -92,8 +88,7 @@ data class EmptyStateValues(
 
 data class ContentStateValues(
     @param:StringRes val sourceLabel: Int = R.string.empty_text,
-    @param:StringRes val partialResultsText: Int = R.string.empty_text,
-    @param:StringRes val loadMoreSuggestionText: Int = R.string.empty_text,
+    @param:StringRes val additionalSuggestionText: Int = R.string.empty_text,
     @param:StringRes val loadMoreDefaultButtonText: Int = R.string.empty_text,
     @param:StringRes val loadMoreInProgressButtonText: Int = R.string.empty_text,
     @param:StringRes val manualButtonText: Int = R.string.empty_text,

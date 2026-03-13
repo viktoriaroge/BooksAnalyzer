@@ -75,6 +75,8 @@
 
     <string name="search_screen_name">Discover Stories</string>
     <string name="search_screen_search_field_hint">Seek by title, author, or ISBN</string>
+    <string name="search_screen_error_message_unknown">Some archives remain closed to us.</string>
+    <string name="search_screen_error_message_no_connection">The path is obscured. Check your tether to the world wide web.</string>
     <string name="search_screen_refresh_button">Re-Invoke</string>
     <string name="search_screen_no_results_error_text">The Oracles are silent for {err}%1$s{/err}.</string>
     <string name="search_screen_add_manually_button">Inscribe by Hand</string>
@@ -83,8 +85,7 @@
     <string name="search_screen_clear_history_clear_button">Purge</string>
     <string name="search_screen_clear_history_cancel_button">Retain</string>
     <string name="search_screen_source_label">Origin:</string>
-    <string name="search_screen_partial_results_error_text">Some archives remain closed to us.</string>
-    <string name="search_screen_load_more_suggestion_text">Does the title elude you?</string>
+    <string name="search_screen_additional_suggestion_text">Does the title elude you?</string>
     <string name="search_screen_load_more_button_default_text">Seek Further</string>
     <string name="search_screen_load_more_button_in_progress_text">Seeking…</string>
     <string name="search_screen_recent_searches_section_text">Past Inquiries</string>
