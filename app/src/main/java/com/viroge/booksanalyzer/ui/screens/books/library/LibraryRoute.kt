@@ -53,14 +53,16 @@ fun LibraryRoute(
         currentListState = currentListState,
         fullListState = fullListState,
         showSearch = showSearch,
-        onToggleSearch = { showSearch = !showSearch },
-        onHideSearch = { showSearch = false },
-        onToggleFilters = { showFilters = !showFilters },
+        onToggleSearch = remember { { showSearch = !showSearch } },
+        onHideSearch = remember { { showSearch = false } },
+        onToggleFilters = remember { { showFilters = !showFilters } },
         onClearFilters = vm::onClearFilters,
         onQueryChange = vm::onQueryChange,
-        onOpenBook = { bookId ->
-            vm.selectBook(bookId)
-            onOpenBook()
+        onOpenBook = remember {
+            { bookId ->
+                vm.selectBook(bookId)
+                onOpenBook()
+            }
         },
     )
 
@@ -71,6 +73,6 @@ fun LibraryRoute(
         onStatusChange = vm::onStatusChange,
         onSortChange = vm::onSortChange,
         onClear = vm::onClearFilters,
-        onDismiss = { showFilters = false },
+        onDismiss = remember { { showFilters = false } },
     )
 }

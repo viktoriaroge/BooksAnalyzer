@@ -143,7 +143,10 @@ fun LibraryScreen(
 
                 // Empty state
                 if (state.allBooks.isEmpty()) {
-                    item(key = "empty-state") {
+                    item(
+                        key = "empty-state",
+                        contentType = { "empty-state" },
+                    ) {
                         Spacer(Modifier.height(height = 16.dp))
                         Text(
                             modifier = Modifier.padding(horizontal = 16.dp),
@@ -168,7 +171,10 @@ fun LibraryScreen(
                             SectionHeader(text = stringResource(values.currentlyReadingSectionTitle).uppercase())
                         }
                     }
-                    item(key = "currently-reading-section-content") {
+                    item(
+                        key = "currently-reading-section-content",
+                        contentType = { "currently-reading-section-content" },
+                    ) {
                         LazyRow(
                             state = currentListState,
                             contentPadding = PaddingValues(horizontal = 16.dp),
@@ -199,6 +205,7 @@ fun LibraryScreen(
                     items(
                         items = state.allBooks,
                         key = { it.id },
+                        contentType = { "library_book_item" },
                     ) { book ->
                         BookRowCard(
                             sharedTransitionScope = sharedTransitionScope,

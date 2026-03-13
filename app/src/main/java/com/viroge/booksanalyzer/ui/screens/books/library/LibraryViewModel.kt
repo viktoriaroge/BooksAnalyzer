@@ -6,6 +6,7 @@ import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.usecase.ObserveLibraryDataUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -30,19 +32,23 @@ class LibraryViewModel @Inject constructor(
     private val _query = MutableStateFlow(value = "")
     val query: StateFlow<String> = _query.asStateFlow()
 
-    val filters: StateFlow<LibraryFilters> = combine(_statusFilter, _sort) { status, sort ->
+    val filters: StateFlow<LibraryFilters> = combine(
+        _statusFilter,
+        _sort
+    ) { status, sort ->
         LibraryFilters(status, sort)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-        initialValue = LibraryFilters()
-    )
+    }.flowOn(Dispatchers.Default)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            initialValue = LibraryFilters()
+        )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val state: StateFlow<LibraryUiState> = combine(
         _query,
         _statusFilter,
-        _sort,
+        _sort
     ) { q, status, sort ->
         observeLibraryDataUseCase(q, status?.domainStatus, sort.domainSource)
             .map { data ->
@@ -54,13 +60,13 @@ class LibraryViewModel @Inject constructor(
                     screenValues = mapper.getScreenValues(),
                 )
             }
-    }.flatMapLatest {
-        it
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-        initialValue = LibraryUiState()
-    )
+    }.flowOn(Dispatchers.Default)
+        .flatMapLatest { it }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            initialValue = LibraryUiState()
+        )
 
     fun onQueryChange(value: String) {
         _query.value = value
