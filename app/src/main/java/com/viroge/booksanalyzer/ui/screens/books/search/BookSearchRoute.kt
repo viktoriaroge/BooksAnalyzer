@@ -31,9 +31,10 @@ fun SearchBookRoute(
         animatedVisibilityScope = animatedVisibilityScope,
         state = state,
         onLoadMore = vm::loadMore,
-        onRefresh = vm::refresh,
+        onRefresh = vm::refreshSearch,
         onQueryChanged = vm::changeQuery,
         onModeChanged = vm::changeSearchMode,
+        onRecentSearchSelected = vm::selectRecent,
         onRemoveRecentSearch = vm::removeRecent,
         onClearRecentSearches = { confirmClear = true },
         onManualAdd = { prefill ->

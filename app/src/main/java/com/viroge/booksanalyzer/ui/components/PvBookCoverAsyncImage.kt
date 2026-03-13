@@ -46,6 +46,7 @@ fun PvBookCoverAsyncImage(
         .clip(RoundedCornerShape(12.dp)),
     model = ImageRequest.Builder(context = LocalContext.current)
         .data(data = url)
+        .memoryCacheKey(url)
         .placeholderMemoryCacheKey(url)
         .let { chain ->
             for ((name, value) in requestHeaders) {

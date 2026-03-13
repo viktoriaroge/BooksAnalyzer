@@ -50,7 +50,7 @@ class BookSearchMapper @Inject constructor() {
     fun mapToDataState(
         book: TempBook,
     ): SearchBookDataState = SearchBookDataState(
-        animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13),
+        animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13, book.source, book.sourceId),
         title = book.title,
         authors = book.authors.joinToString(separator = ", "),
         year = book.year,

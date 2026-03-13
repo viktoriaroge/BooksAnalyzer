@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -28,7 +30,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
@@ -50,11 +55,13 @@ fun BookSearchScreen(
     onRefresh: () -> Unit,
     onQueryChanged: (String) -> Unit,
     onModeChanged: (BookSearchModeUi) -> Unit,
+    onRecentSearchSelected: (String) -> Unit,
     onRemoveRecentSearch: (String) -> Unit,
     onClearRecentSearches: () -> Unit,
     onManualAdd: (String) -> Unit,
     onSelectBook: (SearchBookDataState) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -85,7 +92,23 @@ fun BookSearchScreen(
                             contentDescription = null,
                         )
                     }
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Search,
+                    keyboardType = when (state.mode) {
+                        BookSearchModeUi.All,
+                        BookSearchModeUi.Author,
+                        BookSearchModeUi.Title -> KeyboardType.Text
+
+                        BookSearchModeUi.Isbn -> KeyboardType.Number
+                    }
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        focusManager.clearFocus()
+                        onRefresh()
+                    }
+                ),
             )
 
             when (val screenState = state.screenState) {
@@ -93,7 +116,7 @@ fun BookSearchScreen(
                     RecentSearchesSection(
                         values = screenState.recentSearchesValues,
                         recent = state.recent,
-                        onPick = onQueryChanged,
+                        onPick = onRecentSearchSelected,
                         onDeleteOne = onRemoveRecentSearch,
                         onClearAll = onClearRecentSearches,
                     )
@@ -146,7 +169,10 @@ fun BookSearchScreen(
                         animatedVisibilityScope = animatedVisibilityScope,
                         query = state.query,
                         items = screenState.items,
-                        onSelect = onSelectBook,
+                        onSelect = { book ->
+                            focusManager.clearFocus()
+                            onSelectBook(book)
+                        },
                         canLoadMore = state.canLoadMore,
                         isLoadingMore = state.isLoadingMore,
                         onLoadMore = onLoadMore,
@@ -162,7 +188,10 @@ fun BookSearchScreen(
                         animatedVisibilityScope = animatedVisibilityScope,
                         query = state.query,
                         items = screenState.items,
-                        onSelect = onSelectBook,
+                        onSelect = { book ->
+                            focusManager.clearFocus()
+                            onSelectBook(book)
+                        },
                         canLoadMore = state.canLoadMore,
                         isLoadingMore = state.isLoadingMore,
                         onLoadMore = onLoadMore,
@@ -234,7 +263,7 @@ private fun BooksList(
                             size = PvBookCoverImageSize.XSMALL,
                             modifier = Modifier.sharedElement(
                                 rememberSharedContentState(
-                                    key = BookTransitionKey.calculate(book.title, book.authors, book.isbn13)
+                                    key = book.animationKey
                                 ),
                                 animatedVisibilityScope = animatedVisibilityScope
                             ),
@@ -293,7 +322,7 @@ private fun BooksList(
             }
         }
 
-        item {
+        item(key = "footer") {
             if (showingPartialResults) {
                 Spacer(Modifier.height(height = 8.dp))
                 Text(text = stringResource(contentStateValues.partialResultsText))

@@ -18,11 +18,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -40,7 +37,7 @@ class BookSearchViewModel @Inject constructor(
 
     private val _query = MutableStateFlow("")
     private val _mode = MutableStateFlow(SearchMode.ALL)
-    private val _refreshTrigger = MutableSharedFlow<Unit>(replay = 1)
+    private val _searchTrigger = MutableSharedFlow<Unit>(replay = 1)
         .apply { tryEmit(Unit) }
 
     private val _currentItems = MutableStateFlow<List<TempBook>>(emptyList())
@@ -52,13 +49,13 @@ class BookSearchViewModel @Inject constructor(
     private var lastMode: SearchMode? = null
 
     private val screenPhase: Flow<SearchPhase> = combine(
-        _query.map { it.trim() }.distinctUntilChanged(),
         _mode,
-        _refreshTrigger
-    ) { q, mode, _ -> q to mode }
-        .debounce { (q, _) -> if (q.isEmpty()) 0L else 800L }
-        .flatMapLatest { (q, mode) ->
+        _searchTrigger
+    ) { mode, _ -> mode }
+        .flatMapLatest { mode ->
             flow {
+                val q = _query.value.trim()
+
                 if (q.length < 2) {
                     resetInternalData()
                     lastQuery = ""
@@ -74,7 +71,6 @@ class BookSearchViewModel @Inject constructor(
 
                 emit(SearchPhase.Loading)
 
-
                 val result = searchBooksUseCase(q, mode, null)
 
                 lastQuery = q
@@ -83,7 +79,8 @@ class BookSearchViewModel @Inject constructor(
                 _lastMessages.value = result.messages
                 _nextToken.value = result.nextToken
 
-                onSearchExecuted(q)
+                manageHistoryUseCase.record(q)
+
                 emit(SearchPhase.DisplayingResults)
             }
         }
@@ -144,14 +141,34 @@ class BookSearchViewModel @Inject constructor(
 
     fun changeQuery(newValue: String) {
         _query.value = newValue
+        if (newValue.trim().length < 2) {
+            refreshSearch()
+        }
     }
 
     fun changeSearchMode(newMode: BookSearchModeUi) {
         _mode.value = newMode.domainStatus
     }
 
-    fun refresh() {
-        _refreshTrigger.tryEmit(Unit)
+    fun refreshSearch() {
+        _searchTrigger.tryEmit(Unit)
+    }
+
+    fun selectRecent(q: String) {
+        changeQuery(q)
+        refreshSearch()
+    }
+
+    fun removeRecent(q: String) = viewModelScope.launch { manageHistoryUseCase.delete(q) }
+
+    fun clearRecents() = viewModelScope.launch { manageHistoryUseCase.clearAll() }
+
+    fun selectBook(book: SearchBookDataState) {
+        bookSelectionStateProvider.selectTempBook(mapper.mapToTempBook(book))
+    }
+
+    fun setManualPrefill(query: String, mode: BookSearchModeUi) {
+        bookSelectionStateProvider.selectTempBook(mapper.mapToTempBook(query, mode.domainStatus))
     }
 
     fun loadMore() {
@@ -204,22 +221,6 @@ class BookSearchViewModel @Inject constructor(
                 contentStateValues = mapper.getContentStateValues()
             )
         }
-    }
-
-    private fun onSearchExecuted(q: String) {
-        viewModelScope.launch { manageHistoryUseCase.record(q) }
-    }
-
-    fun removeRecent(q: String) = viewModelScope.launch { manageHistoryUseCase.delete(q) }
-
-    fun clearRecents() = viewModelScope.launch { manageHistoryUseCase.clearAll() }
-
-    fun selectBook(book: SearchBookDataState) {
-        bookSelectionStateProvider.selectTempBook(mapper.mapToTempBook(book))
-    }
-
-    fun setManualPrefill(query: String, mode: BookSearchModeUi) {
-        bookSelectionStateProvider.selectTempBook(mapper.mapToTempBook(query, mode.domainStatus))
     }
 
     private enum class SearchPhase { Idle, Loading, DisplayingResults }

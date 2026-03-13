@@ -53,7 +53,7 @@ class BookDetailsMapper @Inject constructor() {
         book: Book,
         selectedCandidate: BookCoverCandidate?,
     ): BookDetailsDataState = BookDetailsDataState(
-        animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13),
+        animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13, book.source, book.sourceId),
         id = book.id,
         title = book.title,
         authors = book.authors.joinToString(separator = ", "),
