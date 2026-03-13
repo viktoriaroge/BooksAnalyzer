@@ -7,21 +7,27 @@ import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
 data class BookDetailsUiState(
-    val screenState: BookDetailsScreenState = BookDetailsScreenState(),
-    val bookData: BookDetailsDataState? = null,
+    val screenState: BookDetailsScreenState = BookDetailsScreenState.Loading,
 )
 
-data class BookDetailsScreenState(
-    val isDeleting: Boolean = false,
-    val isSaving: Boolean = false,
-    val isInEditMode: Boolean = false,
+sealed interface BookDetailsScreenState {
 
-    val editState: BookDetailsEditState = BookDetailsEditState(),
+    data object Loading : BookDetailsScreenState
 
-    val screenValues: BookDetailsScreenValues = BookDetailsScreenValues(),
-    val editScreenValues: BookDetailsEditScreenValues = BookDetailsEditScreenValues(),
-    val deleteDialogValues: BookDetailsDeleteDialogValues = BookDetailsDeleteDialogValues(),
-)
+    data class Content(
+        val isDeleting: Boolean = false,
+        val bookData: BookDetailsDataState,
+        val screenValues: DetailsScreenValues = DetailsScreenValues(),
+        val deleteDialogValues: BookDetailsDeleteDialogValues,
+    ) : BookDetailsScreenState
+
+    data class Edit(
+        val isSaving: Boolean = false,
+        val editStateValues: EditDetailsScreenValues,
+        val editState: BookDetailsEditState,
+        val bookData: BookDetailsDataState,
+    ) : BookDetailsScreenState
+}
 
 data class BookDetailsEditState(
     val editTitle: String = "",
@@ -47,16 +53,14 @@ data class BookDetailsDataState(
     val source: BookSourceUi = BookSourceUi.Manual,
 )
 
-data class BookDetailsScreenValues(
+data class DetailsScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
     @param:StringRes val originLabel: Int = R.string.empty_text,
     @param:StringRes val deleteButtonText: Int = R.string.empty_text,
 )
 
-data class BookDetailsEditScreenValues(
+data class EditDetailsScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
-    @param:StringRes val originLabel: Int = R.string.empty_text,
-    @param:StringRes val deleteButtonText: Int = R.string.empty_text,
     @param:StringRes val changeCoverButtonText: Int = R.string.empty_text,
     @param:StringRes val titleLabel: Int = R.string.empty_text,
     @param:StringRes val titleError: Int = R.string.empty_text,

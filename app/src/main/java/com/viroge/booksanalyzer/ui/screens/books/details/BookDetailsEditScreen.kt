@@ -34,7 +34,7 @@ import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 fun BookDetailsEditScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    state: BookDetailsUiState,
+    state: BookDetailsScreenState.Edit,
     onSaveEdits: () -> Unit,
     onCancelEdit: () -> Unit,
     onUpdateEditTitle: (String) -> Unit,
@@ -44,11 +44,9 @@ fun BookDetailsEditScreen(
     onUpdateEditIsbn10: (String) -> Unit,
     onOpenCoverPicker: () -> Unit,
 ) {
-    val book = state.bookData ?: return
-    if (!state.screenState.isInEditMode) return
-
-    val editState = state.screenState.editState
-    val values = state.screenState.editScreenValues
+    val book = state.bookData
+    val values = state.editStateValues
+    val editState = state.editState
 
     val scrollState = rememberScrollState()
 
@@ -109,7 +107,7 @@ fun BookDetailsEditScreen(
                 supportingText = {
                     if (editState.showTitleError) {
                         Text(
-                            text = stringResource(state.screenState.editScreenValues.titleError),
+                            text = stringResource(values.titleError),
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -130,7 +128,7 @@ fun BookDetailsEditScreen(
                 supportingText = {
                     if (editState.showAuthorError) {
                         Text(
-                            text = stringResource(state.screenState.editScreenValues.authorError),
+                            text = stringResource(values.authorError),
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -177,10 +175,10 @@ fun BookDetailsEditScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 onClick = onSaveEdits,
-                enabled = !state.screenState.isSaving,
+                enabled = !state.isSaving,
             ) {
                 Text(
-                    text = if (state.screenState.isSaving) stringResource(values.saveChangesInProgressButtonText)
+                    text = if (state.isSaving) stringResource(values.saveChangesInProgressButtonText)
                     else stringResource(values.saveChangesButtonText)
                 )
             }

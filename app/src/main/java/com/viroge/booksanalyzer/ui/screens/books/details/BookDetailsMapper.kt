@@ -13,16 +13,14 @@ import javax.inject.Singleton
 @Singleton
 class BookDetailsMapper @Inject constructor() {
 
-    fun getScreenValues(): BookDetailsScreenValues = BookDetailsScreenValues(
+    fun getScreenValues(): DetailsScreenValues = DetailsScreenValues(
         screenName = R.string.book_details_screen_name,
         originLabel = R.string.book_details_screen_source_label,
         deleteButtonText = R.string.book_details_screen_delete_default_button,
     )
 
-    fun getEditScreenValues(): BookDetailsEditScreenValues = BookDetailsEditScreenValues(
-        screenName = R.string.book_details_screen_in_edit_screen_name,
-        originLabel = R.string.book_details_screen_source_label,
-        deleteButtonText = R.string.book_details_screen_delete_default_button,
+    fun getEditScreenValues(): EditDetailsScreenValues = EditDetailsScreenValues(
+        screenName = R.string.book_details_screen_name,
         changeCoverButtonText = R.string.book_details_screen_in_edit_change_book_cover_button_label,
         titleLabel = R.string.book_details_screen_in_edit_title_label,
         titleError = R.string.book_details_screen_in_edit_title_error,

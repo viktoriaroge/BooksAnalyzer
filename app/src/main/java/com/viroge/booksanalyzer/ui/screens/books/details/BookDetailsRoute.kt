@@ -37,13 +37,10 @@ fun BookDetailsRoute(
 
     val vm: BookDetailsViewModel = hiltViewModel()
     val state by vm.state.collectAsState()
-    val bookData = state.bookData
-
-    var showDeleteDialog by remember { mutableStateOf(false) }
 
     BackHandler(enabled = true) {
-        vm.clearSessionData()
-        onBack()
+        if (state.screenState is BookDetailsScreenState.Edit) vm.exitEditMode()
+        else onBack()
     }
 
     val context = LocalContext.current
@@ -51,90 +48,93 @@ fun BookDetailsRoute(
     LaunchedEffect(key1 = Unit) {
         vm.events.collect { event ->
             when (event) {
-                is DetailsEvent.Error -> {
+                is BookDetailsEvent.Error -> {
                     snackbar.show(message = event.errorType.message.asString(context), duration = SnackbarDuration.Short)
                 }
             }
         }
     }
 
-    BookDetailsScreen(
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope,
-        state = state,
-        onBack = {
-            vm.clearSessionData()
-            onBack()
-        },
-        onStatusChange = vm::setStatus,
-        onDelete = { showDeleteDialog = true },
-        onEdit = vm::enterEditMode,
-    )
+    when (val screenState = state.screenState) {
+        BookDetailsScreenState.Loading -> {}
 
-    BookDetailsEditScreen(
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope,
-        state = state,
-        onSaveEdits = vm::saveEdits,
-        onCancelEdit = vm::exitEditMode,
-        onUpdateEditTitle = vm::updateEditTitle,
-        onUpdateEditAuthors = vm::updateEditAuthors,
-        onUpdateEditPublishedYear = vm::updateEditPublishedYear,
-        onUpdateEditIsbn13 = vm::updateEditIsbn13,
-        onUpdateEditIsbn10 = vm::updateEditIsbn10,
-        onOpenCoverPicker = {
-            bookData ?: return@BookDetailsEditScreen
+        is BookDetailsScreenState.Content -> {
+            var showDeleteDialog by remember { mutableStateOf(false) }
 
-            coverPickerVM.openCoverPicker(
-                originalCoverUrl = bookData.url,
-                originalCoverRequestHeaders = bookData.headers,
-                source = bookData.source.domainSource,
-                isbn13 = bookData.isbn13,
+            BookDetailsScreen(
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+                state = screenState,
+                onBack = onBack,
+                onStatusChange = vm::updateStatus,
+                onDelete = remember { { showDeleteDialog = true } },
+                onEdit = vm::enterEditMode,
+            )
+
+            if (showDeleteDialog) {
+                val bookData = screenState.bookData
+                val dialogValues = screenState.deleteDialogValues
+
+                AlertDialog(
+                    onDismissRequest = remember { { showDeleteDialog = false } },
+                    title = { Text(text = stringResource(dialogValues.title)) },
+                    text = { Text(text = customAnnotatedString(dialogValues.message.asString())) },
+                    confirmButton = {
+                        TextButton(
+                            onClick = remember {
+                                {
+                                    showDeleteDialog = false
+
+                                    sharedVM.markToDelete(
+                                        bookId = bookData.id,
+                                        title = bookData.title,
+                                    )
+                                    onBack()
+                                }
+                            }) { Text(text = stringResource(dialogValues.deleteButtonText)) }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = remember { { showDeleteDialog = false } })
+                        { Text(text = stringResource(dialogValues.cancelButtonText)) }
+                    },
+                )
+            }
+        }
+
+        is BookDetailsScreenState.Edit -> {
+            val bookData = screenState.bookData
+
+            BookDetailsEditScreen(
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+                state = screenState,
+                onSaveEdits = vm::saveEdits,
+                onCancelEdit = vm::exitEditMode,
+                onUpdateEditTitle = vm::updateEditTitle,
+                onUpdateEditAuthors = vm::updateEditAuthors,
+                onUpdateEditPublishedYear = vm::updateEditPublishedYear,
+                onUpdateEditIsbn13 = vm::updateEditIsbn13,
+                onUpdateEditIsbn10 = vm::updateEditIsbn10,
+                onOpenCoverPicker = remember {
+                    {
+                        coverPickerVM.openCoverPicker(
+                            originalCoverUrl = bookData.url,
+                            originalCoverRequestHeaders = bookData.headers,
+                            source = bookData.source.domainSource,
+                            isbn13 = bookData.isbn13,
+                        )
+                    }
+                }
+            )
+
+            BookCoverPickerSheet(
+                state = coverPickerState,
+                onManualUrlChange = coverPickerVM::onManualUrlChange,
+                onAddManualUrl = coverPickerVM::addManualUrl,
+                onSelect = coverPickerVM::selectCover,
+                onDismiss = coverPickerVM::closeCoverPicker,
             )
         }
-    )
-
-    BookCoverPickerSheet(
-        state = coverPickerState,
-        onManualUrlChange = coverPickerVM::onManualUrlChange,
-        onAddManualUrl = coverPickerVM::addManualUrl,
-        onSelect = coverPickerVM::selectCover,
-        onDismiss = coverPickerVM::closeCoverPicker,
-    )
-
-    if (showDeleteDialog) {
-        val dialogValues = state.screenState.deleteDialogValues
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = {
-                Text(text = stringResource(dialogValues.title))
-            },
-            text = {
-                Text(
-                    text = customAnnotatedString(dialogValues.message.asString())
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        bookData?.let {
-                            sharedVM.markToDelete(
-                                bookId = it.id,
-                                title = it.title,
-                            )
-                            vm.clearSessionData()
-                            onBack()
-                        }
-                    }) { Text(text = stringResource(dialogValues.deleteButtonText)) }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                    }) { Text(text = stringResource(dialogValues.cancelButtonText)) }
-            },
-        )
     }
 }
-

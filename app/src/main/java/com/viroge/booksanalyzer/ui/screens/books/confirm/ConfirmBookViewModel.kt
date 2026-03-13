@@ -1,6 +1,5 @@
 package com.viroge.booksanalyzer.ui.screens.books.confirm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.BookSource
@@ -9,7 +8,6 @@ import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.SaveBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -156,12 +154,9 @@ class ConfirmBookViewModel @Inject constructor(
         )
     }
 
-    fun clearSessionData() {
-        viewModelScope.launch {
-            delay(500) // Delay the cleanup until the screen is actually off-screen
-            coverPickerStateProvider.clear()
-            bookSelectionStateProvider.clearTempSelection()
-            Log.d("ConfirmBookViewModel", "---> Session data cleared")
-        }
+    override fun onCleared() {
+        super.onCleared()
+        coverPickerStateProvider.clear()
+        bookSelectionStateProvider.clearTempSelection()
     }
 }

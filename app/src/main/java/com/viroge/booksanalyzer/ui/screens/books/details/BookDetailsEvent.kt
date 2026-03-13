@@ -3,10 +3,10 @@ package com.viroge.booksanalyzer.ui.screens.books.details
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.common.util.UiText
 
-sealed interface DetailsEvent {
+sealed interface BookDetailsEvent {
     data class Error(
         val errorType: DetailsErrorType,
-    ) : DetailsEvent
+    ) : BookDetailsEvent
 }
 
 enum class DetailsErrorType(val message: UiText) {

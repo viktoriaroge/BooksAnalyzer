@@ -48,17 +48,16 @@ import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 fun BookDetailsScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    state: BookDetailsUiState,
+    state: BookDetailsScreenState.Content,
     onBack: () -> Unit,
     onStatusChange: (BookReadingStatusUi) -> Unit,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
 ) {
-    val book = state.bookData ?: return
-    if (state.screenState.isInEditMode) return
+    val book = state.bookData
+    val values = state.screenValues
 
     val scrollState = rememberScrollState()
-    val values = state.screenState.screenValues
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -160,7 +159,7 @@ fun BookDetailsScreen(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
                 onClick = { onDelete() },
-                enabled = !state.screenState.isDeleting,
+                enabled = !state.isDeleting,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
                 ),

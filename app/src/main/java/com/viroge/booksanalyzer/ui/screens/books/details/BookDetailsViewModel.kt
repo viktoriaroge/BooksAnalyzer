@@ -1,10 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.domain.model.Book
-import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.EditBookUseCase
@@ -13,8 +10,8 @@ import com.viroge.booksanalyzer.domain.usecase.ObserveBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.UpdateBookStatusUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,9 +20,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -36,183 +34,150 @@ class BookDetailsViewModel @Inject constructor(
     private val bookSelectionStateProvider: BookSelectionStateProvider,
     private val coverPickerStateProvider: CoverPickerStateProvider,
     private val getBookUseCase: ObserveBookUseCase,
-    private val editBookUseCase: EditBookUseCase,
-    private val updateBookStatus: UpdateBookStatusUseCase,
     private val markBookAsOpened: MarkBookAsOpenedUseCase,
+    private val updateBookStatusUseCase: UpdateBookStatusUseCase,
+    private val editBookUseCase: EditBookUseCase,
     private val mapper: BookDetailsMapper,
 ) : ViewModel() {
 
-    private var needsMarking: Boolean = true
-
-    private val _events = MutableSharedFlow<DetailsEvent>()
+    private val _events = MutableSharedFlow<BookDetailsEvent>()
     val events = _events.asSharedFlow()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val bookStream: Flow<Book?> = bookSelectionStateProvider.selectedBookId
-        .flatMapLatest { id -> id?.let { getBookUseCase(it) } ?: flowOf(null) }
-        .distinctUntilChanged()
-        .catch { _ -> _events.emit(DetailsEvent.Error(DetailsErrorType.LOADING_BOOK_FAILED)) }
+    private var needsMarking = true
 
-    private val _internalState = MutableStateFlow(BookDetailsScreenState())
-    private val _selectedBookState: MutableStateFlow<BookDetailsDataState?> = MutableStateFlow(null)
+    private val uiMode = MutableStateFlow<UiMode>(UiMode.Content)
+
+    private enum class UiMode { Content, Edit }
+
+    private val isSaving = MutableStateFlow(false)
+    private val isDeleting = MutableStateFlow(false)
+
+    private val editInputState = MutableStateFlow<BookDetailsEditState?>(null)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val bookDataFlow: Flow<BookDetailsDataState?> = bookSelectionStateProvider.selectedBookId
+        .flatMapLatest { id -> id?.let { getBookUseCase(it) } ?: flowOf(null) }
+        .combine(coverPickerStateProvider.state) { book, pickerState ->
+            book?.let { mapper.mapToDataState(it, pickerState.selectedCandidate) }
+        }
+        .onEach { book ->
+            if (book != null && needsMarking) {
+                markBookAsOpened(book.id)
+                needsMarking = false
+            }
+        }
+        .catch { _ -> _events.emit(BookDetailsEvent.Error(DetailsErrorType.LOADING_BOOK_FAILED)) }
+        .flowOn(Dispatchers.Default)
 
     val state: StateFlow<BookDetailsUiState> = combine(
-        _internalState,
-        bookStream,
-        coverPickerStateProvider.state,
-    ) { internalState, selectedBook, pickerState ->
+        uiMode,
+        bookDataFlow,
+        editInputState,
+        isSaving,
+        isDeleting
+    ) { mode, book, editState, saving, deleting ->
+        val screenState = when {
+            book == null -> BookDetailsScreenState.Loading
+            mode == UiMode.Edit && editState != null -> {
+                BookDetailsScreenState.Edit(
+                    isSaving = saving,
+                    editStateValues = mapper.getEditScreenValues(),
+                    editState = editState,
+                    bookData = book
+                )
+            }
 
-        if (selectedBook != null && needsMarking) {
-            markBookAsOpened(selectedBook.id)
-            needsMarking = false
-        }
-
-        val newState = internalState.copy(
-            screenValues = mapper.getScreenValues(),
-            editScreenValues = mapper.getEditScreenValues(),
-            deleteDialogValues = mapper.getDeleteDialogValues(),
-        )
-
-        val bookData = selectedBook?.let { mapper.mapToDataState(it, pickerState.selectedCandidate) }
-        _selectedBookState.value = bookData
-
-        BookDetailsUiState(
-            screenState = newState,
-            bookData = bookData,
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-        initialValue = BookDetailsUiState()
-    )
-
-    init {
-        needsMarking = true
-    }
-
-    fun setStatus(
-        status: BookReadingStatusUi,
-    ) {
-        viewModelScope.launch {
-            val bookId = bookSelectionStateProvider.getSelectedBookId() ?: return@launch
-
-            updateBookStatus(bookId, status.domainStatus)
-                .onFailure { _ -> _events.emit(DetailsEvent.Error(DetailsErrorType.UPDATING_STATUS_FAILED)) }
-        }
-    }
-
-    fun enterEditMode() {
-        val book = _selectedBookState.value ?: return
-
-        _internalState.update {
-            it.copy(
-                isInEditMode = true,
-                editState = BookDetailsEditState(
-                    editTitle = book.title,
-                    showTitleError = false,
-                    editAuthors = book.authors,
-                    showAuthorError = false,
-                    editYear = book.year.orEmpty(),
-                    editIsbn13 = book.isbn13.orEmpty(),
-                    editIsbn10 = book.isbn10.orEmpty(),
-                ),
+            else -> BookDetailsScreenState.Content(
+                isDeleting = deleting,
+                bookData = book,
+                screenValues = mapper.getScreenValues(),
+                deleteDialogValues = mapper.getDeleteDialogValues()
             )
         }
+        BookDetailsUiState(screenState)
+    }.flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), BookDetailsUiState())
+
+    fun enterEditMode() {
+        val currentBook = (state.value.screenState as? BookDetailsScreenState.Content)?.bookData ?: return
+        editInputState.value = BookDetailsEditState(
+            editTitle = currentBook.title,
+            editAuthors = currentBook.authors,
+            editYear = currentBook.year.orEmpty(),
+            editIsbn13 = currentBook.isbn13.orEmpty(),
+            editIsbn10 = currentBook.isbn10.orEmpty()
+        )
+        uiMode.value = UiMode.Edit
     }
 
     fun exitEditMode() {
-        _internalState.update {
-            it.copy(
-                isInEditMode = false,
-                editState = BookDetailsEditState(
-                    editTitle = "",
-                    showTitleError = false,
-                    editAuthors = "",
-                    showAuthorError = false,
-                    editYear = "",
-                    editIsbn13 = "",
-                    editIsbn10 = "",
-                ),
-            )
-        }
+        uiMode.value = UiMode.Content
+        editInputState.value = null
+        isSaving.value = false
     }
 
     fun updateEditTitle(value: String) {
-        _internalState.update { it.copy(editState = it.editState.copy(editTitle = value)) }
+        editInputState.update { it?.copy(editTitle = value, showTitleError = false) }
     }
 
     fun updateEditAuthors(value: String) {
-        _internalState.update { it.copy(editState = it.editState.copy(editAuthors = value)) }
+        editInputState.update { it?.copy(editAuthors = value, showAuthorError = false) }
     }
 
     fun updateEditPublishedYear(value: String) {
-        _internalState.update { it.copy(editState = it.editState.copy(editYear = value)) }
+        editInputState.update { it?.copy(editYear = value) }
     }
 
     fun updateEditIsbn13(value: String) {
-        _internalState.update { it.copy(editState = it.editState.copy(editIsbn13 = value)) }
+        editInputState.update { it?.copy(editIsbn13 = value) }
     }
 
     fun updateEditIsbn10(value: String) {
-        _internalState.update { it.copy(editState = it.editState.copy(editIsbn10 = value)) }
+        editInputState.update { it?.copy(editIsbn10 = value) }
+    }
+
+    fun updateStatus(status: BookReadingStatusUi) {
+        val bookId = (state.value.screenState as? BookDetailsScreenState.Content)?.bookData?.id ?: return
+        viewModelScope.launch {
+            updateBookStatusUseCase(bookId, status.domainStatus)
+                .onFailure { _events.emit(BookDetailsEvent.Error(DetailsErrorType.UPDATING_STATUS_FAILED)) }
+        }
     }
 
     fun saveEdits() {
-        val book = _selectedBookState.value ?: return
+        val editState = editInputState.value ?: return
+        val book = (state.value.screenState as? BookDetailsScreenState.Edit)?.bookData ?: return
 
-        val editState = _internalState.value.editState
-        val editTitle = editState.editTitle.trim()
-        val editAuthor = editState.editAuthors.trim()
+        val isTitleBlank = editState.editTitle.isBlank()
+        val isAuthorBlank = editState.editAuthors.isBlank()
 
-        if (editTitle.isBlank() || editAuthor.isBlank()) {
-            // There are error states, check which ones to show:
-            if (editTitle.isBlank()) _internalState.update { it.copy(editState = it.editState.copy(showTitleError = true)) }
-            else _internalState.update { it.copy(editState = it.editState.copy(showTitleError = false)) }
-
-            if (editAuthor.isBlank()) _internalState.update { it.copy(editState = it.editState.copy(showAuthorError = true)) }
-            else _internalState.update { it.copy(editState = it.editState.copy(showAuthorError = false)) }
-
+        if (isTitleBlank || isAuthorBlank) {
+            editInputState.update { it?.copy(showTitleError = isTitleBlank, showAuthorError = isAuthorBlank) }
             return
         }
 
         viewModelScope.launch {
-            _internalState.update { it.copy(isSaving = true) }
-
+            isSaving.value = true
             editBookUseCase(
                 bookId = book.id,
-                title = editTitle,
+                title = editState.editTitle,
                 authors = editState.editAuthors,
                 year = editState.editYear.trim().takeIf { it.isNotEmpty() },
                 isbn13 = editState.editIsbn13.trim().takeIf { it.isNotEmpty() },
                 isbn10 = editState.editIsbn10.trim().takeIf { it.isNotEmpty() },
-                coverUrl = coverPickerStateProvider.getSelected()?.url ?: book.url,
-            ).onSuccess { _ ->
-                _internalState.update {
-                    it.copy(
-                        editState = BookDetailsEditState(
-                            editTitle = "",
-                            editAuthors = "",
-                            editYear = "",
-                            editIsbn13 = "",
-                            editIsbn10 = "",
-                        ),
-                        isInEditMode = false,
-                        isSaving = false,
-                    )
-                }
-            }.onFailure { _ ->
-                _events.emit(DetailsEvent.Error(DetailsErrorType.SAVING_FAILED))
-                _internalState.update { it.copy(isSaving = false) }
+                coverUrl = coverPickerStateProvider.state.value.selectedCandidate?.url ?: book.url,
+            ).onSuccess {
+                exitEditMode()
+            }.onFailure {
+                isSaving.value = false
+                _events.emit(BookDetailsEvent.Error(DetailsErrorType.SAVING_FAILED))
             }
         }
     }
 
-    fun clearSessionData() {
-        viewModelScope.launch {
-            delay(500) // Delay the cleanup until the screen is actually off-screen
-            coverPickerStateProvider.clear()
-            bookSelectionStateProvider.clearSelection()
-            Log.d("BookDetailsViewModel", "---> Session data cleared")
-        }
+    override fun onCleared() {
+        super.onCleared()
+        coverPickerStateProvider.clear()
+        bookSelectionStateProvider.clearSelection()
     }
 }

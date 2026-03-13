@@ -29,7 +29,6 @@ fun ConfirmBookRoute(
     val bookData = state.bookData
 
     BackHandler(enabled = true) {
-        vm.clearSessionData()
         onBack()
     }
 
@@ -39,7 +38,6 @@ fun ConfirmBookRoute(
         vm.events.collect { event ->
             when (event) {
                 is ConfirmEvent.Saved -> {
-                    vm.clearSessionData()
                     onBookSaved()
                 }
 
@@ -64,10 +62,7 @@ fun ConfirmBookRoute(
                 isbn13 = bookData.isbn13,
             )
         },
-        onBack = {
-            vm.clearSessionData()
-            onBack()
-        },
+        onBack = onBack,
         onSave = vm::saveBook,
     )
 
@@ -75,10 +70,7 @@ fun ConfirmBookRoute(
         sharedTransitionScope = sharedTransitionScope,
         animatedVisibilityScope = animatedVisibilityScope,
         state = state,
-        onBack = {
-            vm.clearSessionData()
-            onBack()
-        },
+        onBack = onBack,
         onTitleChange = vm::onTitleChange,
         onAuthorsChange = vm::onAuthorsChange,
         onYearChange = vm::onYearChange,
