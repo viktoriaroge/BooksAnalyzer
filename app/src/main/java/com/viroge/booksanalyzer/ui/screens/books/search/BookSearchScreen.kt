@@ -214,7 +214,10 @@ private fun BooksList(
         contentPadding = PaddingValues(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(space = 8.dp),
     ) {
-        items(items) { book ->
+        items(
+            items = items,
+            key = { book -> book.animationKey }, // Ensure stability during scrolls/updates, the animationKey is unique
+        ) { book ->
             PvItemCard(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onSelect(book) },
