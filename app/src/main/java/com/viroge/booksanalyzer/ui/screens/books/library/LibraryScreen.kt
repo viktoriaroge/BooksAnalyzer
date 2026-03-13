@@ -54,7 +54,9 @@ import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 fun LibraryScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    state: LibraryUiState,
+    screenValues: LibraryScreenValues,
+    state: LibraryScreenState.Content,
+    contentStateValues: ContentStateValues,
     filters: LibraryFilters,
     query: String,
     currentListState: LazyListState,
@@ -67,27 +69,23 @@ fun LibraryScreen(
     onQueryChange: (String) -> Unit,
     onOpenBook: (String) -> Unit,
 ) {
-    val values = state.screenValues
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             PvTopAppBar(
-                title = stringResource(values.screenName),
+                title = stringResource(screenValues.screenName),
                 actions = {
-                    if (state.allBooks.isNotEmpty()) {
-                        IconButton(onClick = onToggleSearch) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                            )
-                        }
-                        IconButton(onClick = onToggleFilters) {
-                            Icon(
-                                imageVector = Icons.Default.Tune,
-                                contentDescription = null,
-                            )
-                        }
+                    IconButton(onClick = onToggleSearch) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                        )
+                    }
+                    IconButton(onClick = onToggleFilters) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = null,
+                        )
                     }
                 },
             )
@@ -104,7 +102,7 @@ fun LibraryScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                values = values,
+                values = contentStateValues,
                 filters = filters,
                 onClearFilters = onClearFilters,
             )
@@ -118,7 +116,7 @@ fun LibraryScreen(
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                     singleLine = true,
-                    placeholder = { Text(text = stringResource(values.searchPlaceholder)) },
+                    placeholder = { Text(text = stringResource(contentStateValues.searchPlaceholder)) },
                     trailingIcon = {
                         IconButton(onClick = {
                             if (query.isBlank()) onHideSearch()
@@ -140,35 +138,11 @@ fun LibraryScreen(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(space = 8.dp),
             ) {
-
-                // Empty state
-                if (state.allBooks.isEmpty()) {
-                    item(
-                        key = "empty-state",
-                        contentType = { "empty-state" },
-                    ) {
-                        Spacer(Modifier.height(height = 16.dp))
-                        Text(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            text = stringResource(values.emptyStateTitle),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Spacer(Modifier.height(height = 8.dp))
-                        Text(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            text = stringResource(values.emptyStateText),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-
                 // Currently Reading section
                 if (state.currentBooks.isNotEmpty()) {
                     stickyHeader(key = "currently-reading-section-title") {
                         Surface(Modifier.fillMaxWidth()) {
-                            SectionHeader(text = stringResource(values.currentlyReadingSectionTitle).uppercase())
+                            SectionHeader(text = stringResource(contentStateValues.currentlyReadingSectionTitle).uppercase())
                         }
                     }
                     item(
@@ -199,7 +173,7 @@ fun LibraryScreen(
                 if (state.allBooks.isNotEmpty()) {
                     stickyHeader(key = "all-books-section-title") {
                         Surface(Modifier.fillMaxWidth()) {
-                            SectionHeader(text = stringResource(values.allBooksSectionTitle).uppercase())
+                            SectionHeader(text = stringResource(contentStateValues.allBooksSectionTitle).uppercase())
                         }
                     }
                     items(
@@ -238,7 +212,7 @@ fun SectionHeader(
 
 @Composable
 fun ActiveFiltersRow(
-    values: LibraryScreenValues,
+    values: ContentStateValues,
     filters: LibraryFilters,
     onClearFilters: () -> Unit,
     modifier: Modifier = Modifier

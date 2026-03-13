@@ -13,13 +13,22 @@ class LibraryMapper @Inject constructor() {
 
     fun getScreenValues(): LibraryScreenValues = LibraryScreenValues(
         screenName = R.string.library_screen_name,
-        searchPlaceholder = R.string.library_screen_search_placeholder,
+    )
+
+    fun getEmptyStateValues(): EmptyStateValues = EmptyStateValues(
         emptyStateTitle = R.string.library_screen_empty_state_title,
         emptyStateText = R.string.library_screen_empty_state_subtitle,
+    )
+
+    fun getContentStateValues(): ContentStateValues = ContentStateValues(
+        searchPlaceholder = R.string.library_screen_search_placeholder,
         currentlyReadingSectionTitle = R.string.library_screen_currently_reading_section_title,
         allBooksSectionTitle = R.string.library_screen_all_section_title,
         activeSortText = R.string.library_sort_explanation_prefix,
         clearFilterText = R.string.library_screen_filter_button_clear_label,
+    )
+
+    fun getFiltersSheetValues(): FiltersSheetValues = FiltersSheetValues(
         filtersTitle = R.string.library_filters_sheet_title,
         filtersClearButtonText = R.string.library_filters_sheet_button_clear_label,
         filtersStatusSelectionTitle = R.string.library_filters_sheet_status_title,

@@ -35,16 +35,13 @@ import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryFiltersSheet(
-    screenValues: LibraryScreenValues,
-    showFilters: Boolean,
+    sheetValues: FiltersSheetValues,
     filters: LibraryFilters,
     onStatusChange: (BookReadingStatusUi?) -> Unit,
     onSortChange: (LibrarySortUi) -> Unit,
     onClear: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    if (!showFilters) return
-
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -66,10 +63,10 @@ fun LibraryFiltersSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(screenValues.filtersTitle),
+                    text = stringResource(sheetValues.filtersTitle),
                     style = MaterialTheme.typography.titleLarge,
                 )
-                TextButton(onClick = onClear) { Text(text = stringResource(screenValues.filtersClearButtonText)) }
+                TextButton(onClick = onClear) { Text(text = stringResource(sheetValues.filtersClearButtonText)) }
             }
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -81,7 +78,7 @@ fun LibraryFiltersSheet(
                 headlineContent = {
                     Text(
                         modifier = Modifier.padding(vertical = 4.dp),
-                        text = stringResource(screenValues.filtersStatusSelectionTitle),
+                        text = stringResource(sheetValues.filtersStatusSelectionTitle),
                         style = MaterialTheme.typography.titleSmall,
                     )
                 },
@@ -99,7 +96,7 @@ fun LibraryFiltersSheet(
                 FilterChip(
                     selected = filters.status == null,
                     onClick = { onStatusChange(null) },
-                    label = { Text(text = stringResource(screenValues.filtersStatusAllLabel)) }
+                    label = { Text(text = stringResource(sheetValues.filtersStatusAllLabel)) }
                 )
 
                 val statusOptions = remember { BookReadingStatusUi.allOptions() }
@@ -120,7 +117,7 @@ fun LibraryFiltersSheet(
                 leadingContent = { Icon(Icons.Default.LowPriority, contentDescription = null) },
                 headlineContent = {
                     Text(
-                        text = stringResource(screenValues.filtersSortSelectionTitle),
+                        text = stringResource(sheetValues.filtersSortSelectionTitle),
                         style = MaterialTheme.typography.titleSmall,
                     )
                 },

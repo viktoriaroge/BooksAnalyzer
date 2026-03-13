@@ -22,57 +22,77 @@ fun LibraryRoute(
 
     val vm: LibraryViewModel = hiltViewModel()
     val state by vm.state.collectAsState()
-    val filters by vm.filters.collectAsState()
-    val query by vm.query.collectAsState()
 
-    var showSearch by rememberSaveable { mutableStateOf(value = false) }
-    var showFilters by rememberSaveable { mutableStateOf(value = false) }
+    when (val screenState = state.screenState) {
+        LibraryScreenState.Loading -> {
+            // Draw nothing and have a smooth transition without anything flickering.
+            // The DB fetch is quick enough. If needed, can be implemented later.
+        }
 
-    val currentListState = rememberLazyListState()
-    val currentOrderKey = remember(key1 = state.allBooks) {
-        state.currentBooks.joinToString(separator = "|") { it.id }
-    }
-    LaunchedEffect(key1 = currentOrderKey) {
-        currentListState.scrollToItem(index = 0)
-    }
+        is LibraryScreenState.Empty -> {
+            LibraryEmptyScreen(
+                screenValues = state.screenValues,
+                emptyStateValues = screenState.emptyStateValues,
+            )
+        }
 
-    val fullListState = rememberLazyListState()
-    val fullOrderKey = remember(key1 = state.allBooks) {
-        state.allBooks.joinToString(separator = "|") { it.id }
-    }
-    LaunchedEffect(key1 = fullOrderKey) {
-        if (state.sortState == LibrarySortUi.Recent) fullListState.scrollToItem(index = 0)
-    }
+        is LibraryScreenState.Content -> {
+            val filters by vm.filters.collectAsState()
+            val query by vm.query.collectAsState()
 
-    LibraryScreen(
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope,
-        state = state,
-        filters = filters,
-        query = query,
-        currentListState = currentListState,
-        fullListState = fullListState,
-        showSearch = showSearch,
-        onToggleSearch = remember { { showSearch = !showSearch } },
-        onHideSearch = remember { { showSearch = false } },
-        onToggleFilters = remember { { showFilters = !showFilters } },
-        onClearFilters = vm::onClearFilters,
-        onQueryChange = vm::onQueryChange,
-        onOpenBook = remember {
-            { bookId ->
-                vm.selectBook(bookId)
-                onOpenBook()
+            var showSearch by rememberSaveable { mutableStateOf(value = false) }
+            var showFilters by rememberSaveable { mutableStateOf(value = false) }
+
+            val currentListState = rememberLazyListState()
+            val currentOrderKey = remember(key1 = screenState.allBooks) {
+                screenState.currentBooks.joinToString(separator = "|") { it.id }
             }
-        },
-    )
+            LaunchedEffect(key1 = currentOrderKey) {
+                currentListState.scrollToItem(index = 0)
+            }
 
-    LibraryFiltersSheet(
-        screenValues = state.screenValues,
-        showFilters = showFilters,
-        filters = filters,
-        onStatusChange = vm::onStatusChange,
-        onSortChange = vm::onSortChange,
-        onClear = vm::onClearFilters,
-        onDismiss = remember { { showFilters = false } },
-    )
+            val fullListState = rememberLazyListState()
+            val fullOrderKey = remember(key1 = screenState.allBooks) {
+                screenState.allBooks.joinToString(separator = "|") { it.id }
+            }
+            LaunchedEffect(key1 = fullOrderKey) {
+                if (screenState.sortState == LibrarySortUi.Recent) fullListState.scrollToItem(index = 0)
+            }
+
+            LibraryScreen(
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+                state = screenState,
+                screenValues = state.screenValues,
+                contentStateValues = screenState.contentStateValues,
+                filters = filters,
+                query = query,
+                currentListState = currentListState,
+                fullListState = fullListState,
+                showSearch = showSearch,
+                onToggleSearch = remember { { showSearch = !showSearch } },
+                onHideSearch = remember { { showSearch = false } },
+                onToggleFilters = remember { { showFilters = !showFilters } },
+                onClearFilters = vm::onClearFilters,
+                onQueryChange = vm::onQueryChange,
+                onOpenBook = remember {
+                    { bookId ->
+                        vm.selectBook(bookId)
+                        onOpenBook()
+                    }
+                },
+            )
+
+            if (showFilters) {
+                LibraryFiltersSheet(
+                    sheetValues = screenState.filtersSheetValues,
+                    filters = filters,
+                    onStatusChange = vm::onStatusChange,
+                    onSortChange = vm::onSortChange,
+                    onClear = vm::onClearFilters,
+                    onDismiss = remember { { showFilters = false } },
+                )
+            }
+        }
+    }
 }
