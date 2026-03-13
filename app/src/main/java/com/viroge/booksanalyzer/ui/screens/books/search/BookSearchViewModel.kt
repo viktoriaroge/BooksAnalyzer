@@ -10,6 +10,7 @@ import com.viroge.booksanalyzer.domain.usecase.GetSearchHistoryUseCase
 import com.viroge.booksanalyzer.domain.usecase.ManageSearchHistoryUseCase
 import com.viroge.booksanalyzer.domain.usecase.SearchBooksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -39,7 +42,6 @@ class BookSearchViewModel @Inject constructor(
     private val _mode = MutableStateFlow(SearchMode.ALL)
     private val _searchTrigger = MutableSharedFlow<Unit>(replay = 1)
         .apply { tryEmit(Unit) }
-
     private val _currentItems = MutableStateFlow<List<TempBook>>(emptyList())
     private val _lastMessages = MutableStateFlow<List<String>>(emptyList())
     private val _nextToken = MutableStateFlow<String?>(null)
@@ -83,35 +85,59 @@ class BookSearchViewModel @Inject constructor(
 
                 emit(SearchPhase.DisplayingResults)
             }
-        }
+        }.flowOn(Dispatchers.Default)
 
-    val state: StateFlow<BookSearchUiState> = combine(
-        getSearchHistoryUseCase(),     // 1
-        _query,                                 // 2
-        _mode,                                  // 3
-        screenPhase,                            // 4
-        _currentItems,                          // 5
-        _lastMessages,                          // 6
-        _loadingIndicator                       // 7
-    ) { args ->
-        // Combining more than 5 -> arguments come in as an Array<Any> in the order they were passed:
-        val recent = args[0] as List<String>
-        val q = args[1] as String
-        val mode = args[2] as SearchMode
-        val phase = args[3] as SearchPhase
-        val items = args[4] as List<TempBook>
-        val messages = args[5] as List<String>
-        val loading = args[6] as LoadingIndicator
+    private val mappedItems: Flow<List<SearchBookDataState>> = _currentItems
+        .map { items -> items.map { mapper.mapToDataState(it) } }
+        .flowOn(Dispatchers.Default)
 
-        val screenState = when (phase) {
+    private val screenState: Flow<SearchScreenState> = combine(
+        _query,
+        _lastMessages,
+        screenPhase,
+        mappedItems
+    ) { q, messages, phase, items ->
+        when (phase) {
             SearchPhase.Idle -> SearchScreenState.Idle(
                 recentSearchesValues = mapper.getRecentSearchesValues(),
                 searchHistoryDialogValues = mapper.getSearchHistoryDialogValues()
             )
 
             SearchPhase.Loading -> SearchScreenState.Loading
-            SearchPhase.DisplayingResults -> produceResultState(q, items, messages)
+            SearchPhase.DisplayingResults -> when {
+                items.isEmpty() && messages.isNotEmpty() -> SearchScreenState.Error(
+                    message = messages.first(),
+                    errorStateValues = mapper.getErrorStateValues()
+                )
+
+                items.isEmpty() -> SearchScreenState.Empty(
+                    query = q,
+                    emptyStateValues = mapper.getEmptyStateValues()
+                )
+
+                messages.isEmpty() -> SearchScreenState.Success(
+                    query = q,
+                    items = items,
+                    contentStateValues = mapper.getContentStateValues()
+                )
+
+                else -> SearchScreenState.Partial(
+                    query = q,
+                    items = items,
+                    messages = messages,
+                    contentStateValues = mapper.getContentStateValues()
+                )
+            }
         }
+    }.flowOn(Dispatchers.Default)
+
+    val state: StateFlow<BookSearchUiState> = combine(
+        getSearchHistoryUseCase(),
+        _query,
+        _mode,
+        screenState,
+        _loadingIndicator
+    ) { recent, q, mode, screenState, loading ->
 
         BookSearchUiState(
             isLoadingMore = loading.isLoadingMore,
@@ -122,22 +148,12 @@ class BookSearchViewModel @Inject constructor(
             screenState = screenState,
             screenValues = mapper.getScreenValues(),
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = BookSearchUiState(
-            isLoadingMore = false,
-            canLoadMore = false,
-            query = "",
-            mode = BookSearchModeUi.All,
-            recent = emptyList(),
-            screenState = SearchScreenState.Idle(
-                mapper.getRecentSearchesValues(),
-                mapper.getSearchHistoryDialogValues()
-            ),
-            screenValues = mapper.getScreenValues()
+    }.flowOn(Dispatchers.Default)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = BookSearchUiState(),
         )
-    )
 
     fun changeQuery(newValue: String) {
         _query.value = newValue
@@ -194,33 +210,6 @@ class BookSearchViewModel @Inject constructor(
         _lastMessages.value = emptyList()
         _nextToken.value = null
         _loadingIndicator.update { it.copy(isLoadingMore = false, canLoadMore = false) }
-    }
-
-    private fun produceResultState(q: String, items: List<TempBook>, messages: List<String>): SearchScreenState {
-        return when {
-            items.isEmpty() && messages.isNotEmpty() -> SearchScreenState.Error(
-                message = messages.first(),
-                errorStateValues = mapper.getErrorStateValues()
-            )
-
-            items.isEmpty() -> SearchScreenState.Empty(
-                query = q,
-                emptyStateValues = mapper.getEmptyStateValues()
-            )
-
-            messages.isEmpty() -> SearchScreenState.Success(
-                query = q,
-                items = items.map { mapper.mapToDataState(it) },
-                contentStateValues = mapper.getContentStateValues()
-            )
-
-            else -> SearchScreenState.Partial(
-                query = q,
-                items = items.map { mapper.mapToDataState(it) },
-                messages = messages,
-                contentStateValues = mapper.getContentStateValues()
-            )
-        }
     }
 
     private enum class SearchPhase { Idle, Loading, DisplayingResults }

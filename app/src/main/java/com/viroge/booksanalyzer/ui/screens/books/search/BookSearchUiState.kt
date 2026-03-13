@@ -5,13 +5,16 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
 data class BookSearchUiState(
-    val isLoadingMore: Boolean,
-    val canLoadMore: Boolean,
-    val query: String,
-    val mode: BookSearchModeUi,
-    val recent: List<String>,
-    val screenState: SearchScreenState,
-    val screenValues: SearchScreenValues,
+    val isLoadingMore: Boolean = false,
+    val canLoadMore: Boolean = false,
+    val query: String = "",
+    val mode: BookSearchModeUi = BookSearchModeUi.All,
+    val recent: List<String> = emptyList(),
+    val screenState: SearchScreenState = SearchScreenState.Idle(
+        recentSearchesValues = RecentSearchesValues(),
+        searchHistoryDialogValues = SearchHistoryDialogValues(),
+    ),
+    val screenValues: SearchScreenValues = SearchScreenValues(),
 )
 
 sealed interface SearchScreenState {

@@ -143,7 +143,7 @@ fun LibraryScreen(
 
                 // Empty state
                 if (state.allBooks.isEmpty()) {
-                    item {
+                    item(key = "empty-state") {
                         Spacer(Modifier.height(height = 16.dp))
                         Text(
                             modifier = Modifier.padding(horizontal = 16.dp),
@@ -163,12 +163,12 @@ fun LibraryScreen(
 
                 // Currently Reading section
                 if (state.currentBooks.isNotEmpty()) {
-                    stickyHeader {
+                    stickyHeader(key = "currently-reading-section-title") {
                         Surface(Modifier.fillMaxWidth()) {
                             SectionHeader(text = stringResource(values.currentlyReadingSectionTitle).uppercase())
                         }
                     }
-                    item {
+                    item(key = "currently-reading-section-content") {
                         LazyRow(
                             state = currentListState,
                             contentPadding = PaddingValues(horizontal = 16.dp),
@@ -191,7 +191,7 @@ fun LibraryScreen(
 
                 // A list of all saved books
                 if (state.allBooks.isNotEmpty()) {
-                    stickyHeader {
+                    stickyHeader(key = "all-books-section-title") {
                         Surface(Modifier.fillMaxWidth()) {
                             SectionHeader(text = stringResource(values.allBooksSectionTitle).uppercase())
                         }

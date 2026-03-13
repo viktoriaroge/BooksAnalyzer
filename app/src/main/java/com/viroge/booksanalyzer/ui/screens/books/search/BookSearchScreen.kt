@@ -245,6 +245,7 @@ private fun BooksList(
         items(
             items = items,
             key = { book -> book.animationKey }, // Ensure stability during scrolls/updates, the animationKey is unique
+            contentType = { "book_item" },
         ) { book ->
             PvItemCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -317,7 +318,10 @@ private fun BooksList(
             }
         }
 
-        item(key = "footer") {
+        item(
+            key = "footer",
+            contentType = { "footer" },
+        ) {
             if (showingPartialResults) {
                 Spacer(Modifier.height(height = 8.dp))
                 Text(text = stringResource(contentStateValues.partialResultsText))
