@@ -7,18 +7,15 @@ import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
 data class BookDetailsUiState(
-    val screenState: BookDetailsScreenState = BookDetailsScreenState.Loading,
+    val screenState: BookDetailsScreenState,
 )
 
 sealed interface BookDetailsScreenState {
-
-    data object Loading : BookDetailsScreenState
-
     data class Content(
         val isDeleting: Boolean = false,
         val bookData: BookDetailsDataState,
         val screenValues: DetailsScreenValues = DetailsScreenValues(),
-        val deleteDialogValues: BookDetailsDeleteDialogValues,
+        val deleteDialogValues: BookDetailsDeleteDialogValues = BookDetailsDeleteDialogValues(),
     ) : BookDetailsScreenState
 
     data class Edit(
@@ -42,13 +39,13 @@ data class BookDetailsEditState(
 data class BookDetailsDataState(
     val animationKey: String,
     val id: String,
-    val title: String,
-    val authors: String,
-    val year: String?,
-    val isbn13: String?,
-    val isbn10: String?,
     val url: String?,
     val headers: Map<String, String>,
+    val title: String = "",
+    val authors: String = "",
+    val year: String? = null,
+    val isbn13: String? = null,
+    val isbn10: String? = null,
     val status: BookReadingStatusUi = BookReadingStatusUi.NotStarted,
     val source: BookSourceUi = BookSourceUi.Manual,
 )

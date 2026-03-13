@@ -13,8 +13,8 @@ import com.viroge.booksanalyzer.domain.PageTokenHandler.makePageToken
 import com.viroge.booksanalyzer.domain.PageTokenHandler.parsePageToken
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
-import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.model.SearchMode
+import com.viroge.booksanalyzer.domain.model.TempBook
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -106,7 +106,7 @@ class BooksRepositoryImpl @Inject constructor(
                     )
                 )
                 return InsertBookResult(
-                    existing.bookId,
+                    bookMapper.map(existing),
                     wasInserted = false,
                 )
             }
@@ -120,7 +120,7 @@ class BooksRepositoryImpl @Inject constructor(
                     )
                 )
                 return InsertBookResult(
-                    existing.bookId,
+                    bookMapper.map(existing),
                     wasInserted = false,
                 )
             }
@@ -134,7 +134,7 @@ class BooksRepositoryImpl @Inject constructor(
                     )
                 )
                 return InsertBookResult(
-                    existing.bookId,
+                    bookMapper.map(existing),
                     wasInserted = false,
                 )
             }
@@ -149,7 +149,7 @@ class BooksRepositoryImpl @Inject constructor(
                 )
             )
             return InsertBookResult(
-                existing.bookId,
+                bookMapper.map(existing),
                 wasInserted = false,
             )
         }
@@ -176,7 +176,7 @@ class BooksRepositoryImpl @Inject constructor(
         bookDao.upsert(book = entity)
 
         return InsertBookResult(
-            bookId = id,
+            book = bookMapper.map(entity),
             wasInserted = true,
         )
     }

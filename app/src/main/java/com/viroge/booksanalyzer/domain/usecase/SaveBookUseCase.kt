@@ -11,11 +11,11 @@ class SaveBookUseCase @Inject constructor(
     suspend operator fun invoke(book: TempBook): Result<SaveBookResult> {
         return runCatching {
             val res = booksRepo.insertFromBook(book)
-            SaveBookResult(res.bookId)
+            SaveBookResult(res.book)
         }
     }
 }
 
 data class SaveBookResult(
-    val bookId: String,
+    val book: Book,
 )

@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -55,13 +54,17 @@ class BookDetailsViewModel @Inject constructor(
     private val editInputState = MutableStateFlow<BookDetailsEditState?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val bookDataFlow: Flow<BookDetailsDataState?> = bookSelectionStateProvider.selectedBookId
-        .flatMapLatest { id -> id?.let { getBookUseCase(it) } ?: flowOf(null) }
-        .combine(coverPickerStateProvider.state) { book, pickerState ->
-            book?.let { mapper.mapToDataState(it, pickerState.selectedCandidate) }
+    private val bookDataFlow: Flow<BookDetailsDataState> = bookSelectionStateProvider.selectedBookSeed
+        .flatMapLatest { seed ->
+            val currentSeed = seed ?: throw IllegalStateException("No book seed found for details.")
+
+            getBookUseCase(currentSeed.id)
+                .combine(coverPickerStateProvider.state) { dbBook, pickerState ->
+                    mapper.mapToDataState(dbBook, pickerState.selectedCandidate)
+                }
         }
         .onEach { book ->
-            if (book != null && needsMarking) {
+            if (needsMarking) {
                 markBookAsOpened(book.id)
                 needsMarking = false
             }
@@ -77,15 +80,12 @@ class BookDetailsViewModel @Inject constructor(
         isDeleting
     ) { mode, book, editState, saving, deleting ->
         val screenState = when {
-            book == null -> BookDetailsScreenState.Loading
-            mode == UiMode.Edit && editState != null -> {
-                BookDetailsScreenState.Edit(
-                    isSaving = saving,
-                    editStateValues = mapper.getEditScreenValues(),
-                    editState = editState,
-                    bookData = book
-                )
-            }
+            mode == UiMode.Edit && editState != null -> BookDetailsScreenState.Edit(
+                isSaving = saving,
+                editStateValues = mapper.getEditScreenValues(),
+                editState = editState,
+                bookData = book
+            )
 
             else -> BookDetailsScreenState.Content(
                 isDeleting = deleting,
@@ -96,7 +96,21 @@ class BookDetailsViewModel @Inject constructor(
         }
         BookDetailsUiState(screenState)
     }.flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), BookDetailsUiState())
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            // TODO: Add A skeleton or similar while loading off the seed from DB:
+            BookDetailsUiState(
+                screenState = BookDetailsScreenState.Content(
+                    bookData = BookDetailsDataState(
+                        id = bookSelectionStateProvider.getSelectedBookSeed()?.id ?: "",
+                        url = bookSelectionStateProvider.getSelectedBookSeed()?.url ?: "",
+                        headers = bookSelectionStateProvider.getSelectedBookSeed()?.headers ?: emptyMap(),
+                        animationKey = bookSelectionStateProvider.getSelectedBookSeed()?.animationKey ?: "",
+                    ),
+                )
+            )
+        )
 
     fun enterEditMode() {
         val currentBook = (state.value.screenState as? BookDetailsScreenState.Content)?.bookData ?: return

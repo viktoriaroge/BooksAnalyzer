@@ -17,11 +17,15 @@ class BookSelectionStateProvider @Inject constructor() {
     private val _selectedTempBook = MutableStateFlow<TempBook?>(value = null)
     val selectedTempBook: StateFlow<TempBook?> = _selectedTempBook
 
-    private val _selectedBookId = MutableStateFlow<String?>(value = null)
-    val selectedBookId: StateFlow<String?> = _selectedBookId
+    /**
+     * Seed book is stripped down book that needs to later be updated from the DB.
+     * Currently used by standard books that have their own ID in the DB.
+     */
+    private val _selectedBookSeed = MutableStateFlow<BookSeed?>(value = null)
+    val selectedBookSeed: StateFlow<BookSeed?> = _selectedBookSeed
 
     fun getSelectedTempBook(): TempBook? = _selectedTempBook.value
-    fun getSelectedBookId(): String? = _selectedBookId.value
+    fun getSelectedBookSeed(): BookSeed? = _selectedBookSeed.value
 
     fun selectTempBook(
         book: TempBook,
@@ -29,10 +33,18 @@ class BookSelectionStateProvider @Inject constructor() {
         _selectedTempBook.value = book
     }
 
-    fun selectBookId(
+    fun selectBookSeed(
         bookId: String,
+        bookCoverUrl: String,
+        bookCoverRequestHeaders: Map<String, String>,
+        bookAnimationKey: String,
     ) {
-        _selectedBookId.value = bookId
+        _selectedBookSeed.value = BookSeed(
+            id = bookId,
+            url = bookCoverUrl,
+            headers = bookCoverRequestHeaders,
+            animationKey = bookAnimationKey,
+        )
     }
 
     fun clearTempSelection() {
@@ -40,6 +52,13 @@ class BookSelectionStateProvider @Inject constructor() {
     }
 
     fun clearSelection() {
-        _selectedBookId.value = null
+        _selectedBookSeed.value = null
     }
 }
+
+data class BookSeed(
+    val id: String,
+    val url: String,
+    val headers: Map<String, String>,
+    val animationKey: String,
+)

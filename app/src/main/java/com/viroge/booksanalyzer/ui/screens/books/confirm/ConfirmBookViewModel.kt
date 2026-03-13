@@ -7,6 +7,7 @@ import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.SaveBookUseCase
+import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,7 +81,19 @@ class ConfirmBookViewModel @Inject constructor(
 
             saveBookUseCase(editedBook)
                 .onSuccess { result ->
-                    bookSelectionStateProvider.selectBookId(result.bookId)
+                    val book = result.book
+                    bookSelectionStateProvider.selectBookSeed(
+                        bookId = book.id,
+                        bookCoverUrl = book.coverUrl ?: "",
+                        bookCoverRequestHeaders = book.coverRequestHeaders,
+                        bookAnimationKey = BookTransitionKey.calculate(
+                            title = book.title,
+                            authors = book.authors,
+                            isbn = book.isbn13,
+                            source = book.source,
+                            sourceId = book.sourceId,
+                        )
+                    )
                     _events.emit(ConfirmEvent.Saved)
                     _internalState.update { it.copy(isSaving = false) }
                 }
@@ -124,7 +137,19 @@ class ConfirmBookViewModel @Inject constructor(
 
             saveBookUseCase(editedBook)
                 .onSuccess { result ->
-                    bookSelectionStateProvider.selectBookId(result.bookId)
+                    val book = result.book
+                    bookSelectionStateProvider.selectBookSeed(
+                        bookId = book.id,
+                        bookCoverUrl = book.coverUrl ?: "",
+                        bookCoverRequestHeaders = book.coverRequestHeaders,
+                        bookAnimationKey = BookTransitionKey.calculate(
+                            title = book.title,
+                            authors = book.authors,
+                            isbn = book.isbn13,
+                            source = book.source,
+                            sourceId = book.sourceId,
+                        )
+                    )
                     _events.emit(ConfirmEvent.Saved)
                     _internalState.update { it.copy(isSaving = false) }
                 }

@@ -3,8 +3,10 @@ package com.viroge.booksanalyzer.ui.screens.books.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
+import com.viroge.booksanalyzer.domain.usecase.GetBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.ObserveLibraryDataUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
+import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,12 +20,14 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val bookSelectionStateProvider: BookSelectionStateProvider,
     private val observeLibraryDataUseCase: ObserveLibraryDataUseCase,
+    private val getBookUseCase: GetBookUseCase,
     private val mapper: LibraryMapper,
 ) : ViewModel() {
 
@@ -106,6 +110,21 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun selectBook(bookId: String) {
-        bookSelectionStateProvider.selectBookId(bookId)
+        viewModelScope.launch {
+            getBookUseCase(bookId)?.let { book ->
+                bookSelectionStateProvider.selectBookSeed(
+                    bookId = book.id,
+                    bookCoverUrl = book.coverUrl ?: "",
+                    bookCoverRequestHeaders = book.coverRequestHeaders,
+                    bookAnimationKey = BookTransitionKey.calculate(
+                        title = book.title,
+                        authors = book.authors,
+                        isbn = book.isbn13,
+                        source = book.source,
+                        sourceId = book.sourceId,
+                    )
+                )
+            }
+        }
     }
 }

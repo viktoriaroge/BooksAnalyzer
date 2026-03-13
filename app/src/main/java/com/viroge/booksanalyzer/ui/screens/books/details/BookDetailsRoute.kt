@@ -56,8 +56,6 @@ fun BookDetailsRoute(
     }
 
     when (val screenState = state.screenState) {
-        BookDetailsScreenState.Loading -> {}
-
         is BookDetailsScreenState.Content -> {
             var showDeleteDialog by remember { mutableStateOf(false) }
 

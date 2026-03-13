@@ -1,6 +1,8 @@
 package com.viroge.booksanalyzer.data.local.books
 
+import com.viroge.booksanalyzer.domain.model.Book
+
 data class InsertBookResult(
-    val bookId: String,
+    val book: Book,
     val wasInserted: Boolean,
 )
