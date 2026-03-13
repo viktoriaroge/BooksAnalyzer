@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.ui.nav
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
@@ -19,6 +20,15 @@ fun AppNavHost(
     navController: NavHostController,
 ) {
 
+    fun navigateSafe(
+        route: String,
+        navOptions: (NavOptionsBuilder.() -> Unit)? = null,
+    ) {
+        if (navController.currentBackStackEntry?.destination?.route != route) {
+            navController.navigate(route, navOptions ?: {})
+        }
+    }
+
     SharedTransitionLayout {
         NavHost(
             navController = navController,
@@ -33,7 +43,7 @@ fun AppNavHost(
             ) {
                 composable(Routes.LIBRARY) {
                     LibraryRoute(
-                        onOpenBook = { navController.navigate(Routes.BOOK_DETAILS) },
+                        onOpenBook = { navigateSafe(Routes.BOOK_DETAILS) },
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
                     )
@@ -58,7 +68,7 @@ fun AppNavHost(
                     SearchBookRoute(
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
-                        onGoToConfirm = { navController.navigate(Routes.CONFIRM_BOOK) },
+                        onGoToConfirm = { navigateSafe(Routes.CONFIRM_BOOK) },
                     )
                 }
 
@@ -68,7 +78,7 @@ fun AppNavHost(
                         animatedVisibilityScope = this@composable,
                         onBack = { navController.popBackStack() },
                         onBookSaved = {
-                            navController.navigate(Routes.BOOK_DETAILS) {
+                            navigateSafe(Routes.BOOK_DETAILS) {
                                 popUpTo(Routes.SEARCH_BOOK) { inclusive = false }
                             }
                         },
