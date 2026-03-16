@@ -274,8 +274,9 @@ fun CurrentlyReadingCard(
                 PvBookCoverAsyncImage(
                     url = book.url,
                     requestHeaders = book.headers,
-                    size = PvBookCoverImageSize.MEDIUM,
+                    imageSize = PvBookCoverImageSize.Medium,
                     modifier = Modifier.align(Alignment.Center),
+                    // Animation parameters:
                     animate = true,
                     animationKey = book.animationKey,
                     sharedTransitionScope = sharedTransitionScope,
@@ -336,7 +337,8 @@ private fun BookRowCard(
             PvBookCoverAsyncImage(
                 url = book.url,
                 requestHeaders = book.headers,
-                size = PvBookCoverImageSize.SMALL,
+                imageSize = PvBookCoverImageSize.Small,
+                // Animation parameters:
                 animate = true,
                 animationKey = book.animationKey,
                 sharedTransitionScope = sharedTransitionScope,

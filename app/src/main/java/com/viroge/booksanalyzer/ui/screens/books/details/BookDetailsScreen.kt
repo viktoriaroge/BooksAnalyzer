@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.components.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
+import com.viroge.booksanalyzer.ui.components.PvSkeletonArea
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 
@@ -80,95 +81,97 @@ fun BookDetailsScreen(
         Column(
             modifier = Modifier
                 .verticalScroll(state = scrollState)
-                .padding(top = screenPadding.calculateTopPadding())
-                .fillMaxSize(),
+                .padding(top = screenPadding.calculateTopPadding()),
         ) {
 
             PvBookCoverHeader(
-                sharedTransitionScope = sharedTransitionScope,
-                animatedVisibilityScope = animatedVisibilityScope,
-                animationKey = book.animationKey,
                 imageUrl = book.url,
                 headersForBookCover = book.headers,
+                // Animation parameters:
+                animate = true,
+                animationKey = book.animationKey,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
             )
 
-            Text(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                text = book.title,
-                style = MaterialTheme.typography.titleLarge,
-            )
+            if (state.isLoading) {
+                SkeletonLoader()
 
-            if (book.authors.isNotEmpty()) {
+            } else {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    text = book.title,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+
                 Spacer(Modifier.height(height = 12.dp))
                 Text(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     text = book.authors,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            }
 
-            val meta = listOfNotNull(book.year, book.isbn13).joinToString(separator = " • ")
-            if (meta.isNotBlank()) {
                 Spacer(Modifier.height(height = 12.dp))
                 Text(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    text = meta,
+                    text = book.meta,
                     style = MaterialTheme.typography.bodySmall,
                 )
-            }
 
-            Spacer(modifier = Modifier.height(height = 12.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(space = 2.dp),
-            ) {
-                Text(
-                    text = stringResource(values.originLabel),
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                Spacer(modifier = Modifier.height(height = 12.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(space = 2.dp),
+                ) {
+                    Text(
+                        text = stringResource(values.originLabel),
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    PvBookSourceBadge(
+                        modifier = Modifier.padding(all = 2.dp),
+                        sourceText = book.source.label.asString(),
+                    )
+                    Spacer(modifier = Modifier.weight(weight = 1f))
+                }
+
+                StatusPicker(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    status = book.status,
+                    onChange = onStatusChange,
                 )
-                PvBookSourceBadge(
-                    modifier = Modifier.padding(all = 2.dp),
-                    sourceText = book.source.label.asString(),
-                )
-                Spacer(modifier = Modifier.weight(weight = 1f))
+
+                Spacer(Modifier.height(height = 16.dp))
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    onClick = { onDelete() },
+                    enabled = !state.isDeleting,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) {
+                    Text(stringResource(values.deleteButtonText))
+                }
             }
-
-            StatusPicker(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                status = book.status,
-                onChange = onStatusChange,
-            )
-
-            Spacer(Modifier.height(height = 16.dp))
-            Button(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                onClick = { onDelete() },
-                enabled = !state.isDeleting,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                ),
-            ) {
-                Text(stringResource(values.deleteButtonText))
-            }
-
-            Spacer(Modifier.height(height = 24.dp))
         }
+
+        // Spacing after Content:
+        Spacer(Modifier.height(height = 24.dp))
     }
 }
 
@@ -223,5 +226,79 @@ private fun StatusPicker(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SkeletonLoader() {
+    PvSkeletonArea(
+        modifier = Modifier
+            .padding(horizontal = 16.dp),
+    ) {
+        // Title
+        Item(
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .height(28.dp)
+        )
+
+        // Authors
+        Spacer(Modifier.height(12.dp))
+        Item(
+            modifier = Modifier
+                .fillMaxWidth(0.4f)
+                .height(20.dp)
+        )
+
+        // Meta
+        Spacer(Modifier.height(12.dp))
+        Item(
+            modifier = Modifier
+                .fillMaxWidth(0.4f)
+                .height(16.dp)
+        )
+
+        // Source Badge
+        Spacer(Modifier.height(12.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Item(
+                modifier = Modifier
+                    .width(40.dp)
+                    .height(16.dp)
+            )
+            Item(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(24.dp),
+                cornerRadius = 12.dp
+            )
+        }
+
+        // Status and Picker
+        Spacer(Modifier.height(24.dp))
+        Item(
+            modifier = Modifier
+                .fillMaxWidth(0.4f)
+                .height(20.dp)
+        )
+        Spacer(Modifier.height(10.dp))
+        Item(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp)
+        )
+
+        // Delete button
+        Spacer(Modifier.height(18.dp))
+        Item(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(42.dp),
+            cornerRadius = 24.dp,
+        )
     }
 }

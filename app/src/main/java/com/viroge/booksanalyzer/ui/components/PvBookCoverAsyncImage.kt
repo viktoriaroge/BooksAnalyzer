@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -28,7 +29,7 @@ fun PvBookCoverAsyncImage(
     url: String?,
     requestHeaders: Map<String, String>,
     @DrawableRes defaultImageRes: Int = R.drawable.ic_empty_book_cover,
-    size: PvBookCoverImageSize = PvBookCoverImageSize.SMALL,
+    imageSize: PvBookCoverImageSize = PvBookCoverImageSize.Small,
     contentScale: ContentScale = ContentScale.Crop,
     // Animation parameters:
     animate: Boolean = false,
@@ -39,22 +40,8 @@ fun PvBookCoverAsyncImage(
     Box(
         modifier = modifier
             .size(
-                width = when (size) {
-                    PvBookCoverImageSize.XSMALL -> 60.dp
-                    PvBookCoverImageSize.SMALL -> 80.dp
-                    PvBookCoverImageSize.MEDIUM -> 120.dp
-                    PvBookCoverImageSize.LARGE -> 160.dp
-                    PvBookCoverImageSize.XLARGE -> 200.dp
-                    PvBookCoverImageSize.XXLARGE -> 240.dp
-                },
-                height = when (size) {
-                    PvBookCoverImageSize.XSMALL -> 90.dp
-                    PvBookCoverImageSize.SMALL -> 120.dp
-                    PvBookCoverImageSize.MEDIUM -> 180.dp
-                    PvBookCoverImageSize.LARGE -> 240.dp
-                    PvBookCoverImageSize.XLARGE -> 300.dp
-                    PvBookCoverImageSize.XXLARGE -> 360.dp
-                },
+                width = imageSize.width,
+                height = imageSize.height,
             )
             .clip(RoundedCornerShape(12.dp))
             .shadow(12.dp, RoundedCornerShape(12.dp))
@@ -123,11 +110,14 @@ private fun PvAsyncImage(
     )
 }
 
-enum class PvBookCoverImageSize {
-    XSMALL,
-    SMALL,
-    MEDIUM,
-    LARGE,
-    XLARGE,
-    XXLARGE,
+sealed class PvBookCoverImageSize(
+    val width: Dp,
+    val height: Dp,
+) {
+    object XSmall : PvBookCoverImageSize(width = 60.dp, height = 90.dp)
+    object Small : PvBookCoverImageSize(width = 80.dp, height = 120.dp)
+    object Medium : PvBookCoverImageSize(width = 120.dp, height = 180.dp)
+    object Large : PvBookCoverImageSize(width = 160.dp, height = 240.dp)
+    object XLarge : PvBookCoverImageSize(width = 200.dp, height = 300.dp)
+    object XXLarge : PvBookCoverImageSize(width = 240.dp, height = 360.dp)
 }

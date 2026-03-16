@@ -104,8 +104,6 @@ fun BookDetailsRoute(
             val bookData = screenState.bookData
 
             BookDetailsEditScreen(
-                sharedTransitionScope = sharedTransitionScope,
-                animatedVisibilityScope = animatedVisibilityScope,
                 state = screenState,
                 onSaveEdits = vm::saveEdits,
                 onCancelEdit = vm::exitEditMode,

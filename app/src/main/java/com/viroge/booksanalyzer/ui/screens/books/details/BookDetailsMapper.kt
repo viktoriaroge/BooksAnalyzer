@@ -58,6 +58,7 @@ class BookDetailsMapper @Inject constructor() {
         year = book.publishedYear,
         isbn13 = book.isbn13,
         isbn10 = book.isbn10,
+        meta = listOfNotNull(book.publishedYear, book.isbn13).joinToString(separator = " • "),
         url = selectedCandidate?.url ?: book.coverUrl,
         headers = selectedCandidate?.headers ?: book.coverRequestHeaders,
         source = BookSourceUi.fromDomain(book.source),

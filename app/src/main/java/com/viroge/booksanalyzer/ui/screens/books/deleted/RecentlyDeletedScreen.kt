@@ -133,7 +133,7 @@ private fun BookItemCard(
             PvBookCoverAsyncImage(
                 url = book.coverUrl,
                 requestHeaders = book.coverHeaders,
-                size = PvBookCoverImageSize.XSMALL,
+                imageSize = PvBookCoverImageSize.XSmall,
             )
 
             Column(modifier = Modifier.weight(weight = 1f)) {

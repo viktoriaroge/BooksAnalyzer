@@ -88,6 +88,7 @@ class BookDetailsViewModel @Inject constructor(
             )
 
             else -> BookDetailsScreenState.Content(
+                isLoading = false,
                 isDeleting = deleting,
                 bookData = book,
                 screenValues = mapper.getScreenValues(),
@@ -99,9 +100,10 @@ class BookDetailsViewModel @Inject constructor(
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            // TODO: Add A skeleton or similar while loading off the seed from DB:
             BookDetailsUiState(
                 screenState = BookDetailsScreenState.Content(
+                    isLoading = true,
+                    screenValues = mapper.getScreenValues(),
                     bookData = BookDetailsDataState(
                         id = bookSelectionStateProvider.getSelectedBookSeed()?.id ?: "",
                         url = bookSelectionStateProvider.getSelectedBookSeed()?.url ?: "",

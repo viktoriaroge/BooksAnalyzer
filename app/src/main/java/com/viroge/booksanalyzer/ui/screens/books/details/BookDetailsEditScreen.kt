@@ -1,7 +1,5 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,8 +30,6 @@ import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookDetailsEditScreen(
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
     state: BookDetailsScreenState.Edit,
     onSaveEdits: () -> Unit,
     onCancelEdit: () -> Unit,
@@ -77,9 +73,6 @@ fun BookDetailsEditScreen(
         ) {
 
             PvBookCoverHeader(
-                sharedTransitionScope = sharedTransitionScope,
-                animatedVisibilityScope = animatedVisibilityScope,
-                animationKey = book.animationKey,
                 imageUrl = book.url,
                 headersForBookCover = book.headers,
                 modifier = Modifier.fillMaxWidth(),

@@ -252,7 +252,8 @@ private fun BooksList(
                     PvBookCoverAsyncImage(
                         url = book.url,
                         requestHeaders = book.headers,
-                        size = PvBookCoverImageSize.XSMALL,
+                        imageSize = PvBookCoverImageSize.XSmall,
+                        // Animation parameters:
                         animate = true,
                         animationKey = book.animationKey,
                         sharedTransitionScope = sharedTransitionScope,

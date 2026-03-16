@@ -65,11 +65,13 @@ fun ConfirmManualBookScreen(
             }
 
             PvBookCoverHeader(
-                sharedTransitionScope = sharedTransitionScope,
-                animatedVisibilityScope = animatedVisibilityScope,
-                animationKey = book.animationKey,
                 imageUrl = book.url,
                 headersForBookCover = book.headers,
+                // Animation parameters:
+                animate = true,
+                animationKey = book.animationKey,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
             )
 
             Button(

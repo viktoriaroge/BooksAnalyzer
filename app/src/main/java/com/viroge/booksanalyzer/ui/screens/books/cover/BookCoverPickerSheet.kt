@@ -129,7 +129,7 @@ private fun CoverChoiceTile(
             modifier = Modifier.fillMaxSize(),
             url = url,
             requestHeaders = requestHeaders,
-            size = PvBookCoverImageSize.LARGE,
+            imageSize = PvBookCoverImageSize.Large,
         )
     }
 }

@@ -4,41 +4,46 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun PvBookCoverHeader(
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    animationKey: String,
     modifier: Modifier = Modifier,
     imageUrl: String?,
     headersForBookCover: Map<String, String>,
+    // Animation parameters:
+    animate: Boolean = false,
+    animationKey: String? = null,
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedVisibilityScope: AnimatedVisibilityScope? = null,
 ) {
+    val headerCoverSize = PvBookCoverImageSize.XXLarge
+    val headerCoverPadding = 32.dp
+
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .height(headerCoverSize.height + headerCoverPadding * 2)
             .clipToBounds() // Prevents the blur from bleeding out
     ) {
         // Hazy background:
         val isDarkTheme = isSystemInDarkTheme()
         PvBookCoverAsyncImage(
             modifier = Modifier
-                .fillMaxSize()
-                .blur(radius = 30.dp)
+                .fillMaxWidth()
+                .height(headerCoverSize.height)
+                .blur(radius = 25.dp)
                 .drawWithContent {
                     drawContent()
                     // Adjust slightly so the foreground pops
@@ -50,18 +55,19 @@ fun PvBookCoverHeader(
             contentScale = ContentScale.Crop,
             url = imageUrl,
             requestHeaders = headersForBookCover,
-            size = PvBookCoverImageSize.XXLARGE,
+            imageSize = headerCoverSize,
         )
 
         // Cover image:
         PvBookCoverAsyncImage(
             modifier = Modifier
                 .align(Alignment.Center)
-                .padding(vertical = 32.dp),
+                .padding(vertical = headerCoverPadding),
             url = imageUrl,
             requestHeaders = headersForBookCover,
-            size = PvBookCoverImageSize.XXLARGE,
-            animate = true,
+            imageSize = headerCoverSize,
+            // Animation parameters:
+            animate = animate,
             animationKey = animationKey,
             sharedTransitionScope = sharedTransitionScope,
             animatedVisibilityScope = animatedVisibilityScope,

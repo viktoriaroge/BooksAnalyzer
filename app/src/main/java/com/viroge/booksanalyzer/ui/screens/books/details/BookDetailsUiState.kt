@@ -12,6 +12,7 @@ data class BookDetailsUiState(
 
 sealed interface BookDetailsScreenState {
     data class Content(
+        val isLoading: Boolean = true,
         val isDeleting: Boolean = false,
         val bookData: BookDetailsDataState,
         val screenValues: DetailsScreenValues = DetailsScreenValues(),
@@ -46,6 +47,7 @@ data class BookDetailsDataState(
     val year: String? = null,
     val isbn13: String? = null,
     val isbn10: String? = null,
+    val meta: String = "",
     val status: BookReadingStatusUi = BookReadingStatusUi.NotStarted,
     val source: BookSourceUi = BookSourceUi.Manual,
 )

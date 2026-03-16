@@ -91,7 +91,7 @@ fun AppRoot() {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
+                        .padding(top = innerPadding.calculateTopPadding())
                         .consumeWindowInsets(innerPadding)
                 ) {
                     AppSnackbarHandler()
