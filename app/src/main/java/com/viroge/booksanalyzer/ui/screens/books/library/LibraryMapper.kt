@@ -21,19 +21,7 @@ class LibraryMapper @Inject constructor() {
     )
 
     fun getContentStateValues(): ContentStateValues = ContentStateValues(
-        searchPlaceholder = R.string.library_screen_search_placeholder,
-        currentlyReadingSectionTitle = R.string.library_screen_currently_reading_section_title,
-        allBooksSectionTitle = R.string.library_screen_all_section_title,
-        activeSortText = R.string.library_sort_explanation_prefix,
-        clearFilterText = R.string.library_screen_filter_button_clear_label,
-    )
-
-    fun getFiltersSheetValues(): FiltersSheetValues = FiltersSheetValues(
-        filtersTitle = R.string.library_filters_sheet_title,
-        filtersClearButtonText = R.string.library_filters_sheet_button_clear_label,
-        filtersStatusSelectionTitle = R.string.library_filters_sheet_status_title,
-        filtersStatusAllLabel = R.string.search_mode_all,
-        filtersSortSelectionTitle = R.string.library_filters_sheet_sort_title,
+        fullCollectionFabText = R.string.library_screen_fab_show_full_collection_label,
     )
 
     fun mapToData(

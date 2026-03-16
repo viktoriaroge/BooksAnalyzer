@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.books.library
+package com.viroge.booksanalyzer.ui.screens.books.library.full
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

@@ -1,6 +1,7 @@
 package com.viroge.booksanalyzer.ui.nav
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -67,8 +68,8 @@ fun AppRoot() {
             bottomBar = {
                 AnimatedVisibility(
                     visible = showBottomBar,
-                    enter = slideInVertically { it } + fadeIn(),
-                    exit = slideOutVertically { it } + fadeOut(),
+                    enter = slideInVertically(tween(400)) { it },
+                    exit = slideOutVertically(tween(400)) { it },
                 ) {
                     AppBottomBar(
                         currentDestination = currentDestination,

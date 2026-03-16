@@ -19,12 +19,8 @@ sealed interface LibraryScreenState {
     ) : LibraryScreenState
 
     data class Content(
-        val selectedStatus: BookReadingStatusUi?, // null = All
-        val sortState: LibrarySortUi,
         val currentBooks: List<LibraryBookData>,
-        val allBooks: List<LibraryBookData>,
         val contentStateValues: ContentStateValues,
-        val filtersSheetValues: FiltersSheetValues,
     ) : LibraryScreenState
 }
 
@@ -38,19 +34,7 @@ data class EmptyStateValues(
 )
 
 data class ContentStateValues(
-    @param:StringRes val searchPlaceholder: Int = R.string.empty_text,
-    @param:StringRes val currentlyReadingSectionTitle: Int = R.string.empty_text,
-    @param:StringRes val allBooksSectionTitle: Int = R.string.empty_text,
-    @param:StringRes val activeSortText: Int = R.string.empty_text,
-    @param:StringRes val clearFilterText: Int = R.string.empty_text,
-)
-
-data class FiltersSheetValues(
-    @param:StringRes val filtersTitle: Int = R.string.empty_text,
-    @param:StringRes val filtersClearButtonText: Int = R.string.empty_text,
-    @param:StringRes val filtersStatusSelectionTitle: Int = R.string.empty_text,
-    @param:StringRes val filtersStatusAllLabel: Int = R.string.empty_text,
-    @param:StringRes val filtersSortSelectionTitle: Int = R.string.empty_text,
+    @param:StringRes val fullCollectionFabText: Int = R.string.empty_text,
 )
 
 data class LibraryBookData(
@@ -66,9 +50,4 @@ data class LibraryBookData(
     val headers: Map<String, String>,
     val status: BookReadingStatusUi = BookReadingStatusUi.NotStarted,
     val source: BookSourceUi = BookSourceUi.Manual,
-)
-
-data class LibraryFilters(
-    val status: BookReadingStatusUi? = null, // null = All
-    val sort: LibrarySortUi = LibrarySortUi.Added,
 )

@@ -39,8 +39,9 @@
     <string name="library_screen_filter_button_clear_label">Purge</string>
     <string name="library_screen_empty_state_title">A Fresh Page</string>
     <string name="library_screen_empty_state_subtitle">Your shelf is a blank slate. Ready to make it official? Discover Stories to pledge your first PageVow.</string>
-    <string name="library_screen_currently_reading_section_title">Now Engaged</string>
-    <string name="library_screen_all_section_title">The Whole Record</string>
+    <string name="library_screen_fab_show_full_collection_label">The Whole Record</string>
+    <string name="library_screen_full_collection_empty_state_title">The Record is Silent</string>
+    <string name="library_screen_full_collection_empty_state_subtitle">No {spe}PageVow{/spe} matches your inquiry. \nPerhaps the ink has faded, or the tome resides in another chamber?</string>
 
     <string name="library_filters_sheet_title">Order of the Tome</string>
     <string name="library_filters_sheet_status_title">Nature of the Bond</string>

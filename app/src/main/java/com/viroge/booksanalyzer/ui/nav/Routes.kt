@@ -12,6 +12,7 @@ object Routes {
     const val SETTINGS_GRAPH = "settings_graph"
 
     // Stand-alone screens:
+    const val FULL_COLLECTION = "full_collection"
     const val CONFIRM_BOOK = "confirm_book"
     const val BOOK_DETAILS = "book_details"
     const val RECENTLY_DELETED_BOOKS = "recently_deleted_books"

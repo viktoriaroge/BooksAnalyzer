@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.books.library
+package com.viroge.booksanalyzer.ui.screens.books.library.full
 
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.usecase.book.LibrarySort

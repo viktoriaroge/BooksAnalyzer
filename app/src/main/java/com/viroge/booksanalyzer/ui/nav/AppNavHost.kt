@@ -1,6 +1,9 @@
 package com.viroge.booksanalyzer.ui.nav
 
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
@@ -11,6 +14,7 @@ import com.viroge.booksanalyzer.ui.screens.books.confirm.ConfirmBookRoute
 import com.viroge.booksanalyzer.ui.screens.books.deleted.RecentlyDeletedRoute
 import com.viroge.booksanalyzer.ui.screens.books.details.BookDetailsRoute
 import com.viroge.booksanalyzer.ui.screens.books.library.LibraryRoute
+import com.viroge.booksanalyzer.ui.screens.books.library.full.LibraryFullCollectionRoute
 import com.viroge.booksanalyzer.ui.screens.books.search.SearchBookRoute
 import com.viroge.booksanalyzer.ui.screens.settings.SettingsRoute
 import com.viroge.booksanalyzer.ui.screens.terms.TermsRoute
@@ -33,6 +37,8 @@ fun AppNavHost(
         NavHost(
             navController = navController,
             startDestination = Routes.LIBRARY_GRAPH,
+            enterTransition = { fadeIn(tween(400)) },
+            exitTransition = { fadeOut(tween(400)) },
         ) {
 
             // --- LIBRARY TAB --------------------------------------------------------------
@@ -43,6 +49,16 @@ fun AppNavHost(
             ) {
                 composable(Routes.LIBRARY) {
                     LibraryRoute(
+                        onOpenFullLibrary = { navigateSafe(Routes.FULL_COLLECTION) },
+                        onOpenBook = { navigateSafe(Routes.BOOK_DETAILS) },
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedVisibilityScope = this@composable,
+                    )
+                }
+
+                composable(Routes.FULL_COLLECTION) {
+                    LibraryFullCollectionRoute(
+                        onBack = navController::popBackStack,
                         onOpenBook = { navigateSafe(Routes.BOOK_DETAILS) },
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
@@ -51,7 +67,7 @@ fun AppNavHost(
 
                 composable(Routes.BOOK_DETAILS) {
                     BookDetailsRoute(
-                        onBack = { navController.popBackStack() },
+                        onBack = navController::popBackStack,
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
                     )
@@ -76,7 +92,7 @@ fun AppNavHost(
                     ConfirmBookRoute(
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
-                        onBack = { navController.popBackStack() },
+                        onBack = navController::popBackStack,
                         onBookSaved = {
                             navigateSafe(Routes.BOOK_DETAILS) {
                                 popUpTo(Routes.SEARCH_BOOK) { inclusive = false }
@@ -89,7 +105,7 @@ fun AppNavHost(
                     BookDetailsRoute(
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
-                        onBack = { navController.popBackStack() },
+                        onBack = navController::popBackStack,
                     )
                 }
             }
@@ -108,13 +124,13 @@ fun AppNavHost(
 
                 composable(Routes.RECENTLY_DELETED_BOOKS) {
                     RecentlyDeletedRoute(
-                        onBack = { navController.popBackStack() },
+                        onBack = navController::popBackStack,
                     )
                 }
 
                 composable(Routes.APP_TERMS) {
                     TermsRoute(
-                        onBack = { navController.popBackStack() },
+                        onBack = navController::popBackStack,
                     )
                 }
             }
