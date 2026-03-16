@@ -111,7 +111,7 @@
                     android:interpolator="@android:anim/accelerate_decelerate_interpolator"
                     android:propertyName="rotation"
                     android:repeatCount="infinite"
-                    android:repeatMode="restart"
+                    android:repeatMode="reverse"
                     android:startOffset="500"
                     android:valueFrom="-20"
                     android:valueTo="20" />
