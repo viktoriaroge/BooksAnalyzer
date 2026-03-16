@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.data
+package com.viroge.booksanalyzer.data.repository.search
 
 import kotlinx.coroutines.flow.Flow
 

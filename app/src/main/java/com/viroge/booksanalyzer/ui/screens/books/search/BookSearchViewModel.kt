@@ -2,14 +2,14 @@ package com.viroge.booksanalyzer.ui.screens.books.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
+import com.viroge.booksanalyzer.data.common.util.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.model.SearchMode
 import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
-import com.viroge.booksanalyzer.domain.usecase.GetSearchHistoryUseCase
-import com.viroge.booksanalyzer.domain.usecase.ManageSearchHistoryUseCase
-import com.viroge.booksanalyzer.domain.usecase.SearchBooksUseCase
-import com.viroge.booksanalyzer.domain.usecase.SearchError
+import com.viroge.booksanalyzer.domain.usecase.search.GetSearchHistoryUseCase
+import com.viroge.booksanalyzer.domain.usecase.search.ManageSearchHistoryUseCase
+import com.viroge.booksanalyzer.domain.usecase.search.SearchBooksUseCase
+import com.viroge.booksanalyzer.domain.usecase.search.SearchError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

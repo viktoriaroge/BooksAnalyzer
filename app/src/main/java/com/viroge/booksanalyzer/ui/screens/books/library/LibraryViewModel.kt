@@ -3,8 +3,8 @@ package com.viroge.booksanalyzer.ui.screens.books.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
-import com.viroge.booksanalyzer.domain.usecase.GetBookUseCase
-import com.viroge.booksanalyzer.domain.usecase.ObserveLibraryDataUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.GetBookUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.ObserveLibraryDataUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel

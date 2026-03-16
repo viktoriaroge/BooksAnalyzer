@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.data
+package com.viroge.booksanalyzer.data.repository.search
 
 import com.viroge.booksanalyzer.data.local.searchhistory.SearchHistoryDao
 import com.viroge.booksanalyzer.data.local.searchhistory.SearchHistoryEntity

@@ -1,6 +1,7 @@
 package com.viroge.booksanalyzer.domain.usecase
 
-import com.viroge.booksanalyzer.data.BooksRepository
+import com.viroge.booksanalyzer.data.repository.BooksRepository
+import com.viroge.booksanalyzer.domain.usecase.book.RestoreBookUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

@@ -1,7 +1,7 @@
 package com.viroge.booksanalyzer.data.remote.openlibrary
 
 import com.viroge.booksanalyzer.data.remote.NetworkErrorMapper
-import com.viroge.booksanalyzer.domain.BooksUtil.normalizeIsbn
+import com.viroge.booksanalyzer.data.common.util.BooksUtil.normalizeIsbn
 import com.viroge.booksanalyzer.domain.model.SearchMode
 
 class OpenLibraryClient(

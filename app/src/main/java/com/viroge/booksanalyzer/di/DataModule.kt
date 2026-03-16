@@ -1,11 +1,11 @@
 package com.viroge.booksanalyzer.di
 
-import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.data.BooksRepositoryImpl
-import com.viroge.booksanalyzer.data.SearchHistoryRepository
-import com.viroge.booksanalyzer.data.SearchHistoryRepositoryImpl
-import com.viroge.booksanalyzer.data.DeleteBooksScheduler
-import com.viroge.booksanalyzer.data.DeleteBooksSchedulerImpl
+import com.viroge.booksanalyzer.data.repository.BooksRepository
+import com.viroge.booksanalyzer.data.repository.BooksRepositoryImpl
+import com.viroge.booksanalyzer.data.repository.search.SearchHistoryRepository
+import com.viroge.booksanalyzer.data.repository.search.SearchHistoryRepositoryImpl
+import com.viroge.booksanalyzer.data.sync.book.DeleteBooksScheduler
+import com.viroge.booksanalyzer.data.sync.book.DeleteBooksSchedulerImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

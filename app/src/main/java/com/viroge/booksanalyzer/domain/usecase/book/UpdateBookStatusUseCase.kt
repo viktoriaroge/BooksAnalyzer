@@ -1,7 +1,7 @@
-package com.viroge.booksanalyzer.domain.usecase
+package com.viroge.booksanalyzer.domain.usecase.book
 
 import android.util.Log
-import com.viroge.booksanalyzer.data.BooksRepository
+import com.viroge.booksanalyzer.data.repository.BooksRepository
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import javax.inject.Inject
 

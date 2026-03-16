@@ -1,7 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.library
 
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.usecase.LibrarySort
+import com.viroge.booksanalyzer.domain.usecase.book.LibrarySort
 import com.viroge.booksanalyzer.ui.common.util.UiText
 
 sealed class LibrarySortUi(

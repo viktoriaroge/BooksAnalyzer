@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.data
+package com.viroge.booksanalyzer.data.sync.book
 
 import android.content.Context
 import android.util.Log
@@ -6,7 +6,6 @@ import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import com.viroge.booksanalyzer.data.DeleteWork.UNIQUE_NAME
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -28,7 +27,7 @@ class DeleteBooksSchedulerImpl @Inject constructor(
 
         val workManager = WorkManager.getInstance(context)
         workManager.enqueueUniqueWork(
-            uniqueWorkName = UNIQUE_NAME,
+            uniqueWorkName = DeleteWork.UNIQUE_NAME,
             existingWorkPolicy = ExistingWorkPolicy.KEEP,
             request = deleteRequest,
         )

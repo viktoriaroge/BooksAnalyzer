@@ -3,8 +3,8 @@ package com.viroge.booksanalyzer.ui
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.data.BooksRepository
-import com.viroge.booksanalyzer.data.DeleteBooksScheduler
+import com.viroge.booksanalyzer.data.repository.BooksRepository
+import com.viroge.booksanalyzer.data.sync.book.DeleteBooksScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow

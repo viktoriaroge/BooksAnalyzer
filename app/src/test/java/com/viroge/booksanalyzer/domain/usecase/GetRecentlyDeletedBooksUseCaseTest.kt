@@ -1,9 +1,10 @@
 package com.viroge.booksanalyzer.domain.usecase
 
-import com.viroge.booksanalyzer.data.BooksRepository
+import com.viroge.booksanalyzer.data.repository.BooksRepository
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
+import com.viroge.booksanalyzer.domain.usecase.book.GetRecentlyDeletedBooksUseCase
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first

@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.domain.usecase
+package com.viroge.booksanalyzer.domain.usecase.bookcover
 
 import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import com.viroge.booksanalyzer.domain.model.BookSource

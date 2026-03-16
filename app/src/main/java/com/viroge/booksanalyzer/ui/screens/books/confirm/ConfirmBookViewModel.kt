@@ -6,7 +6,7 @@ import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
-import com.viroge.booksanalyzer.domain.usecase.SaveBookUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.SaveBookUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow

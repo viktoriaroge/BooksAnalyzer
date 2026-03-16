@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
-import com.viroge.booksanalyzer.domain.usecase.EditBookUseCase
-import com.viroge.booksanalyzer.domain.usecase.MarkBookAsOpenedUseCase
-import com.viroge.booksanalyzer.domain.usecase.ObserveBookUseCase
-import com.viroge.booksanalyzer.domain.usecase.UpdateBookStatusUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.EditBookUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.MarkBookAsOpenedUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.ObserveBookUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.UpdateBookStatusUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

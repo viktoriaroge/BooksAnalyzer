@@ -1,8 +1,8 @@
-package com.viroge.booksanalyzer.data
+package com.viroge.booksanalyzer.data.common.util
 
 import com.viroge.booksanalyzer.domain.model.PageToken
 
-object PageTokenHandler {
+object PageTokenUtil {
 
     fun makePageToken(
         nextGoogleStart: Int,

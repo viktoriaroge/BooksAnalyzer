@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.model.BookSource
-import com.viroge.booksanalyzer.domain.usecase.GetBookCoverCandidatesUseCase
-import com.viroge.booksanalyzer.domain.usecase.GetBookCoverHeadersUseCase
+import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverCandidatesUseCase
+import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverHeadersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

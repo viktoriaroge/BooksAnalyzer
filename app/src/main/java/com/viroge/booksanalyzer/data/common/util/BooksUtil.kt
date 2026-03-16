@@ -1,8 +1,7 @@
-package com.viroge.booksanalyzer.domain
+package com.viroge.booksanalyzer.data.common.util
 
 import com.viroge.booksanalyzer.domain.model.TempBook
 
-@Deprecated("This util will get fully dropped after refactoring is done")
 object BooksUtil {
 
     fun normalizeIsbn(input: String): String = input

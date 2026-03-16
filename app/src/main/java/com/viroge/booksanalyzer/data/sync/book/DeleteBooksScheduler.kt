@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.data
+package com.viroge.booksanalyzer.data.sync.book
 
 interface DeleteBooksScheduler {
     fun enqueueBulkDelete()

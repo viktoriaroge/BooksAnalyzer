@@ -1,6 +1,6 @@
-package com.viroge.booksanalyzer.domain.usecase
+package com.viroge.booksanalyzer.domain.usecase.book
 
-import com.viroge.booksanalyzer.data.BooksRepository
+import com.viroge.booksanalyzer.data.repository.BooksRepository
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.TempBook
 import javax.inject.Inject

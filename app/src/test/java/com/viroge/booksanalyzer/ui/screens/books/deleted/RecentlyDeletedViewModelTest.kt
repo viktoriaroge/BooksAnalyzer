@@ -5,8 +5,8 @@ import com.viroge.booksanalyzer.ViewModelTest
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
-import com.viroge.booksanalyzer.domain.usecase.GetRecentlyDeletedBooksUseCase
-import com.viroge.booksanalyzer.domain.usecase.RestoreBookUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.GetRecentlyDeletedBooksUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.RestoreBookUseCase
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

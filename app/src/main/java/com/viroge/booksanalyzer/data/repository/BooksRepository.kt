@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.data
+package com.viroge.booksanalyzer.data.repository
 
 import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.domain.model.Book

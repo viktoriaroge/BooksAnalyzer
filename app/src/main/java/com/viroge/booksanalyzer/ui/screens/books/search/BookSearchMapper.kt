@@ -4,7 +4,7 @@ import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.SearchMode
 import com.viroge.booksanalyzer.domain.model.TempBook
-import com.viroge.booksanalyzer.domain.usecase.SearchError
+import com.viroge.booksanalyzer.domain.usecase.search.SearchError
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import javax.inject.Inject
