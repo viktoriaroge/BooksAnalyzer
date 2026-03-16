@@ -189,6 +189,9 @@ fun LibraryScreen(
                         )
                     }
                 }
+                item(key = "bottom-padding") {
+                    Spacer(Modifier.height(height = 24.dp))
+                }
             }
         }
     }
