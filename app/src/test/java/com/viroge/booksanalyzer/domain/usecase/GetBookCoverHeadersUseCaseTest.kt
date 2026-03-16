@@ -1,6 +1,5 @@
 package com.viroge.booksanalyzer.domain.usecase
 
-import com.viroge.booksanalyzer.data.remote.BookCoverHeaders
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals

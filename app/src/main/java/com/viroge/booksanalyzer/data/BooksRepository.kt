@@ -1,11 +1,11 @@
 package com.viroge.booksanalyzer.data
 
 import com.viroge.booksanalyzer.data.local.books.InsertBookResult
-import com.viroge.booksanalyzer.domain.BooksPage
 import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.BooksPage
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
-import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.model.SearchMode
+import com.viroge.booksanalyzer.domain.model.TempBook
 import kotlinx.coroutines.flow.Flow
 
 interface BooksRepository {
@@ -66,4 +66,6 @@ interface BooksRepository {
         query: String,
         pageToken: String?, // null = first page
     ): BooksPage
+
+    fun getBookCoverHeaders(url: String?): Map<String, String>
 }

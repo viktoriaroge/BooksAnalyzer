@@ -1,4 +1,6 @@
-package com.viroge.booksanalyzer.domain
+package com.viroge.booksanalyzer.data
+
+import com.viroge.booksanalyzer.domain.model.PageToken
 
 object PageTokenHandler {
 

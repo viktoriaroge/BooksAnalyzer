@@ -1,6 +1,4 @@
-package com.viroge.booksanalyzer.domain
-
-import com.viroge.booksanalyzer.domain.model.TempBook
+package com.viroge.booksanalyzer.domain.model
 
 data class BooksPage(
     val items: List<TempBook>,

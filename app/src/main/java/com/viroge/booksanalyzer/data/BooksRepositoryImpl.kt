@@ -1,17 +1,19 @@
 package com.viroge.booksanalyzer.data
 
+import com.viroge.booksanalyzer.data.PageTokenHandler.makePageToken
+import com.viroge.booksanalyzer.data.PageTokenHandler.parsePageToken
+import com.viroge.booksanalyzer.data.local.BooksEntityMapper
 import com.viroge.booksanalyzer.data.local.books.BookDao
 import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
+import com.viroge.booksanalyzer.data.remote.google.GoogleBooksMapper
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
-import com.viroge.booksanalyzer.domain.BookMapper
-import com.viroge.booksanalyzer.domain.BooksPage
+import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryMapper
 import com.viroge.booksanalyzer.domain.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.BooksUtil.titleKey
-import com.viroge.booksanalyzer.domain.PageTokenHandler.makePageToken
-import com.viroge.booksanalyzer.domain.PageTokenHandler.parsePageToken
 import com.viroge.booksanalyzer.domain.model.Book
+import com.viroge.booksanalyzer.domain.model.BooksPage
 import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.model.SearchMode
 import com.viroge.booksanalyzer.domain.model.TempBook
@@ -27,26 +29,46 @@ import javax.inject.Singleton
 @Singleton
 class BooksRepositoryImpl @Inject constructor(
     private val bookDao: BookDao,
-    private val googleClient: GoogleBooksClient,
+    private val booksEntityMapper: BooksEntityMapper,
+    private val googleBooksClient: GoogleBooksClient,
+    private val googleBooksMapper: GoogleBooksMapper,
     private val openLibraryClient: OpenLibraryClient,
-    private val bookMapper: BookMapper,
+    private val openLibraryMapper: OpenLibraryMapper,
 ) : BooksRepository {
 
     override fun observeLibrary(): Flow<List<Book>> = bookDao.observeAll()
         .map { list -> list.filter { entity -> !entity.toBeDeleted } }
-        .map { list -> list.map { entity -> bookMapper.map(entity) } }
+        .map { list ->
+            list.map { entity ->
+                val headers = getBookCoverHeaders(url = entity.coverUrl)
+                booksEntityMapper.map(entity, headers)
+            }
+        }
 
     override fun observePendingDeleteBooks(): Flow<List<Book>> = bookDao.observeAll()
         .map { list -> list.filter { entity -> entity.toBeDeleted } }
-        .map { list -> list.map { entity -> bookMapper.map(entity) } }
+        .map { list ->
+            list.map { entity ->
+                val headers = getBookCoverHeaders(url = entity.coverUrl)
+                booksEntityMapper.map(entity, headers)
+            }
+        }
 
     override fun observeBook(
         bookId: String,
-    ): Flow<Book?> = bookDao.observeById(bookId).map { it?.let { entity -> bookMapper.map(entity) } }
+    ): Flow<Book?> = bookDao.observeById(bookId).map { nullableEntity ->
+        nullableEntity?.let { entity ->
+            val headers = getBookCoverHeaders(url = entity.coverUrl)
+            booksEntityMapper.map(entity, headers)
+        }
+    }
 
     override suspend fun getBook(
         bookId: String,
-    ): Book? = bookDao.getById(bookId)?.let { entity -> bookMapper.map(entity) }
+    ): Book? = bookDao.getById(bookId)?.let { entity ->
+        val headers = getBookCoverHeaders(url = entity.coverUrl)
+        booksEntityMapper.map(entity, headers)
+    }
 
     override suspend fun updateStatus(
         bookId: String,
@@ -83,7 +105,10 @@ class BooksRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getPendingDeleteBooks(): List<Book> {
-        return bookDao.getPendingDeleteBooks().orEmpty().map { bookMapper.map(it) }
+        return bookDao.getPendingDeleteBooks().orEmpty().map { entity ->
+            val headers = getBookCoverHeaders(url = entity.coverUrl)
+            booksEntityMapper.map(entity, headers)
+        }
     }
 
     override suspend fun deleteBook(
@@ -105,8 +130,9 @@ class BooksRepositoryImpl @Inject constructor(
                         coverUrl = book.coverUrl,
                     )
                 )
+                val headers = getBookCoverHeaders(url = existing.coverUrl)
                 return InsertBookResult(
-                    bookMapper.map(existing),
+                    booksEntityMapper.map(existing, headers),
                     wasInserted = false,
                 )
             }
@@ -119,8 +145,9 @@ class BooksRepositoryImpl @Inject constructor(
                         coverUrl = book.coverUrl,
                     )
                 )
+                val headers = getBookCoverHeaders(url = existing.coverUrl)
                 return InsertBookResult(
-                    bookMapper.map(existing),
+                    booksEntityMapper.map(existing, headers),
                     wasInserted = false,
                 )
             }
@@ -133,8 +160,9 @@ class BooksRepositoryImpl @Inject constructor(
                         coverUrl = book.coverUrl,
                     )
                 )
+                val headers = getBookCoverHeaders(url = existing.coverUrl)
                 return InsertBookResult(
-                    bookMapper.map(existing),
+                    booksEntityMapper.map(existing, headers),
                     wasInserted = false,
                 )
             }
@@ -148,8 +176,9 @@ class BooksRepositoryImpl @Inject constructor(
                     coverUrl = book.coverUrl,
                 )
             )
+            val headers = getBookCoverHeaders(url = existing.coverUrl)
             return InsertBookResult(
-                bookMapper.map(existing),
+                booksEntityMapper.map(existing, headers),
                 wasInserted = false,
             )
         }
@@ -175,8 +204,9 @@ class BooksRepositoryImpl @Inject constructor(
         )
         bookDao.upsert(book = entity)
 
+        val headers = getBookCoverHeaders(url = entity.coverUrl)
         return InsertBookResult(
-            book = bookMapper.map(entity),
+            book = booksEntityMapper.map(entity, headers),
             wasInserted = true,
         )
     }
@@ -215,12 +245,12 @@ class BooksRepositoryImpl @Inject constructor(
         val token = parsePageToken(pageToken)
 
         val g = async {
-            googleClient.search(
+            googleBooksClient.search(
                 searchMode = searchMode,
                 query = query,
                 startIndex = token.googleStart,
             ).map { items ->
-                items.map { item -> bookMapper.map(item) }
+                items.map { item -> googleBooksMapper.map(item) }
             }
         }
         val o = async {
@@ -229,7 +259,7 @@ class BooksRepositoryImpl @Inject constructor(
                 query = query,
                 page = token.olPage,
             ).map { items ->
-                items.mapNotNull { item -> bookMapper.mapOrNull(item) }
+                items.mapNotNull { item -> openLibraryMapper.mapOrNull(item) }
             }
         }
 
@@ -258,5 +288,17 @@ class BooksRepositoryImpl @Inject constructor(
             errors = errors,
             nextToken = next,
         )
+    }
+
+    override fun getBookCoverHeaders(url: String?): Map<String, String> = when {
+        url == null -> emptyMap()
+
+        // Open Library
+        openLibraryMapper.isUrlValid(url) -> openLibraryMapper.getHeaders()
+
+        // Google Books
+        googleBooksMapper.isUrlValid(url) -> googleBooksMapper.getHeaders()
+
+        else -> emptyMap()
     }
 }

@@ -10,14 +10,6 @@ object BooksUtil {
         .replace(oldValue = " ", newValue = "")
         .trim()
 
-    fun splitIsbns(
-        isbns: List<String>,
-    ): Pair<String?, String?> {
-        val isbn13 = isbns.firstOrNull { it.length == 13 }
-        val isbn10 = isbns.firstOrNull { it.length == 10 }
-        return isbn13 to isbn10
-    }
-
     fun titleKey(
         title: String,
         authors: String,
