@@ -80,7 +80,7 @@ fun TermsScreen(
                         horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                     ) {
                         Image(
-                            painterResource(state.introIconRes),
+                            painter = painterResource(state.introIconRes),
                             contentDescription = "",
                             contentScale = ContentScale.FillWidth,
                             modifier = Modifier.size(100.dp)

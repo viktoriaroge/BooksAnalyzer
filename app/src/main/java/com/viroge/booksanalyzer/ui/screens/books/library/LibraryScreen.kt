@@ -134,6 +134,7 @@ fun LibraryScreen(
 
                     // Selected (active) Book's content:
                     CurrentBookContent(
+                        values = values,
                         activeBook = activeBook,
                         onOpenBook = onOpenBook,
                     )
@@ -212,6 +213,7 @@ private fun CurrentBooksCarousel(
 
 @Composable
 private fun CurrentBookContent(
+    values: ContentStateValues,
     activeBook: LibraryBookData?,
     onOpenBook: (String) -> Unit
 ) {
@@ -256,7 +258,7 @@ private fun CurrentBookContent(
                 ) {
                     Icon(Icons.Default.PlayArrow, null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Invoke the PageVow")
+                    Text(stringResource(values.startReadingButtonText))
                 }
             }
         }

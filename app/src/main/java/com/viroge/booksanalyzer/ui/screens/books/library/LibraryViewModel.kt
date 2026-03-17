@@ -2,7 +2,6 @@ package com.viroge.booksanalyzer.ui.screens.books.library
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.usecase.book.GetBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.book.LibrarySort
@@ -30,11 +29,17 @@ class LibraryViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val screenState: Flow<LibraryScreenState> =
-        observeLibraryDataUseCase("", ReadingStatus.READING, LibrarySort.RECENT)
+        observeLibraryDataUseCase("", null, LibrarySort.RECENT)
             .map { data ->
                 when {
-                    data.currentlyReading.isEmpty() -> LibraryScreenState.Empty(
+                    data.books.isEmpty() -> LibraryScreenState.Empty(
+                        navRoute = LibraryNavDirection.SEARCH,
                         emptyStateValues = mapper.getEmptyStateValues(),
+                    )
+
+                    data.currentlyReading.isEmpty() -> LibraryScreenState.Empty(
+                        navRoute = LibraryNavDirection.COLLECTION,
+                        emptyStateValues = mapper.getEmptyStateNoCurrentsValues(),
                     )
 
                     else -> LibraryScreenState.Content(

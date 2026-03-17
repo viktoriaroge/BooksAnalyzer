@@ -15,6 +15,7 @@ sealed interface LibraryScreenState {
     data object Loading : LibraryScreenState
 
     data class Empty(
+        val navRoute: LibraryNavDirection = LibraryNavDirection.SEARCH,
         val emptyStateValues: EmptyStateValues,
     ) : LibraryScreenState
 
@@ -31,11 +32,17 @@ data class LibraryScreenValues(
 data class EmptyStateValues(
     @param:StringRes val emptyStateTitle: Int = R.string.empty_text,
     @param:StringRes val emptyStateText: Int = R.string.empty_text,
+    @param:StringRes val emptyStateButton: Int = R.string.empty_text,
 )
 
 data class ContentStateValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
+    @param:StringRes val startReadingButtonText: Int = R.string.empty_text,
 )
+
+enum class LibraryNavDirection {
+    SEARCH, COLLECTION
+}
 
 data class LibraryBookData(
     val animationKey: String,

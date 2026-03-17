@@ -14,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun LibraryRoute(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    onOpenSearch: () -> Unit,
     onOpenCollection: () -> Unit,
     onOpenBook: () -> Unit,
 ) {
@@ -31,6 +32,12 @@ fun LibraryRoute(
             LibraryEmptyScreen(
                 screenValues = state.screenValues,
                 emptyStateValues = screenState.emptyStateValues,
+                onAction = {
+                    when (screenState.navRoute) {
+                        LibraryNavDirection.SEARCH -> onOpenSearch()
+                        LibraryNavDirection.COLLECTION -> onOpenCollection()
+                    }
+                },
             )
         }
 

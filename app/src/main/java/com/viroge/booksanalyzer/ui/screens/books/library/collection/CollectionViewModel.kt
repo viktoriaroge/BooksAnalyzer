@@ -55,14 +55,22 @@ class CollectionViewModel @Inject constructor(
         _statusFilter,
         _sort
     ) { q, status, sort ->
-        observeLibraryDataUseCase(q, status?.domainStatus, sort.domainSource)
+        observeLibraryDataUseCase(q, null, sort.domainSource)
             .map { data ->
+                val booksWithRequiredStatus =
+                    status?.let { data.books.filter { book -> book.status == it.domainStatus } }
+                        ?: data.books
+                val isLibraryEmpty = data.books.isEmpty()
+
                 CollectionScreenState.Content(
-                    stateValues = mapper.getContentStateValues(),
+                    stateValues = mapper.getContentStateValues(isLibraryEmpty),
                     filtersSheetValues = mapper.getFiltersSheetValues(),
                     selectedStatus = status,
                     sortState = sort,
-                    allBooks = data.books.map { mapper.mapToData(it) },
+                    allBooks = booksWithRequiredStatus.map { mapper.mapToData(it) },
+
+                    isInEmptyState = booksWithRequiredStatus.isEmpty(),
+                    showEmptyStateButton = isLibraryEmpty,
                 )
             }
     }.flowOn(Dispatchers.Default)

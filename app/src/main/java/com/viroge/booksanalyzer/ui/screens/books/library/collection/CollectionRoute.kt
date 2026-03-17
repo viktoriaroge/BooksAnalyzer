@@ -18,6 +18,7 @@ fun CollectionRoute(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     onBack: () -> Unit,
+    onOpenSearch: () -> Unit,
     onOpenBook: () -> Unit,
 ) {
 
@@ -60,6 +61,7 @@ fun CollectionRoute(
                 onClearFilters = vm::onClearFilters,
                 onQueryChange = vm::onQueryChange,
                 onBack = onBack,
+                onAction = onOpenSearch, // only one possible state for now
                 onOpenBook = remember {
                     { bookId ->
                         vm.selectBook(bookId)

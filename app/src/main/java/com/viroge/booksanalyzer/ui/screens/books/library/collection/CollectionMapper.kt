@@ -15,12 +15,17 @@ class CollectionMapper @Inject constructor() {
         screenName = R.string.collection_screen_name,
     )
 
-    fun getContentStateValues(): ContentStateValues = ContentStateValues(
+    fun getContentStateValues(isLibraryEmpty: Boolean): ContentStateValues = ContentStateValues(
         searchPlaceholder = R.string.collection_screen_search_placeholder,
         activeSortText = R.string.collection_sort_explanation_prefix,
         clearFilterText = R.string.collection_screen_filter_button_clear_label,
-        emptyStateTitle = R.string.collection_empty_state_title,
-        emptyStateText = R.string.collection_empty_state_subtitle,
+        emptyStateTitle =
+            if (isLibraryEmpty) R.string.collection_screen_empty_state_title
+            else R.string.collection_screen_empty_state_from_filters_title,
+        emptyStateText =
+            if (isLibraryEmpty) R.string.collection_screen_empty_state_subtitle
+            else R.string.collection_screen_empty_state_from_filters_subtitle,
+        emptyStateButton = R.string.collection_screen_empty_state_button_text,
     )
 
     fun getFiltersSheetValues(): FiltersSheetValues = FiltersSheetValues(

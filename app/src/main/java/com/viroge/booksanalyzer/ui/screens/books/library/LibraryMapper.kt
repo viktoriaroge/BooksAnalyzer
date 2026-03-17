@@ -18,10 +18,18 @@ class LibraryMapper @Inject constructor() {
     fun getEmptyStateValues(): EmptyStateValues = EmptyStateValues(
         emptyStateTitle = R.string.library_screen_empty_state_title,
         emptyStateText = R.string.library_screen_empty_state_subtitle,
+        emptyStateButton = R.string.library_screen_empty_state_button_text,
+    )
+
+    fun getEmptyStateNoCurrentsValues(): EmptyStateValues = EmptyStateValues(
+        emptyStateTitle = R.string.library_screen_empty_state_no_current_reads_title,
+        emptyStateText = R.string.library_screen_empty_state_no_current_reads_subtitle,
+        emptyStateButton = R.string.library_screen_empty_state_no_current_reads_button_text,
     )
 
     fun getContentStateValues(): ContentStateValues = ContentStateValues(
         screenName = R.string.library_screen_name,
+        startReadingButtonText = R.string.library_screen_start_reading_button,
     )
 
     fun mapToData(

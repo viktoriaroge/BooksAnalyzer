@@ -1,5 +1,7 @@
 package com.viroge.booksanalyzer.data.repository
 
+import com.viroge.booksanalyzer.data.common.util.BooksUtil.mergeAndRank
+import com.viroge.booksanalyzer.data.common.util.BooksUtil.titleKey
 import com.viroge.booksanalyzer.data.common.util.PageTokenUtil.makePageToken
 import com.viroge.booksanalyzer.data.common.util.PageTokenUtil.parsePageToken
 import com.viroge.booksanalyzer.data.local.BooksEntityMapper
@@ -10,8 +12,6 @@ import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksMapper
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryMapper
-import com.viroge.booksanalyzer.data.common.util.BooksUtil.mergeAndRank
-import com.viroge.booksanalyzer.data.common.util.BooksUtil.titleKey
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BooksPage
 import com.viroge.booksanalyzer.domain.model.ReadingStatus

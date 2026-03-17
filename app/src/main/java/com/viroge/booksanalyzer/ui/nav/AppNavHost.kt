@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
@@ -26,10 +27,21 @@ fun AppNavHost(
 
     fun navigateSafe(
         route: String,
-        navOptions: (NavOptionsBuilder.() -> Unit)? = null,
+        isTabSwitch: Boolean = false,
+        navOptionsBuilder: (NavOptionsBuilder.() -> Unit)? = null,
     ) {
         if (navController.currentBackStackEntry?.destination?.route != route) {
-            navController.navigate(route, navOptions ?: {})
+            navController.navigate(route) {
+                if (isTabSwitch) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                } else {
+                    navOptionsBuilder?.invoke(this)
+                }
+            }
         }
     }
 
@@ -49,6 +61,9 @@ fun AppNavHost(
             ) {
                 composable(Routes.LIBRARY) {
                     LibraryRoute(
+                        onOpenSearch = {
+                            navigateSafe(route = Routes.SEARCH_BOOK_GRAPH, isTabSwitch = true)
+                        },
                         onOpenCollection = { navigateSafe(Routes.COLLECTION) },
                         onOpenBook = { navigateSafe(Routes.BOOK_DETAILS) },
                         sharedTransitionScope = this@SharedTransitionLayout,
@@ -59,6 +74,10 @@ fun AppNavHost(
                 composable(Routes.COLLECTION) {
                     CollectionRoute(
                         onBack = navController::popBackStack,
+                        onOpenSearch = {
+                            navController.popBackStack(route = Routes.LIBRARY, inclusive = false)
+                            navigateSafe(route = Routes.SEARCH_BOOK_GRAPH, isTabSwitch = true)
+                        },
                         onOpenBook = { navigateSafe(Routes.BOOK_DETAILS) },
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,

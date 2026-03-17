@@ -20,6 +20,9 @@ sealed interface CollectionScreenState {
         val allBooks: List<CollectionBookData>,
         val stateValues: ContentStateValues,
         val filtersSheetValues: FiltersSheetValues,
+
+        val isInEmptyState: Boolean = false,
+        val showEmptyStateButton: Boolean = false,
     ) : CollectionScreenState
 }
 
@@ -33,6 +36,7 @@ data class ContentStateValues(
     @param:StringRes val clearFilterText: Int = R.string.empty_text,
     @param:StringRes val emptyStateTitle: Int = R.string.empty_text,
     @param:StringRes val emptyStateText: Int = R.string.empty_text,
+    @param:StringRes val emptyStateButton: Int = R.string.empty_text,
 )
 
 data class FiltersSheetValues(
