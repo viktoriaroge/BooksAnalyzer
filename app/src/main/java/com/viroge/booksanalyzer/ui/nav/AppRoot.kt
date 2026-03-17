@@ -1,17 +1,22 @@
 package com.viroge.booksanalyzer.ui.nav
 
+import android.app.Activity
+import android.graphics.Color
+import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -21,12 +26,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -39,6 +47,8 @@ import com.viroge.booksanalyzer.ui.activityViewModel
 import com.viroge.booksanalyzer.ui.common.util.truncate
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.components.snackbar.PvAppSnackbarController
+
+val LocalAppScaffoldPadding = staticCompositionLocalOf { PaddingValues(0.dp) }
 
 @Composable
 fun AppRoot() {
@@ -59,6 +69,19 @@ fun AppRoot() {
     val scope = rememberCoroutineScope()
     val snackbarController = remember(key1 = scope, key2 = snackbarHostState) {
         PvAppSnackbarController(scope, snackbarHostState)
+    }
+
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            // Make the bar background fully transparent
+            val window = (view.context as Activity).window
+            window.navigationBarColor = Color.TRANSPARENT
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.isNavigationBarContrastEnforced = false
+            }
+        }
     }
 
     CompositionLocalProvider(value = LocalAppSnackbar provides snackbarController) {
@@ -88,35 +111,39 @@ fun AppRoot() {
             },
         ) { innerPadding ->
 
-            Box(modifier = Modifier.fillMaxSize()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                        .consumeWindowInsets(innerPadding)
-                ) {
-                    AppSnackbarHandler()
-                    AppNavHost(navController = navController)
-                }
+            CompositionLocalProvider(LocalAppScaffoldPadding provides innerPadding) {
+                Box(modifier = Modifier.fillMaxSize()) {
 
-                SnackbarHost(
-                    hostState = snackbarHostState,
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .statusBarsPadding()
-                        .padding(top = 8.dp)
-                        .fillMaxWidth()
-                ) { data ->
-                    Snackbar(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        snackbarData = data,
+                    AppNavHost(navController = navController)
+
+                    AppSnackbarHandler()
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .statusBarsPadding()
+                            .padding(top = 8.dp)
+                            .fillMaxWidth()
+                    ) { data ->
+                        Snackbar(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            snackbarData = data,
+                        )
+                    }
+
+                    // Bottom System Bar background:
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .windowInsetsBottomHeight(WindowInsets.navigationBars)
+                            .background(MaterialTheme.colorScheme.surface)
                     )
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun AppSnackbarHandler() {

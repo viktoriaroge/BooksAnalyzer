@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
+import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,6 +25,7 @@ fun SettingsScreen(
     state: SettingsUiState,
     onOpenEntry: (route: String) -> Unit,
 ) {
+    val appScaffoldPadding = LocalAppScaffoldPadding.current
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -37,6 +39,7 @@ fun SettingsScreen(
         LazyColumn(
             modifier = Modifier
                 .padding(top = screenPadding.calculateTopPadding())
+                .padding(bottom = appScaffoldPadding.calculateBottomPadding())
                 .fillMaxSize(),
         ) {
             items(items = state.rowStates) { item ->

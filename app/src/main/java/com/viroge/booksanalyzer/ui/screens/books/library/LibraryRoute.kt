@@ -14,7 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun LibraryRoute(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    onOpenFullLibrary: () -> Unit,
+    onOpenCollection: () -> Unit,
     onOpenBook: () -> Unit,
 ) {
 
@@ -56,7 +56,7 @@ fun LibraryRoute(
                 activeBook = activeBook,
                 values = screenState.contentStateValues,
                 pagerState = pagerState,
-                onToggleLibraryView = onOpenFullLibrary,
+                onOpenCollection = onOpenCollection,
                 onOpenBook = remember {
                     { bookId ->
                         vm.selectBook(bookId)

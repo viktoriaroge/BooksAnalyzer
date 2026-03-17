@@ -28,7 +28,6 @@ data class CollectionScreenValues(
 )
 
 data class ContentStateValues(
-    @param:StringRes val fabText: Int = R.string.empty_text,
     @param:StringRes val searchPlaceholder: Int = R.string.empty_text,
     @param:StringRes val activeSortText: Int = R.string.empty_text,
     @param:StringRes val clearFilterText: Int = R.string.empty_text,

@@ -34,7 +34,7 @@ data class EmptyStateValues(
 )
 
 data class ContentStateValues(
-    @param:StringRes val fullCollectionFabText: Int = R.string.empty_text,
+    @param:StringRes val screenName: Int = R.string.empty_text,
 )
 
 data class LibraryBookData(

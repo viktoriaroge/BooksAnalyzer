@@ -17,7 +17,7 @@ fun PvHazyBookCoverBackground(
     headerCoverSize: PvBookCoverImageSize,
     imageUrl: String?,
     headersForBookCover: Map<String, String>,
-    alphaOverlayValue: Float = 0.3f,
+    alphaOverlayValue: Float = 0.4f,
 ) {
     val isDarkTheme = isSystemInDarkTheme()
     PvBookCoverAsyncImage(

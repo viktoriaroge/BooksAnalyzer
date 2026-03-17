@@ -2,9 +2,12 @@ package com.viroge.booksanalyzer.ui
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -20,7 +23,6 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainSharedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         // Install splash screen:
         val splashScreen = installSplashScreen()
         splashScreen.setOnExitAnimationListener { splashScreenView ->
@@ -52,7 +54,17 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.auto(
+                Color.TRANSPARENT,
+                Color.TRANSPARENT,
+                detectDarkMode = { resources ->
+                    (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                            Configuration.UI_MODE_NIGHT_YES
+                }
+            )
+        )
         super.onCreate(savedInstanceState)
 
         // Keep on until DB maintenance is done:

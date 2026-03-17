@@ -16,13 +16,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
+import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
 
 @Composable
 fun ConfirmManualBookScreen(
@@ -37,28 +43,44 @@ fun ConfirmManualBookScreen(
     onOpenCoverPicker: () -> Unit,
     onSave: () -> Unit,
 ) {
+    val appScaffoldPadding = LocalAppScaffoldPadding.current
+
     if (!state.screenState.isInManualMode) return
     val book = state.bookData ?: return
 
     val screenValues = state.screenState.screenValues
     val editState = state.screenState.editState
 
+    val scrollState = rememberScrollState()
+    val scrollFraction = remember { derivedStateOf { (scrollState.value / 100f).coerceIn(0f, 1f) } }.value
+    val appBarColor = lerp(
+        start = Color.Transparent,
+        stop = MaterialTheme.colorScheme.surface,
+        fraction = scrollFraction
+    )
+
     Scaffold(
         topBar = {
             PvTopAppBar(
                 title = stringResource(screenValues.screenTitleManual),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = appBarColor,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
                 canGoBack = true,
                 onBack = onBack,
             )
         }
-    ) { screenPadding ->
+    ) { _ ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(top = screenPadding.calculateTopPadding()),
+                .verticalScroll(state = scrollState)
+                .padding(bottom = appScaffoldPadding.calculateBottomPadding())
+                .imePadding(),
         ) {
             if (state.screenState.isSaving) {
                 PvLinearProgressIndicator(modifier = Modifier.padding(top = 12.dp))

@@ -32,8 +32,6 @@
     <string name="library_screen_empty_state_title">A Fresh Page</string>
     <string name="library_screen_empty_state_subtitle">Your shelf is a blank slate. Ready to make it official? Discover Stories to pledge your first PageVow.</string>
 
-    <string name="library_to_collection_fab_label">The Whole Record</string>
-
     <string name="collection_screen_name">My PageVows</string>
     <string name="collection_screen_search_placeholder">Seek a title within your PageVows…</string>
     <string name="collection_screen_filter_button_clear_label">Purge</string>

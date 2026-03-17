@@ -27,21 +27,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvSkeletonArea
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
+import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,16 +60,30 @@ fun BookDetailsScreen(
     onDelete: () -> Unit,
     onEdit: () -> Unit,
 ) {
+    val appScaffoldPadding = LocalAppScaffoldPadding.current
+
     val book = state.bookData
     val values = state.screenValues
 
     val scrollState = rememberScrollState()
+    val scrollFraction = remember { derivedStateOf { (scrollState.value / 100f).coerceIn(0f, 1f) } }.value
+    val appBarColor = lerp(
+        start = Color.Transparent,
+        stop = MaterialTheme.colorScheme.surface,
+        fraction = scrollFraction
+    )
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             PvTopAppBar(
                 title = stringResource(values.screenName),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = appBarColor,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
                 canGoBack = true,
                 onBack = onBack,
                 actions = {
@@ -76,12 +95,13 @@ fun BookDetailsScreen(
                     }
                 },
             )
-        }) { screenPadding ->
+        },
+    ) { _ ->
 
         Column(
             modifier = Modifier
                 .verticalScroll(state = scrollState)
-                .padding(top = screenPadding.calculateTopPadding()),
+                .padding(bottom = appScaffoldPadding.calculateBottomPadding()),
         ) {
 
             PvBookCoverHeader(
@@ -168,10 +188,9 @@ fun BookDetailsScreen(
                     Text(stringResource(values.deleteButtonText))
                 }
             }
-        }
 
-        // Spacing after Content:
-        Spacer(Modifier.height(height = 24.dp))
+            Spacer(Modifier.height(height = 24.dp))
+        }
     }
 }
 

@@ -28,11 +28,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
-import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverAsyncImage
-import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverImageSize
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvItemCard
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +42,8 @@ fun RecentlyDeletedScreen(
     onRestoreBook: (String) -> Unit,
     onBack: () -> Unit,
 ) {
+    val appScaffoldPadding = LocalAppScaffoldPadding.current
+
     var selectedBook by remember { mutableStateOf<RecentlyDeletedBookState?>(null) }
     val values = state.screenValues
 
@@ -55,7 +58,8 @@ fun RecentlyDeletedScreen(
     ) { screenPadding ->
         Column(
             modifier = Modifier
-                .padding(screenPadding)
+                .padding(top = screenPadding.calculateTopPadding()) // top bar
+                .padding(bottom = appScaffoldPadding.calculateBottomPadding())
                 .fillMaxSize()
         ) {
 

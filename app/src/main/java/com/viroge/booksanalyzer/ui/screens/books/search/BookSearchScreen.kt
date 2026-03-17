@@ -37,12 +37,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
-import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverAsyncImage
-import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverImageSize
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvItemCard
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,6 +61,7 @@ fun BookSearchScreen(
     onManualAdd: (String) -> Unit,
     onSelectBook: (SearchBookDataState) -> Unit,
 ) {
+    val appScaffoldPadding = LocalAppScaffoldPadding.current
     val focusManager = LocalFocusManager.current
 
     Scaffold(
@@ -70,6 +72,7 @@ fun BookSearchScreen(
         Column(
             modifier = Modifier
                 .padding(top = screenPadding.calculateTopPadding()) // top bar
+                .padding(bottom = appScaffoldPadding.calculateBottomPadding())
                 .fillMaxSize(),
         ) {
 

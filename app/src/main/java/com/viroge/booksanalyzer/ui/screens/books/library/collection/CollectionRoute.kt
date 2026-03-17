@@ -59,7 +59,7 @@ fun CollectionRoute(
                 onToggleFilters = remember { { showFilters = !showFilters } },
                 onClearFilters = vm::onClearFilters,
                 onQueryChange = vm::onQueryChange,
-                onToggleLibraryView = onBack,
+                onBack = onBack,
                 onOpenBook = remember {
                     { bookId ->
                         vm.selectBook(bookId)

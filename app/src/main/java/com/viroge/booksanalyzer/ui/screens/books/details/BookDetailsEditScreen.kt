@@ -20,12 +20,18 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
+import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,17 +46,30 @@ fun BookDetailsEditScreen(
     onUpdateEditIsbn10: (String) -> Unit,
     onOpenCoverPicker: () -> Unit,
 ) {
+    val appScaffoldPadding = LocalAppScaffoldPadding.current
+
     val book = state.bookData
     val values = state.editStateValues
     val editState = state.editState
 
     val scrollState = rememberScrollState()
+    val scrollFraction = remember { derivedStateOf { (scrollState.value / 100f).coerceIn(0f, 1f) } }.value
+    val appBarColor = lerp(
+        start = Color.Transparent,
+        stop = MaterialTheme.colorScheme.surface,
+        fraction = scrollFraction
+    )
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             PvTopAppBar(
                 title = stringResource(values.screenName),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = appBarColor,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
                 canGoBack = true,
                 onBack = onCancelEdit,
                 actions = {
@@ -62,14 +81,14 @@ fun BookDetailsEditScreen(
                     }
                 },
             )
-        }) { screenPadding ->
+        }) { _ ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(state = scrollState)
-                .imePadding()
-                .padding(top = screenPadding.calculateTopPadding()),
+                .padding(bottom = appScaffoldPadding.calculateBottomPadding())
+                .imePadding(),
         ) {
 
             PvBookCoverHeader(
@@ -185,8 +204,8 @@ fun BookDetailsEditScreen(
             ) {
                 Text(stringResource(values.cancelChangesButtonText))
             }
-        }
 
-        Spacer(Modifier.height(height = 24.dp))
+            Spacer(Modifier.height(height = 24.dp))
+        }
     }
 }

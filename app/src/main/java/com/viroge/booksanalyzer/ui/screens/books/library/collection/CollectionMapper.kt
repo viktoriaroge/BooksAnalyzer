@@ -16,7 +16,6 @@ class CollectionMapper @Inject constructor() {
     )
 
     fun getContentStateValues(): ContentStateValues = ContentStateValues(
-        fabText = R.string.library_to_collection_fab_label,
         searchPlaceholder = R.string.collection_screen_search_placeholder,
         activeSortText = R.string.collection_sort_explanation_prefix,
         clearFilterText = R.string.collection_screen_filter_button_clear_label,

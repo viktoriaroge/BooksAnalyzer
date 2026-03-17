@@ -21,7 +21,7 @@ class LibraryMapper @Inject constructor() {
     )
 
     fun getContentStateValues(): ContentStateValues = ContentStateValues(
-        fullCollectionFabText = R.string.library_to_collection_fab_label,
+        screenName = R.string.library_screen_name,
     )
 
     fun mapToData(

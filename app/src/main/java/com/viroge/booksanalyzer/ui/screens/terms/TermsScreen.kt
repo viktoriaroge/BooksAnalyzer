@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
 import com.viroge.booksanalyzer.ui.components.PvItemCard
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
+import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +37,7 @@ fun TermsScreen(
     state: TermsUiState,
     onBack: () -> Unit,
 ) {
+    val appScaffoldPadding = LocalAppScaffoldPadding.current
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -51,6 +53,7 @@ fun TermsScreen(
         Column(
             modifier = Modifier
                 .padding(top = screenPadding.calculateTopPadding())
+                .padding(bottom = appScaffoldPadding.calculateBottomPadding())
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
         ) {

@@ -49,7 +49,7 @@ fun AppNavHost(
             ) {
                 composable(Routes.LIBRARY) {
                     LibraryRoute(
-                        onOpenFullLibrary = { navigateSafe(Routes.COLLECTION) },
+                        onOpenCollection = { navigateSafe(Routes.COLLECTION) },
                         onOpenBook = { navigateSafe(Routes.BOOK_DETAILS) },
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
