@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.books.library.full
+package com.viroge.booksanalyzer.ui.screens.books.library.collection
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,41 +24,41 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LibraryFullCollectionViewModel @Inject constructor(
+class CollectionViewModel @Inject constructor(
     private val bookSelectionStateProvider: BookSelectionStateProvider,
     private val observeLibraryDataUseCase: ObserveLibraryDataUseCase,
     private val getBookUseCase: GetBookUseCase,
-    private val mapper: LibraryFullCollectionMapper,
+    private val mapper: CollectionMapper,
 ) : ViewModel() {
 
     private val _statusFilter = MutableStateFlow<BookReadingStatusUi?>(value = null) // null == All
-    private val _sort: MutableStateFlow<LibrarySortUi> = MutableStateFlow(value = LibrarySortUi.Added)
+    private val _sort: MutableStateFlow<CollectionSortUi> = MutableStateFlow(value = CollectionSortUi.Added)
 
     private val _query = MutableStateFlow(value = "")
     val query: StateFlow<String> = _query.asStateFlow()
 
-    val filters: StateFlow<LibraryFilters> = combine(
+    val filters: StateFlow<CollectionFilters> = combine(
         _statusFilter,
         _sort
     ) { status, sort ->
-        LibraryFilters(status, sort)
+        CollectionFilters(status, sort)
     }.flowOn(Dispatchers.Default)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-            initialValue = LibraryFilters()
+            initialValue = CollectionFilters()
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val screenState: Flow<LibraryFullCollectionScreenState> = combine(
+    private val screenState: Flow<CollectionScreenState> = combine(
         _query,
         _statusFilter,
         _sort
     ) { q, status, sort ->
         observeLibraryDataUseCase(q, status?.domainStatus, sort.domainSource)
             .map { data ->
-                LibraryFullCollectionScreenState.Content(
-                    fullCollectionStateValues = mapper.getContentStateValues(),
+                CollectionScreenState.Content(
+                    stateValues = mapper.getContentStateValues(),
                     filtersSheetValues = mapper.getFiltersSheetValues(),
                     selectedStatus = status,
                     sortState = sort,
@@ -68,9 +68,9 @@ class LibraryFullCollectionViewModel @Inject constructor(
     }.flowOn(Dispatchers.Default)
         .flatMapLatest { it }
 
-    val state: StateFlow<LibraryFullCollectionUiState> = screenState
+    val state: StateFlow<CollectionUiState> = screenState
         .map { state ->
-            LibraryFullCollectionUiState(
+            CollectionUiState(
                 screenValues = mapper.getScreenValues(),
                 screenState = state,
             )
@@ -79,9 +79,9 @@ class LibraryFullCollectionViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-            initialValue = LibraryFullCollectionUiState(
-                screenValues = LibraryFullCollectionScreenValues(),
-                screenState = LibraryFullCollectionScreenState.Loading,
+            initialValue = CollectionUiState(
+                screenValues = CollectionScreenValues(),
+                screenState = CollectionScreenState.Loading,
             )
         )
 
@@ -93,13 +93,13 @@ class LibraryFullCollectionViewModel @Inject constructor(
         _statusFilter.value = status
     }
 
-    fun onSortChange(newSort: LibrarySortUi) {
+    fun onSortChange(newSort: CollectionSortUi) {
         _sort.value = newSort
     }
 
     fun onClearFilters() {
         _statusFilter.value = null
-        _sort.value = LibrarySortUi.Added
+        _sort.value = CollectionSortUi.Added
     }
 
     fun selectBook(bookId: String) {

@@ -14,7 +14,7 @@ import com.viroge.booksanalyzer.ui.screens.books.confirm.ConfirmBookRoute
 import com.viroge.booksanalyzer.ui.screens.books.deleted.RecentlyDeletedRoute
 import com.viroge.booksanalyzer.ui.screens.books.details.BookDetailsRoute
 import com.viroge.booksanalyzer.ui.screens.books.library.LibraryRoute
-import com.viroge.booksanalyzer.ui.screens.books.library.full.LibraryFullCollectionRoute
+import com.viroge.booksanalyzer.ui.screens.books.library.collection.CollectionRoute
 import com.viroge.booksanalyzer.ui.screens.books.search.SearchBookRoute
 import com.viroge.booksanalyzer.ui.screens.settings.SettingsRoute
 import com.viroge.booksanalyzer.ui.screens.terms.TermsRoute
@@ -49,15 +49,15 @@ fun AppNavHost(
             ) {
                 composable(Routes.LIBRARY) {
                     LibraryRoute(
-                        onOpenFullLibrary = { navigateSafe(Routes.FULL_COLLECTION) },
+                        onOpenFullLibrary = { navigateSafe(Routes.COLLECTION) },
                         onOpenBook = { navigateSafe(Routes.BOOK_DETAILS) },
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
                     )
                 }
 
-                composable(Routes.FULL_COLLECTION) {
-                    LibraryFullCollectionRoute(
+                composable(Routes.COLLECTION) {
+                    CollectionRoute(
                         onBack = navController::popBackStack,
                         onOpenBook = { navigateSafe(Routes.BOOK_DETAILS) },
                         sharedTransitionScope = this@SharedTransitionLayout,

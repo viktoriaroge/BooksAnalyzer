@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.books.library.full
+package com.viroge.booksanalyzer.ui.screens.books.library.collection
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,11 +34,11 @@ import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LibraryFiltersSheet(
+fun CollectionFiltersSheet(
     sheetValues: FiltersSheetValues,
-    filters: LibraryFilters,
+    filters: CollectionFilters,
     onStatusChange: (BookReadingStatusUi?) -> Unit,
-    onSortChange: (LibrarySortUi) -> Unit,
+    onSortChange: (CollectionSortUi) -> Unit,
     onClear: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -125,7 +125,7 @@ fun LibraryFiltersSheet(
             HorizontalDivider(thickness = 1.dp)
             Spacer(modifier = Modifier.height(16.dp))
 
-            val sortOptions = remember { LibrarySortUi.allOptions() }
+            val sortOptions = remember { CollectionSortUi.allOptions() }
             sortOptions.forEachIndexed { index, sort ->
                 if (index != 0) {
                     HorizontalDivider(

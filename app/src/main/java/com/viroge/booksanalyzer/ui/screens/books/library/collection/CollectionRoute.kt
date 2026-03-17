@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.books.library.full
+package com.viroge.booksanalyzer.ui.screens.books.library.collection
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
@@ -14,23 +14,23 @@ import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun LibraryFullCollectionRoute(
+fun CollectionRoute(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     onBack: () -> Unit,
     onOpenBook: () -> Unit,
 ) {
 
-    val vm: LibraryFullCollectionViewModel = hiltViewModel()
+    val vm: CollectionViewModel = hiltViewModel()
     val state by vm.state.collectAsState()
 
     when (val screenState = state.screenState) {
-        LibraryFullCollectionScreenState.Loading -> {
+        CollectionScreenState.Loading -> {
             // Draw nothing and have a smooth transition without anything flickering.
             // The DB fetch is quick enough. If needed, can be implemented later.
         }
 
-        is LibraryFullCollectionScreenState.Content -> {
+        is CollectionScreenState.Content -> {
             val filters by vm.filters.collectAsState()
             val query by vm.query.collectAsState()
 
@@ -42,14 +42,14 @@ fun LibraryFullCollectionRoute(
                 screenState.allBooks.joinToString(separator = "|") { it.id }
             }
             LaunchedEffect(key1 = fullOrderKey) {
-                if (screenState.sortState == LibrarySortUi.Recent) fullListState.scrollToItem(index = 0)
+                if (screenState.sortState == CollectionSortUi.Recent) fullListState.scrollToItem(index = 0)
             }
-            LibraryFullCollectionScreen(
+            CollectionScreen(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
                 state = screenState,
                 screenValues = state.screenValues,
-                values = screenState.fullCollectionStateValues,
+                values = screenState.stateValues,
                 filters = filters,
                 query = query,
                 fullListState = fullListState,
@@ -69,7 +69,7 @@ fun LibraryFullCollectionRoute(
             )
 
             if (showFilters) {
-                LibraryFiltersSheet(
+                CollectionFiltersSheet(
                     sheetValues = screenState.filtersSheetValues,
                     filters = filters,
                     onStatusChange = vm::onStatusChange,

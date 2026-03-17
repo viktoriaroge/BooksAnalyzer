@@ -12,12 +12,6 @@
     <string name="search_mode_author">Author</string>
     <string name="search_mode_isbn">ISBN</string>
 
-    <string name="library_sort_explanation_prefix">By: %1$s</string>
-    <string name="library_sort_by_added">Date of Pledge</string>
-    <string name="library_sort_by_recent">Last Touched</string>
-    <string name="library_sort_by_title">Title</string>
-    <string name="library_sort_by_author">Author</string>
-
     <string name="book_source_full_google_books">Google Books</string>
     <string name="book_source_full_open_library">Open Library</string>
     <string name="book_source_full_added_manually">Inscribed by Hand</string>
@@ -34,19 +28,27 @@
     <string name="book_cover_picker_name">Summon a New Visage</string>
     <string name="book_cover_picker_input_field_label">Inscribe the Image Path (URL)</string>
 
-    <string name="library_screen_name">My PageVows</string>
-    <string name="library_screen_search_placeholder">Seek a title within your PageVows…</string>
-    <string name="library_screen_filter_button_clear_label">Purge</string>
+    <string name="library_screen_name">PageVows</string>
     <string name="library_screen_empty_state_title">A Fresh Page</string>
     <string name="library_screen_empty_state_subtitle">Your shelf is a blank slate. Ready to make it official? Discover Stories to pledge your first PageVow.</string>
-    <string name="library_screen_fab_show_full_collection_label">The Whole Record</string>
-    <string name="library_screen_full_collection_empty_state_title">The Record is Silent</string>
-    <string name="library_screen_full_collection_empty_state_subtitle">No {spe}PageVow{/spe} matches your inquiry. \nPerhaps the ink has faded, or the tome resides in another chamber?</string>
 
-    <string name="library_filters_sheet_title">Order of the Tome</string>
-    <string name="library_filters_sheet_status_title">Nature of the Bond</string>
-    <string name="library_filters_sheet_sort_title">Arrange by Decree</string>
-    <string name="library_filters_sheet_button_clear_label">Purge</string>
+    <string name="library_to_collection_fab_label">The Whole Record</string>
+
+    <string name="collection_screen_name">My PageVows</string>
+    <string name="collection_screen_search_placeholder">Seek a title within your PageVows…</string>
+    <string name="collection_screen_filter_button_clear_label">Purge</string>
+    <string name="collection_empty_state_title">The Record is Silent</string>
+    <string name="collection_empty_state_subtitle">No {spe}PageVow{/spe} matches your inquiry. \nPerhaps the ink has faded, or the tome resides in another chamber?</string>
+    <string name="collection_filters_sheet_title">Order of the Tome</string>
+    <string name="collection_filters_sheet_status_title">Nature of the Bond</string>
+    <string name="collection_filters_sheet_sort_title">Arrange by Decree</string>
+    <string name="collection_filters_sheet_button_clear_label">Purge</string>
+
+    <string name="collection_sort_explanation_prefix">By: %1$s</string>
+    <string name="collection_sort_by_added">Date of Pledge</string>
+    <string name="collection_sort_by_recent">Last Touched</string>
+    <string name="collection_sort_by_title">Title</string>
+    <string name="collection_sort_by_author">Author</string>
 
     <string name="book_details_screen_name">The Book\'s Essence</string>
     <string name="book_details_screen_source_label">Origin:</string>

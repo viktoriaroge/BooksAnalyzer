@@ -1,34 +1,34 @@
-package com.viroge.booksanalyzer.ui.screens.books.library.full
+package com.viroge.booksanalyzer.ui.screens.books.library.collection
 
 import androidx.annotation.StringRes
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
-data class LibraryFullCollectionUiState(
-    val screenValues: LibraryFullCollectionScreenValues = LibraryFullCollectionScreenValues(),
-    val screenState: LibraryFullCollectionScreenState = LibraryFullCollectionScreenState.Loading,
+data class CollectionUiState(
+    val screenValues: CollectionScreenValues = CollectionScreenValues(),
+    val screenState: CollectionScreenState = CollectionScreenState.Loading,
 )
 
-sealed interface LibraryFullCollectionScreenState {
+sealed interface CollectionScreenState {
 
-    object Loading : LibraryFullCollectionScreenState
+    object Loading : CollectionScreenState
 
     data class Content(
         val selectedStatus: BookReadingStatusUi?, // null = All
-        val sortState: LibrarySortUi,
-        val allBooks: List<LibraryBookData>,
-        val fullCollectionStateValues: LibraryFullCollectionContentStateValues,
+        val sortState: CollectionSortUi,
+        val allBooks: List<CollectionBookData>,
+        val stateValues: ContentStateValues,
         val filtersSheetValues: FiltersSheetValues,
-    ) : LibraryFullCollectionScreenState
+    ) : CollectionScreenState
 }
 
-data class LibraryFullCollectionScreenValues(
+data class CollectionScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
 )
 
-data class LibraryFullCollectionContentStateValues(
-    @param:StringRes val fullCollectionFabText: Int = R.string.empty_text,
+data class ContentStateValues(
+    @param:StringRes val fabText: Int = R.string.empty_text,
     @param:StringRes val searchPlaceholder: Int = R.string.empty_text,
     @param:StringRes val activeSortText: Int = R.string.empty_text,
     @param:StringRes val clearFilterText: Int = R.string.empty_text,
@@ -44,7 +44,7 @@ data class FiltersSheetValues(
     @param:StringRes val filtersSortSelectionTitle: Int = R.string.empty_text,
 )
 
-data class LibraryBookData(
+data class CollectionBookData(
     val animationKey: String,
     val id: String,
     val title: String,
@@ -59,7 +59,7 @@ data class LibraryBookData(
     val source: BookSourceUi = BookSourceUi.Manual,
 )
 
-data class LibraryFilters(
+data class CollectionFilters(
     val status: BookReadingStatusUi? = null, // null = All
-    val sort: LibrarySortUi = LibrarySortUi.Added,
+    val sort: CollectionSortUi = CollectionSortUi.Added,
 )

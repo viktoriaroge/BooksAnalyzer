@@ -1,8 +1,7 @@
-package com.viroge.booksanalyzer.ui.screens.books.library.full
+package com.viroge.booksanalyzer.ui.screens.books.library.collection
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -48,13 +47,13 @@ import com.viroge.booksanalyzer.ui.screens.books.library.BookStatusBadge
 import com.viroge.booksanalyzer.ui.screens.books.library.LibraryFloatingActionButton
 
 @Composable
-fun LibraryFullCollectionScreen(
+fun CollectionScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    state: LibraryFullCollectionScreenState.Content,
-    screenValues: LibraryFullCollectionScreenValues,
-    values: LibraryFullCollectionContentStateValues,
-    filters: LibraryFilters,
+    state: CollectionScreenState.Content,
+    screenValues: CollectionScreenValues,
+    values: ContentStateValues,
+    filters: CollectionFilters,
     query: String,
     fullListState: LazyListState,
     showSearch: Boolean,
@@ -90,7 +89,7 @@ fun LibraryFullCollectionScreen(
         floatingActionButton = {
             LibraryFloatingActionButton(
                 isFullLibrary = true,
-                fabShowFullText = stringResource(values.fullCollectionFabText),
+                fabShowFullText = stringResource(values.fabText),
                 onClick = onToggleLibraryView,
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope
@@ -180,25 +179,9 @@ fun LibraryFullCollectionScreen(
 }
 
 @Composable
-private fun SectionHeader(
-    modifier: Modifier = Modifier,
-    text: String,
-) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    )
-}
-
-@Composable
 private fun ActiveFiltersRow(
-    values: LibraryFullCollectionContentStateValues,
-    filters: LibraryFilters,
+    values: ContentStateValues,
+    filters: CollectionFilters,
     onClearFilters: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -209,7 +192,7 @@ private fun ActiveFiltersRow(
         filters.status?.let {
             parts.add(it.label.asString(context))
         }
-        if (filters.sort != LibrarySortUi.Added) {
+        if (filters.sort != CollectionSortUi.Added) {
             val sortLabel = filters.sort.label.asString(context)
             parts.add(context.getString(values.activeSortText, sortLabel))
         }
@@ -241,7 +224,7 @@ private fun ActiveFiltersRow(
 private fun BookRowCard(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    book: LibraryBookData,
+    book: CollectionBookData,
     onClick: () -> Unit,
 ) {
     PvItemCard(
