@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.ui.components.PvBookCoverHeader
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 

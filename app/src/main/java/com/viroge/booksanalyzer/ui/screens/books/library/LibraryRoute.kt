@@ -2,7 +2,7 @@ package com.viroge.booksanalyzer.ui.screens.books.library
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,20 +35,27 @@ fun LibraryRoute(
         }
 
         is LibraryScreenState.Content -> {
-            val currentListState = rememberLazyListState()
-            val currentOrderKey = remember(key1 = screenState.currentBooks) {
+            val pagerState = rememberPagerState(
+                pageCount = { screenState.currentBooks.size }
+            )
+            val currentOrderKey = remember(screenState.currentBooks) {
                 screenState.currentBooks.joinToString(separator = "|") { it.id }
             }
-            LaunchedEffect(key1 = currentOrderKey) {
-                currentListState.scrollToItem(index = 0)
+            LaunchedEffect(currentOrderKey) {
+                if (screenState.currentBooks.isNotEmpty()) {
+                    pagerState.scrollToPage(0)
+                }
+            }
+            val activeBook = remember(pagerState.currentPage, screenState.currentBooks) {
+                screenState.currentBooks.getOrNull(pagerState.currentPage)
             }
             LibraryScreen(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
                 state = screenState,
-                screenValues = state.screenValues,
+                activeBook = activeBook,
                 values = screenState.contentStateValues,
-                currentListState = currentListState,
+                pagerState = pagerState,
                 onToggleLibraryView = onOpenFullLibrary,
                 onOpenBook = remember {
                     { bookId ->

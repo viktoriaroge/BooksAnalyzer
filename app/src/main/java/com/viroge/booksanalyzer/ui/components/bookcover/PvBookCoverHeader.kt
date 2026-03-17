@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.components
+package com.viroge.booksanalyzer.ui.components.bookcover
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
@@ -38,24 +38,10 @@ fun PvBookCoverHeader(
             .clipToBounds() // Prevents the blur from bleeding out
     ) {
         // Hazy background:
-        val isDarkTheme = isSystemInDarkTheme()
-        PvBookCoverAsyncImage(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(headerCoverSize.height)
-                .blur(radius = 25.dp)
-                .drawWithContent {
-                    drawContent()
-                    // Adjust slightly so the foreground pops
-                    drawRect(
-                        if (isDarkTheme) Color.Black.copy(alpha = 0.3f)
-                        else Color.White.copy(alpha = 0.3f)
-                    )
-                },
-            contentScale = ContentScale.Crop,
-            url = imageUrl,
-            requestHeaders = headersForBookCover,
-            imageSize = headerCoverSize,
+        PvHazyBookCoverBackground(
+            headerCoverSize = headerCoverSize,
+            imageUrl = imageUrl,
+            headersForBookCover = headersForBookCover,
         )
 
         // Cover image:

@@ -33,7 +33,7 @@ class LibraryViewModel @Inject constructor(
         observeLibraryDataUseCase("", ReadingStatus.READING, LibrarySort.RECENT)
             .map { data ->
                 when {
-                    data.books.isEmpty() -> LibraryScreenState.Empty(
+                    data.currentlyReading.isEmpty() -> LibraryScreenState.Empty(
                         emptyStateValues = mapper.getEmptyStateValues(),
                     )
 

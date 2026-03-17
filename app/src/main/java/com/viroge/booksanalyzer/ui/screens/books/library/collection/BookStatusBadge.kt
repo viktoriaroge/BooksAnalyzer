@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.screens.books.library
+package com.viroge.booksanalyzer.ui.screens.books.library.collection
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background

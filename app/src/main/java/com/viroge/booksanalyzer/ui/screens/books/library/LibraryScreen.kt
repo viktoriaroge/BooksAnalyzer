@@ -1,8 +1,8 @@
 package com.viroge.booksanalyzer.ui.screens.books.library
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,51 +12,58 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
-import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
-import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
-import com.viroge.booksanalyzer.ui.components.PvItemCard
+import androidx.compose.ui.util.lerp
+import androidx.compose.ui.zIndex
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
-import com.viroge.booksanalyzer.ui.components.PvTopAppBar
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.components.bookcover.PvHazyBookCoverBackground
+import kotlin.math.absoluteValue
 
 @Composable
 fun LibraryScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     state: LibraryScreenState.Content,
-    screenValues: LibraryScreenValues,
+    activeBook: LibraryBookData?,
     values: ContentStateValues,
-    currentListState: LazyListState,
+    pagerState: PagerState,
     onToggleLibraryView: () -> Unit,
     onOpenBook: (String) -> Unit,
 ) {
+    val scrollState = rememberScrollState()
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
-        topBar = {
-            PvTopAppBar(
-                title = stringResource(screenValues.screenName),
-            )
-        },
         floatingActionButton = {
             LibraryFloatingActionButton(
                 isFullLibrary = false,
                 fabShowFullText = stringResource(values.fullCollectionFabText),
                 onClick = onToggleLibraryView,
                 sharedTransitionScope = sharedTransitionScope,
-                animatedVisibilityScope = animatedVisibilityScope
+                animatedVisibilityScope = animatedVisibilityScope,
             )
         },
     ) { screenPadding ->
@@ -64,91 +71,167 @@ fun LibraryScreen(
         Column(
             modifier = Modifier
                 .padding(top = screenPadding.calculateTopPadding()) // top bar
+                .verticalScroll(scrollState)
                 .fillMaxSize(),
         ) {
-            if (state.currentBooks.isNotEmpty()) {
-                LazyRow(
-                    state = currentListState,
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+
+                // Selected (active) Book's Cover as Top Background:
+                activeBook?.let {
+                    PvHazyBookCoverBackground(
+                        modifier = Modifier.align(Alignment.TopCenter),
+                        headerCoverSize = PvBookCoverImageSize.XXLarge,
+                        imageUrl = it.url,
+                        headersForBookCover = it.headers,
+                    )
+                }
+
+                Column(
+                    modifier = Modifier.fillMaxSize(),
                 ) {
-                    items(
-                        items = state.currentBooks,
-                        key = { it.id },
-                    ) { book ->
-                        CurrentlyReadingCard(
-                            sharedTransitionScope = sharedTransitionScope,
-                            animatedVisibilityScope = animatedVisibilityScope,
-                            book = book,
-                            onClick = { onOpenBook(book.id) },
-                        )
-                    }
+
+                    Spacer(Modifier.height(48.dp))
+
+                    // Carousel with Book Covers
+                    CurrentBooksCarousel(
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        pagerState = pagerState,
+                        books = state.currentBooks,
+                        onBookClick = { onOpenBook(it.id) },
+                    )
+
+                    Spacer(Modifier.height(24.dp))
+
+                    // Selected (active) Book's content:
+                    CurrentBookContent(
+                        activeBook = activeBook,
+                        onOpenBook = onOpenBook,
+                    )
                 }
             }
 
-            Spacer(Modifier.height(height = 24.dp))
+            Spacer(Modifier.height(height = 120.dp))
         }
     }
 }
 
 @Composable
-private fun CurrentlyReadingCard(
+private fun CurrentBooksCarousel(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    book: LibraryBookData,
-    onClick: () -> Unit
+    pagerState: PagerState,
+    books: List<LibraryBookData>,
+    onBookClick: (LibraryBookData) -> Unit
 ) {
-    PvItemCard(
-        modifier = Modifier.width(width = 210.dp),
-        onClick = onClick,
-    ) {
-        Column(
-            modifier = Modifier.padding(all = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 12.dp),
+    val imageSize = PvBookCoverImageSize.XXLarge
+
+    HorizontalPager(
+        state = pagerState,
+        contentPadding = PaddingValues(horizontal = 64.dp),
+        pageSpacing = (-16).dp,
+        verticalAlignment = Alignment.Top,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(imageSize.height),
+    ) { page ->
+        val book = books[page]
+        val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
+
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.TopCenter,
         ) {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
+            Card(
+                modifier = Modifier
+                    .graphicsLayer {
+                        val scale = lerp(
+                            start = 0.7f, stop = 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
+                        scaleX = scale
+                        scaleY = scale
+
+                        alpha = lerp(
+                            start = 0.5f, stop = 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
+
+                        translationX = 0f
+                    }
+                    .zIndex(1f - pageOffset)
+                    .width(imageSize.width)
+                    .height(imageSize.height),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                onClick = { onBookClick(book) },
             ) {
                 PvBookCoverAsyncImage(
                     url = book.url,
                     requestHeaders = book.headers,
-                    imageSize = PvBookCoverImageSize.Medium,
-                    modifier = Modifier.align(Alignment.Center),
+                    imageSize = imageSize,
                     // Animation parameters:
                     animate = true,
                     animationKey = book.animationKey,
                     sharedTransitionScope = sharedTransitionScope,
                     animatedVisibilityScope = animatedVisibilityScope,
                 )
-
-                PvBookSourceBadge(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(all = 2.dp),
-                    sourceText = book.source.shortLabel.asString(),
-                )
             }
+        }
+    }
+}
 
-            PvLinearProgressIndicator(progress = { 0.3F })
-
-            Text(
-                text = book.title,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium,
-                minLines = 2,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-
-            if (book.authors.isNotEmpty()) {
+@Composable
+private fun CurrentBookContent(
+    activeBook: LibraryBookData?,
+    onOpenBook: (String) -> Unit
+) {
+    AnimatedContent(
+        targetState = activeBook,
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+            .fillMaxWidth(), label = "BookDetails"
+    ) { book ->
+        if (book != null) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = book.authors,
+                    text = book.title,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
+                    style = MaterialTheme.typography.headlineSmall,
+                    minLines = 2,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
+
+                Spacer(Modifier.height(4.dp))
+                if (book.authors.isNotEmpty()) {
+                    Text(
+                        text = book.authors,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
+                Spacer(Modifier.height(24.dp))
+                PvLinearProgressIndicator(modifier = Modifier.padding(horizontal = 16.dp), progress = { 0.3F })
+
+                Spacer(Modifier.height(4.dp))
+                Button(
+                    onClick = { onOpenBook(book.id) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Default.PlayArrow, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Invoke the PageVow")
+                }
             }
         }
     }

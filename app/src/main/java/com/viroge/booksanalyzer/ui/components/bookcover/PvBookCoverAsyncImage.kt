@@ -1,4 +1,4 @@
-package com.viroge.booksanalyzer.ui.components
+package com.viroge.booksanalyzer.ui.components.bookcover
 
 import android.util.Log
 import androidx.annotation.DrawableRes
@@ -17,7 +17,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -108,16 +107,4 @@ private fun PvAsyncImage(
         contentScale = contentScale,
         contentDescription = null,
     )
-}
-
-sealed class PvBookCoverImageSize(
-    val width: Dp,
-    val height: Dp,
-) {
-    object XSmall : PvBookCoverImageSize(width = 60.dp, height = 90.dp)
-    object Small : PvBookCoverImageSize(width = 80.dp, height = 120.dp)
-    object Medium : PvBookCoverImageSize(width = 120.dp, height = 180.dp)
-    object Large : PvBookCoverImageSize(width = 160.dp, height = 240.dp)
-    object XLarge : PvBookCoverImageSize(width = 200.dp, height = 300.dp)
-    object XXLarge : PvBookCoverImageSize(width = 240.dp, height = 360.dp)
 }

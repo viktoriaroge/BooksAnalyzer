@@ -27,8 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
-import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverImageSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

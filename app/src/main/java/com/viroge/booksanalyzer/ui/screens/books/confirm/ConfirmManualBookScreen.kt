@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.viroge.booksanalyzer.ui.components.PvBookCoverHeader
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 

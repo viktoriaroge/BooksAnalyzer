@@ -28,8 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
-import com.viroge.booksanalyzer.ui.components.PvBookCoverAsyncImage
-import com.viroge.booksanalyzer.ui.components.PvBookCoverImageSize
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverAsyncImage
+import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverImageSize
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
 import com.viroge.booksanalyzer.ui.components.PvItemCard
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
