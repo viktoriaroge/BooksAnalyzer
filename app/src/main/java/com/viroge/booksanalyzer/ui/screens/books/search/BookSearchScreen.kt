@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -354,7 +356,9 @@ private fun EmptyState(
     onManualAdd: (String) -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(state = rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(height = 16.dp))
@@ -378,7 +382,7 @@ private fun EmptyState(
         Spacer(Modifier.height(height = 24.dp))
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
-            text = customAnnotatedString(values.emptyStateText, state.query),
+            text = customAnnotatedString(values.emptyStateText, state.query.trim()),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
@@ -392,6 +396,8 @@ private fun EmptyState(
             text = stringResource(values.emptyStateButton),
             onClick = remember { { onManualAdd(state.query) } },
         )
+
+        Spacer(Modifier.height(24.dp))
     }
 }
 
@@ -401,7 +407,9 @@ private fun ErrorState(
     onRefresh: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(state = rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(height = 16.dp))
@@ -440,5 +448,7 @@ private fun ErrorState(
             text = stringResource(values.errorStateButton),
             onClick = onRefresh,
         )
+
+        Spacer(Modifier.height(24.dp))
     }
 }

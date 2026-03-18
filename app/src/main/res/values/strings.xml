@@ -89,7 +89,7 @@
     <string name="search_screen_error_message_no_connection">The path is obscured. Verify your tether to the World Wide Web.</string>
     <string name="search_screen_refresh_button">Re-Invoke</string>
     <string name="search_screen_no_results_error_title">The Oracles are Silent</string>
-    <string name="search_screen_no_results_error_text">No records were found for {err}\"%1$s\"{/err}. Perhaps it remains unwritten?</string>
+    <string name="search_screen_no_results_error_text">No records were found for \n\"{err}%1$s{/err}\". \n\nPerhaps it remains unwritten?</string>
     <string name="search_screen_add_manually_button">Inscribe by Hand</string>
     <string name="search_screen_clear_history_dialog_title">Purge Inquiries?</string>
     <string name="search_screen_clear_history_dialog_text">Shall we strike the echoes of your past searches? \nThis memory cannot be restored.</string>

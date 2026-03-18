@@ -7,6 +7,6 @@ import javax.inject.Inject
 class GetSearchHistoryUseCase @Inject constructor(
     private val historyRepo: SearchHistoryRepository,
 ) {
-    operator fun invoke(limit: Int = 10): Flow<List<String>> =
+    operator fun invoke(limit: Int = 20): Flow<List<String>> =
         historyRepo.observeRecent(limit)
 }

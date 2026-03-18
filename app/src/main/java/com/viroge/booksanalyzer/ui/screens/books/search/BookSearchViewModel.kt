@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.search
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.common.util.BooksUtil.mergeAndRank
@@ -23,7 +24,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -51,24 +52,24 @@ class BookSearchViewModel @Inject constructor(
     private var lastQuery: String = ""
     private var lastMode: SearchMode? = null
 
-    private val screenPhase: Flow<SearchPhase> = combine(
-        _mode,
-        _searchTrigger
-    ) { mode, _ -> mode }
+    private val screenPhase: Flow<SearchPhase> = combine(_mode, _searchTrigger) { mode, _ -> mode }
         .flatMapLatest { mode ->
             flow {
                 val q = _query.value.trim()
 
                 if (q.length < 2) {
                     resetInternalData()
-                    lastQuery = ""
-                    lastMode = null
                     emit(SearchPhase.Idle)
                     return@flow
                 }
 
                 if (q == lastQuery && mode == lastMode && _currentItems.value.isNotEmpty()) {
-                    emit(SearchPhase.DisplayingResults)
+                    emit(
+                        SearchPhase.DisplayingResults(
+                            items = _currentItems.value.map { mapper.mapToDataState(it) },
+                            error = _lastError.value
+                        )
+                    )
                     return@flow
                 }
 
@@ -82,22 +83,21 @@ class BookSearchViewModel @Inject constructor(
                 _lastError.value = result.error
                 _nextToken.value = result.nextToken
 
-                manageHistoryUseCase.record(q)
+                emit(
+                    SearchPhase.DisplayingResults(
+                        items = result.items.map { mapper.mapToDataState(it) },
+                        error = result.error
+                    )
+                )
 
-                emit(SearchPhase.DisplayingResults)
+                manageHistoryUseCase.record(q)
             }
         }.flowOn(Dispatchers.Default)
 
-    private val mappedItems: Flow<List<SearchBookDataState>> = _currentItems
-        .map { items -> items.map { mapper.mapToDataState(it) } }
-        .flowOn(Dispatchers.Default)
-
     private val screenState: Flow<SearchScreenState> = combine(
         _query,
-        _lastError,
-        screenPhase,
-        mappedItems
-    ) { q, error, phase, items ->
+        screenPhase
+    ) { q, phase ->
         when (phase) {
             SearchPhase.Loading -> SearchScreenState.Loading
 
@@ -106,32 +106,38 @@ class BookSearchViewModel @Inject constructor(
                 searchHistoryDialogValues = mapper.getSearchHistoryDialogValues()
             )
 
-            SearchPhase.DisplayingResults -> when {
-                items.isEmpty() && error != SearchError.NONE -> SearchScreenState.Error(
-                    errorStateValues = mapper.getErrorStateValues(error)
-                )
+            is SearchPhase.DisplayingResults -> {
+                val items = phase.items
+                val error = phase.error
 
-                error != SearchError.NONE -> SearchScreenState.Content(
-                    query = q,
-                    items = items,
-                    contentStateValues = mapper.getContentStateValues(),
+                when {
+                    items.isEmpty() && error != SearchError.NONE ->
+                        SearchScreenState.Error(errorStateValues = mapper.getErrorStateValues(error))
 
-                    showError = true,
-                    errorStateValues = mapper.getErrorStateValues(error),
-                )
+                    error != SearchError.NONE -> SearchScreenState.Content(
+                        query = q,
+                        items = items,
+                        contentStateValues = mapper.getContentStateValues(),
 
-                items.isEmpty() -> SearchScreenState.Empty(
-                    query = q,
-                    emptyStateValues = mapper.getEmptyStateValues()
-                )
+                        showError = true,
+                        errorStateValues = mapper.getErrorStateValues(error),
+                    )
 
-                else -> SearchScreenState.Content(
-                    query = q,
-                    items = items,
-                    contentStateValues = mapper.getContentStateValues()
-                )
+                    items.isEmpty() -> SearchScreenState.Empty(
+                        query = q,
+                        emptyStateValues = mapper.getEmptyStateValues()
+                    )
+
+                    else -> SearchScreenState.Content(
+                        query = q,
+                        items = items,
+                        contentStateValues = mapper.getContentStateValues()
+                    )
+                }
             }
         }
+    }.onEach {
+        Log.d("BookSearchViewModel", "screenState: $it")
     }.flowOn(Dispatchers.Default)
 
     val state: StateFlow<BookSearchUiState> = combine(
@@ -216,7 +222,14 @@ class BookSearchViewModel @Inject constructor(
         _loadingIndicator.update { it.copy(isLoadingMore = false, canLoadMore = false) }
     }
 
-    private enum class SearchPhase { Idle, Loading, DisplayingResults }
+    private sealed class SearchPhase {
+        object Idle : SearchPhase()
+        object Loading : SearchPhase()
+        data class DisplayingResults(
+            val items: List<SearchBookDataState>,
+            val error: SearchError
+        ) : SearchPhase()
+    }
 }
 
 data class LoadingIndicator(
