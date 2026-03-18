@@ -1,9 +1,11 @@
 package com.viroge.booksanalyzer.ui.screens.books
 
+import androidx.compose.runtime.Immutable
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.ui.common.util.UiText
 
+@Immutable
 sealed class BookSourceUi(
     val domainSource: BookSource,
     val label: UiText,

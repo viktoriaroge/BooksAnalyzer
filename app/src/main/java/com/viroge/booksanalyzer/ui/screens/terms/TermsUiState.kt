@@ -2,9 +2,10 @@ package com.viroge.booksanalyzer.ui.screens.terms
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Immutable
 import com.viroge.booksanalyzer.R
 
-
+@Immutable
 data class TermsUiState(
     @param:StringRes val screenTitleRes: Int = R.string.empty_text,
     @param:DrawableRes val introIconRes: Int = R.drawable.ic_launcher_foreground,
@@ -12,6 +13,7 @@ data class TermsUiState(
     val rowStates: List<TermsRowState> = emptyList(),
 )
 
+@Immutable
 data class TermsRowState(
     val showTitle: Boolean = false,
     val title: String? = null,

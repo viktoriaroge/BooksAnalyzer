@@ -1,10 +1,12 @@
 package com.viroge.booksanalyzer.ui.screens.books.library.collection
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Immutable
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
+@Immutable
 data class CollectionUiState(
     val screenValues: CollectionScreenValues = CollectionScreenValues(),
     val screenState: CollectionScreenState = CollectionScreenState.Loading,
@@ -12,8 +14,10 @@ data class CollectionUiState(
 
 sealed interface CollectionScreenState {
 
-    object Loading : CollectionScreenState
+    @Immutable
+    data object Loading : CollectionScreenState
 
+    @Immutable
     data class Content(
         val selectedStatus: BookReadingStatusUi?, // null = All
         val sortState: CollectionSortUi,
@@ -26,10 +30,12 @@ sealed interface CollectionScreenState {
     ) : CollectionScreenState
 }
 
+@Immutable
 data class CollectionScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
 )
 
+@Immutable
 data class ContentStateValues(
     @param:StringRes val searchPlaceholder: Int = R.string.empty_text,
     @param:StringRes val activeSortText: Int = R.string.empty_text,
@@ -39,6 +45,7 @@ data class ContentStateValues(
     @param:StringRes val emptyStateButton: Int = R.string.empty_text,
 )
 
+@Immutable
 data class FiltersSheetValues(
     @param:StringRes val filtersTitle: Int = R.string.empty_text,
     @param:StringRes val filtersClearButtonText: Int = R.string.empty_text,
@@ -47,6 +54,7 @@ data class FiltersSheetValues(
     @param:StringRes val filtersSortSelectionTitle: Int = R.string.empty_text,
 )
 
+@Immutable
 data class CollectionBookData(
     val animationKey: String,
     val id: String,
@@ -62,6 +70,7 @@ data class CollectionBookData(
     val source: BookSourceUi = BookSourceUi.Manual,
 )
 
+@Immutable
 data class CollectionFilters(
     val status: BookReadingStatusUi? = null, // null = All
     val sort: CollectionSortUi = CollectionSortUi.Added,

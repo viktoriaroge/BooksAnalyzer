@@ -1,13 +1,16 @@
 package com.viroge.booksanalyzer.ui.screens.books.deleted
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Immutable
 import com.viroge.booksanalyzer.R
 
+@Immutable
 data class RecentlyDeletedUiState(
     val screenValues: RecentlyDeletedScreenValues = RecentlyDeletedScreenValues(),
     val books: List<RecentlyDeletedBookState> = emptyList(),
 )
 
+@Immutable
 data class RecentlyDeletedScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
     @param:StringRes val emptyStateTitle: Int = R.string.empty_text,
@@ -19,6 +22,7 @@ data class RecentlyDeletedScreenValues(
     @param:StringRes val cancelButtonLabel: Int = R.string.empty_text,
 )
 
+@Immutable
 data class RecentlyDeletedBookState(
     val id: String,
     val title: String,

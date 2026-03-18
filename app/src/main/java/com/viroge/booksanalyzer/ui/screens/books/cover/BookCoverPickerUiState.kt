@@ -3,15 +3,18 @@ package com.viroge.booksanalyzer.ui.screens.books.cover
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.provider.BookCoverState
 
+@Immutable
 data class BookCoverPickerUiState(
     val screenState: BookCoverPickerScreenState = BookCoverPickerScreenState(),
     val coverState: BookCoverState = BookCoverState(),
 )
 
+@Immutable
 data class BookCoverPickerScreenState(
     val initialized: Boolean = false,
     val isOpen: Boolean = false,
@@ -21,6 +24,7 @@ data class BookCoverPickerScreenState(
     val manualUrlInput: String = "",
 )
 
+@Immutable
 data class BookCoverPickerScreenValues(
     @param:StringRes val screenTitle: Int = R.string.empty_text,
     @param:StringRes val inputFieldLabel: Int = R.string.empty_text,

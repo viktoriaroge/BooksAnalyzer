@@ -1,14 +1,17 @@
 package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Immutable
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
+@Immutable
 data class ConfirmBookUiState(
     val screenState: ConfirmBookScreenState = ConfirmBookScreenState(),
     val bookData: ConfirmBookDataState? = null,
 )
 
+@Immutable
 data class ConfirmBookScreenState(
     val isSaving: Boolean = false,
     val isInManualMode: Boolean = false,
@@ -18,6 +21,7 @@ data class ConfirmBookScreenState(
     val screenValues: ConfirmBookScreenValues = ConfirmBookScreenValues(),
 )
 
+@Immutable
 data class ConfirmBookDataState(
     val animationKey: String,
     val title: String,
@@ -28,6 +32,7 @@ data class ConfirmBookDataState(
     val headers: Map<String, String>,
 )
 
+@Immutable
 data class ConfirmBookEditState(
     val editTitle: String = "",
     val showTitleError: Boolean = false,
@@ -37,6 +42,7 @@ data class ConfirmBookEditState(
     val editIsbn13: String = "",
 )
 
+@Immutable
 data class ConfirmBookScreenValues(
     @param:StringRes val screenTitleConfirm: Int = R.string.empty_text,
     @param:StringRes val screenTitleManual: Int = R.string.empty_text,

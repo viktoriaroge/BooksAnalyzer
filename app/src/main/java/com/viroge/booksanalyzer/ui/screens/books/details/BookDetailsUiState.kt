@@ -1,16 +1,19 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Immutable
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.common.util.UiText
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
+@Immutable
 data class BookDetailsUiState(
     val screenState: BookDetailsScreenState,
 )
 
 sealed interface BookDetailsScreenState {
+    @Immutable
     data class Content(
         val isLoading: Boolean = true,
         val isDeleting: Boolean = false,
@@ -19,6 +22,7 @@ sealed interface BookDetailsScreenState {
         val deleteDialogValues: BookDetailsDeleteDialogValues = BookDetailsDeleteDialogValues(),
     ) : BookDetailsScreenState
 
+    @Immutable
     data class Edit(
         val isSaving: Boolean = false,
         val editStateValues: EditDetailsScreenValues,
@@ -27,6 +31,7 @@ sealed interface BookDetailsScreenState {
     ) : BookDetailsScreenState
 }
 
+@Immutable
 data class BookDetailsEditState(
     val editTitle: String = "",
     val showTitleError: Boolean = false,
@@ -37,6 +42,7 @@ data class BookDetailsEditState(
     val editIsbn10: String = "",
 )
 
+@Immutable
 data class BookDetailsDataState(
     val animationKey: String,
     val id: String,
@@ -52,12 +58,14 @@ data class BookDetailsDataState(
     val source: BookSourceUi = BookSourceUi.Manual,
 )
 
+@Immutable
 data class DetailsScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
     @param:StringRes val originLabel: Int = R.string.empty_text,
     @param:StringRes val deleteButtonText: Int = R.string.empty_text,
 )
 
+@Immutable
 data class EditDetailsScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
     @param:StringRes val changeCoverButtonText: Int = R.string.empty_text,
@@ -75,6 +83,7 @@ data class EditDetailsScreenValues(
     @param:StringRes val cancelChangesButtonText: Int = R.string.empty_text,
 )
 
+@Immutable
 data class BookDetailsDeleteDialogValues(
     @param:StringRes val title: Int = R.string.empty_text,
     val message: UiText = UiText.DynamicString(""),
