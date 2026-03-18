@@ -7,12 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,6 +26,8 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
+import com.viroge.booksanalyzer.ui.components.PvButton
+import com.viroge.booksanalyzer.ui.components.PvButtonType
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
@@ -89,14 +89,11 @@ fun ConfirmBookScreen(
                 animatedVisibilityScope = animatedVisibilityScope,
             )
 
-            Button(
+            PvButton(
+                buttonType = PvButtonType.Secondary,
+                text = stringResource(values.changeCoverButtonLabel),
                 onClick = onOpenCoverPicker,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-            ) {
-                Text(text = stringResource(values.changeCoverButtonLabel))
-            }
+            )
 
             Spacer(Modifier.height(24.dp))
 
@@ -132,15 +129,13 @@ fun ConfirmBookScreen(
                 PvBookSourceBadge(sourceText = book.source.label.asString())
             }
 
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+            PvButton(
+                text = stringResource(values.saveButtonLabel),
                 onClick = onSave,
                 enabled = !state.screenState.isSaving,
-            ) {
-                Text(text = stringResource(values.saveButtonLabel))
-            }
+            )
+
+            Spacer(Modifier.height(24.dp))
         }
     }
 }

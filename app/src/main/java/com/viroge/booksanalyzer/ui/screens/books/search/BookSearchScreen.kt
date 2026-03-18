@@ -327,7 +327,6 @@ private fun BooksList(
             if (canLoadMore) {
                 Spacer(Modifier.height(24.dp))
                 PvButton(
-                    modifier = Modifier.fillMaxWidth(),
                     buttonType = PvButtonType.Secondary,
                     text =
                         if (isLoadingMore) stringResource(contentStateValues.loadMoreInProgressButtonText)
@@ -339,7 +338,6 @@ private fun BooksList(
 
             Spacer(Modifier.height(24.dp))
             PvButton(
-                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(contentStateValues.manualButtonText),
                 onClick = remember { { onManualAdd(query) } },
             )
@@ -390,9 +388,7 @@ private fun EmptyState(
 
         Spacer(Modifier.height(24.dp))
         PvButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
             text = stringResource(values.emptyStateButton),
             onClick = remember { { onManualAdd(state.query) } },
         )
@@ -441,9 +437,7 @@ private fun ErrorState(
 
         Spacer(Modifier.height(24.dp))
         PvButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
             buttonType = PvButtonType.Error,
             text = stringResource(values.errorStateButton),
             onClick = onRefresh,

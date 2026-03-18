@@ -15,12 +15,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalLibrary
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -43,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
+import com.viroge.booksanalyzer.ui.components.PvButton
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverAsyncImage
@@ -130,7 +129,7 @@ fun LibraryScreen(
                         onBookClick = { onOpenBook(it.id) },
                     )
 
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(32.dp))
 
                     // Selected (active) Book's content:
                     CurrentBookContent(
@@ -234,7 +233,7 @@ private fun CurrentBookContent(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(8.dp))
                 if (book.authors.isNotEmpty()) {
                     Text(
                         text = book.authors,
@@ -245,21 +244,15 @@ private fun CurrentBookContent(
                     )
                 }
 
-                Spacer(Modifier.height(24.dp))
-                PvLinearProgressIndicator(modifier = Modifier.padding(horizontal = 16.dp), progress = { 0.3F })
+                Spacer(Modifier.height(32.dp))
+                PvLinearProgressIndicator(modifier = Modifier.padding(horizontal = 32.dp), progress = { 0.3F })
 
                 Spacer(Modifier.height(4.dp))
-                Button(
-                    onClick = { onOpenBook(book.id) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Icon(Icons.Default.PlayArrow, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(values.startReadingButtonText))
-                }
+                PvButton(
+                    text = stringResource(values.startReadingButtonText),
+                    icon = Icons.Default.PlayArrow,
+                    onClick = remember { { onOpenBook(book.id) } },
+                )
             }
         }
     }

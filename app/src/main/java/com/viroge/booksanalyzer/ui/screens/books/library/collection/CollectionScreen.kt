@@ -254,9 +254,7 @@ private fun EmptyContent(
         if (state.showEmptyStateButton) {
             Spacer(Modifier.height(24.dp))
             PvButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
                 text = stringResource(values.emptyStateButton),
                 onClick = onAction,
             )

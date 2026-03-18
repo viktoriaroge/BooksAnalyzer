@@ -72,9 +72,7 @@ fun LibraryEmptyScreen(
 
             Spacer(Modifier.height(24.dp))
             PvButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
                 text = stringResource(emptyStateValues.emptyStateButton),
                 onClick = onAction,
             )

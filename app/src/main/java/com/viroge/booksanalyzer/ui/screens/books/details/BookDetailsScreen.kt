@@ -14,8 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -43,6 +41,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
+import com.viroge.booksanalyzer.ui.components.PvButton
+import com.viroge.booksanalyzer.ui.components.PvButtonType
 import com.viroge.booksanalyzer.ui.components.PvSkeletonArea
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
@@ -174,19 +174,13 @@ fun BookDetailsScreen(
                     onChange = onStatusChange,
                 )
 
-                Spacer(Modifier.height(height = 16.dp))
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    onClick = { onDelete() },
+                Spacer(Modifier.height(height = 24.dp))
+                PvButton(
+                    buttonType = PvButtonType.Error,
+                    text = stringResource(values.deleteButtonText),
+                    onClick = onDelete,
                     enabled = !state.isDeleting,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                    ),
-                ) {
-                    Text(stringResource(values.deleteButtonText))
-                }
+                )
             }
 
             Spacer(Modifier.height(height = 24.dp))

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -25,6 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.viroge.booksanalyzer.ui.components.PvButton
+import com.viroge.booksanalyzer.ui.components.PvButtonType
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
@@ -96,14 +97,11 @@ fun ConfirmManualBookScreen(
                 animatedVisibilityScope = animatedVisibilityScope,
             )
 
-            Button(
-                onClick = { onOpenCoverPicker() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-            ) {
-                Text(text = stringResource(screenValues.changeCoverButtonLabel))
-            }
+            PvButton(
+                buttonType = PvButtonType.Secondary,
+                text = stringResource(screenValues.changeCoverButtonLabel),
+                onClick = onOpenCoverPicker,
+            )
 
             Spacer(Modifier.height(24.dp))
 
@@ -176,14 +174,11 @@ fun ConfirmManualBookScreen(
             )
 
             Spacer(Modifier.height(16.dp))
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                onClick = { onSave() },
-            ) {
-                Text(text = stringResource(screenValues.manualSaveButtonLabel))
-            }
+            PvButton(
+                text = stringResource(screenValues.manualSaveButtonLabel),
+                onClick = onSave,
+                enabled = !state.screenState.isSaving,
+            )
 
             Spacer(Modifier.height(24.dp))
         }

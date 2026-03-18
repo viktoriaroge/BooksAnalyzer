@@ -11,7 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.viroge.booksanalyzer.ui.components.PvButton
+import com.viroge.booksanalyzer.ui.components.PvButtonType
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverHeader
 import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
@@ -97,16 +98,13 @@ fun BookDetailsEditScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+            PvButton(
+                buttonType = PvButtonType.Secondary,
+                text = stringResource(values.changeCoverButtonText),
                 onClick = onOpenCoverPicker,
-            ) {
-                Text(text = stringResource(values.changeCoverButtonText))
-            }
+            )
 
-            Spacer(Modifier.height(height = 12.dp))
+            Spacer(Modifier.height(height = 24.dp))
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -182,18 +180,14 @@ fun BookDetailsEditScreen(
             )
 
             Spacer(Modifier.height(height = 16.dp))
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+
+            PvButton(
+                text =
+                    if (state.isSaving) stringResource(values.saveChangesInProgressButtonText)
+                    else stringResource(values.saveChangesButtonText),
                 onClick = onSaveEdits,
                 enabled = !state.isSaving,
-            ) {
-                Text(
-                    text = if (state.isSaving) stringResource(values.saveChangesInProgressButtonText)
-                    else stringResource(values.saveChangesButtonText)
-                )
-            }
+            )
 
             Spacer(Modifier.height(height = 12.dp))
             TextButton(
