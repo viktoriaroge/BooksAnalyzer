@@ -1,6 +1,7 @@
 package com.viroge.booksanalyzer.ui
 
 import android.util.Log
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.repository.BooksRepository
@@ -87,26 +88,30 @@ class MainSharedViewModel @Inject constructor(
     }
 }
 
+@Immutable
 data class MarkedBook(
     val id: String,
     val title: String,
 )
 
 sealed interface AppEvent {
-
+    @Immutable
     data class BookDeleted(
         val id: String,
         val title: String,
     ) : AppEvent
 
+    @Immutable
     data class BookDeletingFailed(
         val title: String,
     ) : AppEvent
 
+    @Immutable
     data class BookRestoreSuccess(
         val title: String,
     ) : AppEvent
 
+    @Immutable
     data class BookRestoreFailed(
         val title: String,
     ) : AppEvent

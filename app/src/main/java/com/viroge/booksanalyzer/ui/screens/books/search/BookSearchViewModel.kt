@@ -1,6 +1,5 @@
 package com.viroge.booksanalyzer.ui.screens.books.search
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.common.util.BooksUtil.mergeAndRank
@@ -24,7 +23,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -42,8 +40,7 @@ class BookSearchViewModel @Inject constructor(
 
     private val _query = MutableStateFlow("")
     private val _mode = MutableStateFlow(SearchMode.ALL)
-    private val _searchTrigger = MutableSharedFlow<Unit>(replay = 1)
-        .apply { tryEmit(Unit) }
+    private val _searchTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     private val _currentItems = MutableStateFlow<List<TempBook>>(emptyList())
     private val _lastError = MutableStateFlow(SearchError.NONE)
     private val _nextToken = MutableStateFlow<String?>(null)
@@ -59,17 +56,15 @@ class BookSearchViewModel @Inject constructor(
 
                 if (q.length < 2) {
                     resetInternalData()
+                    lastQuery = ""
+                    lastMode = null
                     emit(SearchPhase.Idle)
                     return@flow
                 }
 
+                // If we already have results for this exact search, just show them:
                 if (q == lastQuery && mode == lastMode && _currentItems.value.isNotEmpty()) {
-                    emit(
-                        SearchPhase.DisplayingResults(
-                            items = _currentItems.value.map { mapper.mapToDataState(it) },
-                            error = _lastError.value
-                        )
-                    )
+                    emit(SearchPhase.DisplayingResults)
                     return@flow
                 }
 
@@ -77,27 +72,30 @@ class BookSearchViewModel @Inject constructor(
 
                 val result = searchBooksUseCase(q, mode, null)
 
+                // Update the source of truth BEFORE emitting the "Displaying" phase:
                 lastQuery = q
                 lastMode = mode
                 _currentItems.value = result.items
                 _lastError.value = result.error
                 _nextToken.value = result.nextToken
 
-                emit(
-                    SearchPhase.DisplayingResults(
-                        items = result.items.map { mapper.mapToDataState(it) },
-                        error = result.error
-                    )
-                )
-
                 manageHistoryUseCase.record(q)
+
+                // Now that _currentItems is updated, we signal the UI to display:
+                emit(SearchPhase.DisplayingResults)
             }
         }.flowOn(Dispatchers.Default)
 
     private val screenState: Flow<SearchScreenState> = combine(
         _query,
-        screenPhase
-    ) { q, phase ->
+        _lastError,
+        screenPhase,
+        _currentItems
+    ) { q, error, phase, rawItems ->
+
+        // Map the raw domain books to UI state objects:
+        val items = rawItems.map { mapper.mapToDataState(it) }
+
         when (phase) {
             SearchPhase.Loading -> SearchScreenState.Loading
 
@@ -106,38 +104,34 @@ class BookSearchViewModel @Inject constructor(
                 searchHistoryDialogValues = mapper.getSearchHistoryDialogValues()
             )
 
-            is SearchPhase.DisplayingResults -> {
-                val items = phase.items
-                val error = phase.error
+            SearchPhase.DisplayingResults -> when {
+                // Case A: No items and there was an error
+                items.isEmpty() && error != SearchError.NONE ->
+                    SearchScreenState.Error(errorStateValues = mapper.getErrorStateValues(error))
 
-                when {
-                    items.isEmpty() && error != SearchError.NONE ->
-                        SearchScreenState.Error(errorStateValues = mapper.getErrorStateValues(error))
+                // Case B: We have items but a new error occurred (e.g., during loadMore)
+                error != SearchError.NONE && items.isNotEmpty() -> SearchScreenState.Content(
+                    query = q,
+                    items = items,
+                    contentStateValues = mapper.getContentStateValues(),
+                    showError = true,
+                    errorStateValues = mapper.getErrorStateValues(error),
+                )
 
-                    error != SearchError.NONE -> SearchScreenState.Content(
-                        query = q,
-                        items = items,
-                        contentStateValues = mapper.getContentStateValues(),
+                // Case C: Search finished successfully but found nothing
+                items.isEmpty() -> SearchScreenState.Empty(
+                    query = q,
+                    emptyStateValues = mapper.getEmptyStateValues()
+                )
 
-                        showError = true,
-                        errorStateValues = mapper.getErrorStateValues(error),
-                    )
-
-                    items.isEmpty() -> SearchScreenState.Empty(
-                        query = q,
-                        emptyStateValues = mapper.getEmptyStateValues()
-                    )
-
-                    else -> SearchScreenState.Content(
-                        query = q,
-                        items = items,
-                        contentStateValues = mapper.getContentStateValues()
-                    )
-                }
+                // Case D: Success with results
+                else -> SearchScreenState.Content(
+                    query = q,
+                    items = items,
+                    contentStateValues = mapper.getContentStateValues()
+                )
             }
         }
-    }.onEach {
-        Log.d("BookSearchViewModel", "screenState: $it")
     }.flowOn(Dispatchers.Default)
 
     val state: StateFlow<BookSearchUiState> = combine(
@@ -222,14 +216,7 @@ class BookSearchViewModel @Inject constructor(
         _loadingIndicator.update { it.copy(isLoadingMore = false, canLoadMore = false) }
     }
 
-    private sealed class SearchPhase {
-        object Idle : SearchPhase()
-        object Loading : SearchPhase()
-        data class DisplayingResults(
-            val items: List<SearchBookDataState>,
-            val error: SearchError
-        ) : SearchPhase()
-    }
+    private enum class SearchPhase { Idle, Loading, DisplayingResults }
 }
 
 data class LoadingIndicator(
