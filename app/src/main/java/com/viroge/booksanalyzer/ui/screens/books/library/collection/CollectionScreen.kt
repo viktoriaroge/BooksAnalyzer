@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -63,13 +64,14 @@ fun CollectionScreen(
     query: String,
     fullListState: LazyListState,
     showSearch: Boolean,
+    actionIcon: ImageVector,
+    onAction: () -> Unit,
     onToggleSearch: () -> Unit,
     onHideSearch: () -> Unit,
     onToggleFilters: () -> Unit,
     onClearFilters: () -> Unit,
     onQueryChange: (String) -> Unit,
     onBack: () -> Unit,
-    onAction: () -> Unit,
     onOpenBook: (String) -> Unit,
 ) {
     val appScaffoldPadding = LocalAppScaffoldPadding.current
@@ -144,6 +146,7 @@ fun CollectionScreen(
                 EmptyContent(
                     state = state,
                     values = values,
+                    actionIcon = actionIcon,
                     onAction = onAction,
                 )
 
@@ -219,6 +222,7 @@ private fun ActiveFiltersRow(
 private fun EmptyContent(
     state: CollectionScreenState.Content,
     values: ContentStateValues,
+    actionIcon: ImageVector,
     onAction: () -> Unit,
 ) {
 
@@ -251,13 +255,16 @@ private fun EmptyContent(
             color = MaterialTheme.colorScheme.onSurface,
         )
 
+        Spacer(Modifier.height(24.dp))
+
         if (state.showEmptyStateButton) {
-            Spacer(Modifier.height(24.dp))
             PvButton(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 text = stringResource(values.emptyStateButton),
+                icon = actionIcon,
                 onClick = onAction,
             )
+            Spacer(Modifier.height(24.dp))
         }
     }
 }

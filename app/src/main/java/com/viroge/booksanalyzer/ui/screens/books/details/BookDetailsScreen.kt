@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -178,6 +180,7 @@ fun BookDetailsScreen(
                 PvButton(
                     buttonType = PvButtonType.Error,
                     text = stringResource(values.deleteButtonText),
+                    icon = Icons.Default.Delete,
                     onClick = onDelete,
                     enabled = !state.isDeleting,
                 )

@@ -3,6 +3,8 @@ package com.viroge.booksanalyzer.ui.screens.books.library.collection
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,13 +57,14 @@ fun CollectionRoute(
                 query = query,
                 fullListState = fullListState,
                 showSearch = showSearch,
+                actionIcon = Icons.Default.Search,// only one possible state for now
+                onAction = onOpenSearch, // only one possible state for now
                 onToggleSearch = remember { { showSearch = !showSearch } },
                 onHideSearch = remember { { showSearch = false } },
                 onToggleFilters = remember { { showFilters = !showFilters } },
                 onClearFilters = vm::onClearFilters,
                 onQueryChange = vm::onQueryChange,
                 onBack = onBack,
-                onAction = onOpenSearch, // only one possible state for now
                 onOpenBook = remember {
                     { bookId ->
                         vm.selectBook(bookId)

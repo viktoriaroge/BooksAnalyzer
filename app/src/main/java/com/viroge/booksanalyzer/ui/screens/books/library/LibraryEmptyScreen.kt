@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -28,6 +28,7 @@ import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 fun LibraryEmptyScreen(
     screenValues: LibraryScreenValues,
     emptyStateValues: EmptyStateValues,
+    actionIcon: ImageVector,
     onAction: () -> Unit,
 ) {
     Scaffold(
@@ -74,8 +75,11 @@ fun LibraryEmptyScreen(
             PvButton(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 text = stringResource(emptyStateValues.emptyStateButton),
+                icon = actionIcon,
                 onClick = onAction,
             )
+
+            Spacer(Modifier.height(24.dp))
         }
     }
 }

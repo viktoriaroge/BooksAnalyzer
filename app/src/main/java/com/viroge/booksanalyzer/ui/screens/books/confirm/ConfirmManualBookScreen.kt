@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ImageSearch
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -100,6 +103,7 @@ fun ConfirmManualBookScreen(
             PvButton(
                 buttonType = PvButtonType.Secondary,
                 text = stringResource(screenValues.changeCoverButtonLabel),
+                icon = Icons.Default.ImageSearch,
                 onClick = onOpenCoverPicker,
             )
 
@@ -176,6 +180,7 @@ fun ConfirmManualBookScreen(
             Spacer(Modifier.height(16.dp))
             PvButton(
                 text = stringResource(screenValues.manualSaveButtonLabel),
+                icon = Icons.Default.Save,
                 onClick = onSave,
                 enabled = !state.screenState.isSaving,
             )

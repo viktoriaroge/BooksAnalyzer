@@ -11,6 +11,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ImageSearch
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -101,6 +103,7 @@ fun BookDetailsEditScreen(
             PvButton(
                 buttonType = PvButtonType.Secondary,
                 text = stringResource(values.changeCoverButtonText),
+                icon = Icons.Default.ImageSearch,
                 onClick = onOpenCoverPicker,
             )
 
@@ -185,6 +188,7 @@ fun BookDetailsEditScreen(
                 text =
                     if (state.isSaving) stringResource(values.saveChangesInProgressButtonText)
                     else stringResource(values.saveChangesButtonText),
+                icon = Icons.Default.Save,
                 onClick = onSaveEdits,
                 enabled = !state.isSaving,
             )

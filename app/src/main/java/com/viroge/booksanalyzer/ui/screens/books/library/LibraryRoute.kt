@@ -3,6 +3,9 @@ package com.viroge.booksanalyzer.ui.screens.books.library
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocalLibrary
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,6 +35,10 @@ fun LibraryRoute(
             LibraryEmptyScreen(
                 screenValues = state.screenValues,
                 emptyStateValues = screenState.emptyStateValues,
+                actionIcon = when (screenState.navRoute) {
+                    LibraryNavDirection.SEARCH -> Icons.Default.Search
+                    LibraryNavDirection.COLLECTION -> Icons.Default.LocalLibrary
+                },
                 onAction = {
                     when (screenState.navRoute) {
                         LibraryNavDirection.SEARCH -> onOpenSearch()

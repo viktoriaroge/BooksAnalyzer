@@ -21,6 +21,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -331,6 +334,7 @@ private fun BooksList(
                     text =
                         if (isLoadingMore) stringResource(contentStateValues.loadMoreInProgressButtonText)
                         else stringResource(contentStateValues.loadMoreDefaultButtonText),
+                    icon = Icons.Default.Download,
                     enabled = !isLoadingMore,
                     onClick = onLoadMore,
                 )
@@ -339,6 +343,7 @@ private fun BooksList(
             Spacer(Modifier.height(24.dp))
             PvButton(
                 text = stringResource(contentStateValues.manualButtonText),
+                icon = Icons.Default.EditNote,
                 onClick = remember { { onManualAdd(query) } },
             )
 
@@ -390,6 +395,7 @@ private fun EmptyState(
         PvButton(
             modifier = Modifier.padding(horizontal = 16.dp),
             text = stringResource(values.emptyStateButton),
+            icon = Icons.Default.EditNote,
             onClick = remember { { onManualAdd(state.query) } },
         )
 
