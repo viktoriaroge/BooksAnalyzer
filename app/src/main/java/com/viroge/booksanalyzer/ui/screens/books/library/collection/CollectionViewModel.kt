@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.usecase.book.GetBookUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.ObserveHasAvailableBooksUseCase
 import com.viroge.booksanalyzer.domain.usecase.book.ObserveLibraryDataUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class CollectionViewModel @Inject constructor(
     private val bookSelectionStateProvider: BookSelectionStateProvider,
     private val observeLibraryDataUseCase: ObserveLibraryDataUseCase,
+    observeHasAvailableBooksUseCase: ObserveHasAvailableBooksUseCase,
     private val getBookUseCase: GetBookUseCase,
     private val mapper: CollectionMapper,
 ) : ViewModel() {
@@ -49,28 +51,32 @@ class CollectionViewModel @Inject constructor(
             initialValue = CollectionFilters()
         )
 
+    private val hasBooks = observeHasAvailableBooksUseCase()
+        .flowOn(Dispatchers.Default)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val screenState: Flow<CollectionScreenState> = combine(
         _query,
         _statusFilter,
-        _sort
-    ) { q, status, sort ->
-        observeLibraryDataUseCase(q, null, sort.domainSource)
+        _sort,
+        hasBooks
+    ) { q, status, sort, hasAnyBooks ->
+        observeLibraryDataUseCase(q, status?.domainStatus, sort.domainSource)
             .map { data ->
-                val booksWithRequiredStatus =
-                    status?.let { data.books.filter { book -> book.status == it.domainStatus } }
-                        ?: data.books
-                val isLibraryEmpty = data.books.isEmpty()
-
                 CollectionScreenState.Content(
-                    stateValues = mapper.getContentStateValues(isLibraryEmpty),
+                    stateValues = mapper.getContentStateValues(!hasAnyBooks),
                     filtersSheetValues = mapper.getFiltersSheetValues(),
                     selectedStatus = status,
                     sortState = sort,
-                    allBooks = booksWithRequiredStatus.map { mapper.mapToData(it) },
+                    allBooks = data.books.map { mapper.mapToData(it) },
 
-                    isInEmptyState = booksWithRequiredStatus.isEmpty(),
-                    showEmptyStateButton = isLibraryEmpty,
+                    isInEmptyState = data.books.isEmpty(),
+                    showEmptyStateButton = !hasAnyBooks,
                 )
             }
     }.flowOn(Dispatchers.Default)

@@ -54,6 +54,10 @@ class BooksRepositoryImpl @Inject constructor(
             }
         }
 
+    override fun observeHasAvailableBooks(): Flow<Boolean> = bookDao.observeAll()
+        .map { list -> list.filter { entity -> !entity.toBeDeleted } }
+        .map { list -> list.isNotEmpty() }
+
     override fun observeBook(
         bookId: String,
     ): Flow<Book?> = bookDao.observeById(bookId).map { nullableEntity ->

@@ -12,6 +12,7 @@ interface BooksRepository {
 
     fun observeLibrary(): Flow<List<Book>>
     fun observePendingDeleteBooks(): Flow<List<Book>>
+    fun observeHasAvailableBooks(): Flow<Boolean>
 
     fun observeBook(
         bookId: String,
