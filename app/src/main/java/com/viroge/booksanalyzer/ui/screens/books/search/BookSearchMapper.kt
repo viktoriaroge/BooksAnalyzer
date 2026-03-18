@@ -31,17 +31,19 @@ class BookSearchMapper @Inject constructor() {
     )
 
     fun getErrorStateValues(error: SearchError): ErrorStateValues = ErrorStateValues(
-        errorMessage = when (error) {
+        errorStateTitle = R.string.search_screen_error_title,
+        errorStateText = when (error) {
             SearchError.NO_CONNECTION -> R.string.search_screen_error_message_no_connection
             SearchError.UNKNOWN -> R.string.search_screen_error_message_unknown
             SearchError.NONE -> R.string.empty_text
         },
-        refreshButtonText = R.string.search_screen_refresh_button,
+        errorStateButton = R.string.search_screen_refresh_button,
     )
 
     fun getEmptyStateValues(): EmptyStateValues = EmptyStateValues(
-        noResultsText = R.string.search_screen_no_results_error_text,
-        manualButtonText = R.string.search_screen_add_manually_button,
+        emptyStateTitle = R.string.search_screen_no_results_error_title,
+        emptyStateText = R.string.search_screen_no_results_error_text,
+        emptyStateButton = R.string.search_screen_add_manually_button,
     )
 
     fun getContentStateValues(): ContentStateValues = ContentStateValues(

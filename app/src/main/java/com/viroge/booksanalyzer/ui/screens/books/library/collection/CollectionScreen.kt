@@ -13,17 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
+import com.viroge.booksanalyzer.ui.components.PvButton
 import com.viroge.booksanalyzer.ui.components.PvItemCard
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverAsyncImage
@@ -256,18 +253,13 @@ private fun EmptyContent(
 
         if (state.showEmptyStateButton) {
             Spacer(Modifier.height(24.dp))
-            Button(
-                onClick = onAction,
+            PvButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 32.dp)
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Icon(Icons.Default.Navigation, null)
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(values.emptyStateButton))
-            }
+                    .padding(horizontal = 16.dp),
+                text = stringResource(values.emptyStateButton),
+                onClick = onAction,
+            )
         }
     }
 }

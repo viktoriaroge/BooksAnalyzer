@@ -8,12 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Navigation
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
+import com.viroge.booksanalyzer.ui.components.PvButton
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
 
 @Composable
@@ -76,18 +71,13 @@ fun LibraryEmptyScreen(
             )
 
             Spacer(Modifier.height(24.dp))
-            Button(
-                onClick = onAction,
+            PvButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 32.dp)
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Icon(Icons.Default.Navigation, null)
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(emptyStateValues.emptyStateButton))
-            }
+                    .padding(horizontal = 16.dp),
+                text = stringResource(emptyStateValues.emptyStateButton),
+                onClick = onAction,
+            )
         }
     }
 }

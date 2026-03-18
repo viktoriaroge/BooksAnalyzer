@@ -2,6 +2,7 @@ package com.viroge.booksanalyzer.ui.screens.books.search
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,13 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -30,14 +31,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
 import com.viroge.booksanalyzer.ui.components.PvBookSourceBadge
+import com.viroge.booksanalyzer.ui.components.PvButton
+import com.viroge.booksanalyzer.ui.components.PvButtonType
 import com.viroge.booksanalyzer.ui.components.PvItemCard
 import com.viroge.booksanalyzer.ui.components.PvLinearProgressIndicator
 import com.viroge.booksanalyzer.ui.components.PvTopAppBar
@@ -132,41 +139,18 @@ fun BookSearchScreen(
                 }
 
                 is SearchScreenState.Empty -> {
-                    Spacer(Modifier.height(height = 16.dp))
-                    Text(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        text = customAnnotatedString(screenState.emptyStateValues.noResultsText, state.query),
+                    EmptyState(
+                        state = state,
+                        values = screenState.emptyStateValues,
+                        onManualAdd = onManualAdd,
                     )
-
-                    Spacer(Modifier.height(height = 8.dp))
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        onClick = remember { { onManualAdd(state.query) } }) {
-                        Text(text = stringResource(screenState.emptyStateValues.manualButtonText))
-                    }
                 }
 
                 is SearchScreenState.Error -> {
-                    Spacer(Modifier.height(height = 16.dp))
-                    Text(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth(),
-                        text = stringResource(screenState.errorStateValues.errorMessage),
-                        color = MaterialTheme.colorScheme.error,
+                    ErrorState(
+                        values = screenState.errorStateValues,
+                        onRefresh = onRefresh,
                     )
-
-                    Spacer(Modifier.height(height = 8.dp))
-                    Button(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth(),
-                        onClick = onRefresh
-                    ) {
-                        Text(text = stringResource(screenState.errorStateValues.refreshButtonText))
-                    }
                 }
 
                 is SearchScreenState.Content -> {
@@ -323,38 +307,138 @@ private fun BooksList(
                 Spacer(Modifier.height(height = 8.dp))
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(errorStateValues.errorMessage),
+                    textAlign = TextAlign.Center,
+                    text = stringResource(errorStateValues.errorStateText),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error,
                 )
             }
 
-            Spacer(Modifier.height(height = 8.dp))
-            Text(text = stringResource(contentStateValues.additionalSuggestionText))
+            Spacer(Modifier.height(height = 24.dp))
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium,
+                text = stringResource(contentStateValues.additionalSuggestionText)
+            )
 
             if (canLoadMore) {
-                Spacer(Modifier.height(height = 8.dp))
-                Button(
-                    onClick = onLoadMore,
+                Spacer(Modifier.height(24.dp))
+                PvButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    buttonType = PvButtonType.Secondary,
+                    text =
+                        if (isLoadingMore) stringResource(contentStateValues.loadMoreInProgressButtonText)
+                        else stringResource(contentStateValues.loadMoreDefaultButtonText),
                     enabled = !isLoadingMore,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text =
-                            if (isLoadingMore) stringResource(contentStateValues.loadMoreInProgressButtonText)
-                            else stringResource(contentStateValues.loadMoreDefaultButtonText)
-                    )
-                }
+                    onClick = onLoadMore,
+                )
             }
 
-            Spacer(Modifier.height(height = 8.dp))
-            Button(
+            Spacer(Modifier.height(24.dp))
+            PvButton(
                 modifier = Modifier.fillMaxWidth(),
+                text = stringResource(contentStateValues.manualButtonText),
                 onClick = remember { { onManualAdd(query) } },
-            ) {
-                Text(text = stringResource(contentStateValues.manualButtonText))
-            }
+            )
 
-            Spacer(Modifier.height(height = 16.dp))
+            Spacer(Modifier.height(height = 24.dp))
         }
+    }
+}
+
+@Composable
+private fun EmptyState(
+    state: BookSearchUiState,
+    values: EmptyStateValues,
+    onManualAdd: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(height = 16.dp))
+        Image(
+            modifier = Modifier
+                .size(170.dp)
+                .padding(horizontal = 24.dp),
+            painter = painterResource(R.drawable.ic_default_book),
+            contentDescription = "",
+            contentScale = ContentScale.FillWidth,
+        )
+
+        Text(
+            modifier = Modifier.padding(horizontal = 32.dp),
+            text = stringResource(values.emptyStateTitle),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        Spacer(Modifier.height(height = 24.dp))
+        Text(
+            modifier = Modifier.padding(horizontal = 32.dp),
+            text = customAnnotatedString(values.emptyStateText, state.query),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        Spacer(Modifier.height(24.dp))
+        PvButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            text = stringResource(values.emptyStateButton),
+            onClick = remember { { onManualAdd(state.query) } },
+        )
+    }
+}
+
+@Composable
+private fun ErrorState(
+    values: ErrorStateValues,
+    onRefresh: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(height = 16.dp))
+        Image(
+            modifier = Modifier
+                .size(170.dp)
+                .padding(horizontal = 24.dp),
+            painter = painterResource(R.drawable.ic_default_book),
+            contentDescription = "",
+            contentScale = ContentScale.FillWidth,
+        )
+
+        Text(
+            modifier = Modifier.padding(horizontal = 32.dp),
+            text = stringResource(values.errorStateTitle),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        Spacer(Modifier.height(height = 24.dp))
+        Text(
+            modifier = Modifier.padding(horizontal = 32.dp),
+            text = customAnnotatedString(values.errorStateText),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        Spacer(Modifier.height(24.dp))
+        PvButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            buttonType = PvButtonType.Error,
+            text = stringResource(values.errorStateButton),
+            onClick = onRefresh,
+        )
     }
 }

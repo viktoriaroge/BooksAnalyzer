@@ -77,13 +77,15 @@ data class SearchHistoryDialogValues(
 )
 
 data class ErrorStateValues(
-    @param:StringRes val errorMessage: Int = R.string.empty_text,
-    @param:StringRes val refreshButtonText: Int = R.string.empty_text,
+    @param:StringRes val errorStateTitle: Int = R.string.empty_text,
+    @param:StringRes val errorStateText: Int = R.string.empty_text,
+    @param:StringRes val errorStateButton: Int = R.string.empty_text,
 )
 
 data class EmptyStateValues(
-    @param:StringRes val noResultsText: Int = R.string.empty_text,
-    @param:StringRes val manualButtonText: Int = R.string.empty_text,
+    @param:StringRes val emptyStateTitle: Int = R.string.empty_text,
+    @param:StringRes val emptyStateText: Int = R.string.empty_text,
+    @param:StringRes val emptyStateButton: Int = R.string.empty_text,
 )
 
 data class ContentStateValues(
