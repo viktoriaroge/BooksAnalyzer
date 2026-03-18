@@ -11,7 +11,7 @@ data class RecentlyDeletedUiState(
 data class RecentlyDeletedScreenValues(
     @param:StringRes val screenName: Int = R.string.empty_text,
     @param:StringRes val emptyStateTitle: Int = R.string.empty_text,
-    @param:StringRes val emptyStateSubtitle: Int = R.string.empty_text,
+    @param:StringRes val emptyStateText: Int = R.string.empty_text,
     @param:StringRes val sourceLabel: Int = R.string.empty_text,
     @param:StringRes val restoreDialogTitle: Int = R.string.empty_text,
     @param:StringRes val restoreDialogText: Int = R.string.empty_text,

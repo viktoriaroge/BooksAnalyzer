@@ -12,7 +12,7 @@ class RecentlyDeletedBookMapper @Inject constructor() {
     fun getScreenValues(): RecentlyDeletedScreenValues = RecentlyDeletedScreenValues(
         screenName = R.string.recently_deleted_screen_name,
         emptyStateTitle = R.string.recently_deleted_screen_empty_state_title,
-        emptyStateSubtitle = R.string.recently_deleted_screen_empty_state_subtitle,
+        emptyStateText = R.string.recently_deleted_screen_empty_state_subtitle,
         sourceLabel = R.string.recently_deleted_screen_source_label,
         restoreDialogTitle = R.string.recently_deleted_screen_restore_dialog_title,
         restoreDialogText = R.string.recently_deleted_screen_restore_dialog_text,
@@ -20,16 +20,13 @@ class RecentlyDeletedBookMapper @Inject constructor() {
         cancelButtonLabel = R.string.recently_deleted_screen_restore_dialog_cancel_button_label,
     )
 
-    fun map(books: List<Book>): List<RecentlyDeletedBookState> {
-        return books.map { book ->
+    fun map(books: List<Book>): List<RecentlyDeletedBookState> = books
+        .map { book ->
             RecentlyDeletedBookState(
                 id = book.id,
                 title = book.title,
                 authors = book.authors.joinToString(separator = ", "),
-                metadata = listOfNotNull(
-                    book.publishedYear?.toString(),
-                    book.isbn13,
-                ).joinToString(separator = " • "),
+                metadata = listOfNotNull(book.publishedYear, book.isbn13).joinToString(separator = " • "),
                 coverUrl = book.coverUrl,
                 coverHeaders = book.coverRequestHeaders,
                 sourceBadgeTextRes = when (book.source) {
@@ -39,5 +36,4 @@ class RecentlyDeletedBookMapper @Inject constructor() {
                 },
             )
         }
-    }
 }

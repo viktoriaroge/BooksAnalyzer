@@ -17,7 +17,6 @@
 
 ![Offline First](https://img.shields.io/badge/architecture-Offline--First-important)
 ![Min API](https://img.shields.io/badge/minSdk-24-brightgreen)
-![License](https://img.shields.io/badge/license-MIT-purple)
 
 
 Books Analyzer is an offline-first Android application designed to help readers and writers track, analyze, and reflect on their reading in a structured, private, and intentional way.

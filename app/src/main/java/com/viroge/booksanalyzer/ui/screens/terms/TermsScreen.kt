@@ -58,7 +58,7 @@ fun TermsScreen(
                 .verticalScroll(rememberScrollState()),
         ) {
 
-            Spacer(Modifier.height(height = 24.dp))
+            Spacer(Modifier.height(height = 8.dp))
 
             // All entries:
             PvItemCard(

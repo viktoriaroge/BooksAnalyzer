@@ -131,7 +131,7 @@
 
     <string name="recently_deleted_screen_name">Books in Exile</string>
     <string name="recently_deleted_screen_empty_state_title">The Exile is Empty</string>
-    <string name="recently_deleted_screen_empty_state_subtitle">No stories currently dwell in the shadows. If you sever a PageVow, the book will wait here for 7 days… just in case you change your heart.</string>
+    <string name="recently_deleted_screen_empty_state_subtitle">No stories currently dwell in the shadows. \n\nIf you sever a {spe}PageVow{/spe}, the Tome will wait here for 7 days… just in case you change your heart.</string>
     <string name="recently_deleted_screen_source_label">Origin:</string>
     <string name="recently_deleted_screen_restore_dialog_title">End the Exile?</string>
     <string name="recently_deleted_screen_restore_dialog_text">Do you wish to reclaim {spe}%1$s{/spe} and return it to your chronicle?</string>
