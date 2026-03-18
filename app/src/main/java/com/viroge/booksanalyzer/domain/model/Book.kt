@@ -10,6 +10,7 @@ data class Book(
     val publishedYear: String? = null,
     val isbn13: String? = null,
     val isbn10: String? = null,
+    val originalCoverUrl: String? = null,
     val coverUrl: String? = null,
     val coverRequestHeaders: Map<String, String>,
     val createdAtEpochMs: Long,

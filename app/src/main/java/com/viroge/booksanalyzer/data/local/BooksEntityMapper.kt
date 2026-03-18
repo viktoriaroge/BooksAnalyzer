@@ -34,6 +34,7 @@ class BooksEntityMapper @Inject constructor() {
         publishedYear = entity.publishedYear,
         isbn13 = entity.isbn13,
         isbn10 = entity.isbn10,
+        originalCoverUrl = entity.originalCoverUrl,
         coverUrl = entity.coverUrl,
         coverRequestHeaders = headers,
         createdAtEpochMs = entity.createdAtEpochMs,

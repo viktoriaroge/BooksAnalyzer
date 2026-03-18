@@ -43,6 +43,9 @@ data class BookEntity(
     @ColumnInfo(name = "isbn10")
     val isbn10: String? = null,
 
+    @ColumnInfo(name = "originalCoverUrl")
+    val originalCoverUrl: String? = null,
+
     @ColumnInfo(name = "coverUrl")
     val coverUrl: String? = null,
 
