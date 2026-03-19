@@ -75,6 +75,7 @@ fun LibraryScreen(
     Scaffold(
         topBar = {
             PvTopAppBar(
+                showLogo = true,
                 title = stringResource(values.screenName),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = appBarColor,
