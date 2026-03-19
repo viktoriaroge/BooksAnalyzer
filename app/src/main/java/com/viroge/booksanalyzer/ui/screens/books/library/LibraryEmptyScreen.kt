@@ -34,7 +34,10 @@ fun LibraryEmptyScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            PvTopAppBar(title = stringResource(screenValues.screenName))
+            PvTopAppBar(
+                showLogo = true,
+                title = stringResource(screenValues.screenName),
+            )
         },
     ) { screenPadding ->
 
