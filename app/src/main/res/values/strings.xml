@@ -85,7 +85,7 @@
     <string name="search_screen_name">Discover Stories</string>
     <string name="search_screen_search_field_hint">Seek by title, author, or ISBN</string>
     <string name="search_screen_error_title">The Connection Fades</string>
-    <string name="search_screen_error_message_unknown">Some archives remain sealed to our call. A mystery for another time.</string>
+    <string name="search_screen_error_message_unknown">Some archives remain sealed to our call. \nA mystery for another time.</string>
     <string name="search_screen_error_message_no_connection">The path is obscured. Verify your tether to the World Wide Web.</string>
     <string name="search_screen_refresh_button">Re-Invoke</string>
     <string name="search_screen_no_results_error_title">The Oracles are Silent</string>

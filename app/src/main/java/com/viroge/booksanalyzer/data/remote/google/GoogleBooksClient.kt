@@ -10,7 +10,7 @@ class GoogleBooksClient(
 ) {
 
     companion object {
-        const val ITEMS_PER_PAGE = 40 // max allowed by API
+        const val ITEMS_PER_PAGE = 10 // max allowed by API is 40
     }
 
     suspend fun search(

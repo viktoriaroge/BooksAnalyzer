@@ -16,6 +16,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -42,6 +43,10 @@ object NetworkModule {
         googleBooksMapper: GoogleBooksMapper,
     ): Retrofit {
         val okHttp = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(false)
             .addInterceptor(Interceptor { chain ->
                 // NOTE: Google Books API authentication is multi-layered. :)
                 // It requires the package name and the SHA1 hash as headers.
@@ -72,6 +77,10 @@ object NetworkModule {
         openLibraryMapper: OpenLibraryMapper,
     ): Retrofit {
         val okHttp = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(false)
             .addInterceptor(Interceptor { chain ->
                 // NOTE: Adding a user email in the header helps us get more allowed requests per second.
                 // For Open Library API that raises our requests from 1 to 3 per second.
