@@ -4,10 +4,31 @@ sealed class AppNetworkError(
     message: String? = null,
     cause: Throwable? = null,
 ) : Exception(message, cause) {
+    class Http(
+        val code: Int,
+        val body: String?,
+        val source: ApiSource,
+    ) : AppNetworkError()
 
-    data class Http(val code: Int, val body: String? = null) : AppNetworkError()
-    data class Parse(val raw: String? = null) : AppNetworkError()
-    data class Unknown(val t: Throwable) : AppNetworkError(cause = t)
-    object NoConnection : AppNetworkError()
-    object Timeout : AppNetworkError()
+    class Timeout(
+        val source: ApiSource,
+    ) : AppNetworkError()
+
+    class NoConnection : AppNetworkError()
+    class Security(
+        val source: ApiSource,
+    ) : AppNetworkError()
+
+    class Cancelled(
+        val source: ApiSource,
+    ) : AppNetworkError()
+
+    class Unknown(
+        val origin: Throwable,
+        val source: ApiSource,
+    ) : AppNetworkError()
+}
+
+enum class ApiSource {
+    N_A, GOOGLE_BOOKS, OPEN_LIBRARY
 }

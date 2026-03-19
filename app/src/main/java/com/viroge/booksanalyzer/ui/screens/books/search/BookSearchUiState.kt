@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.ui.screens.books.search
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import com.viroge.booksanalyzer.R
+import com.viroge.booksanalyzer.ui.common.util.UiText
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
 @Immutable
@@ -90,7 +91,7 @@ data class SearchHistoryDialogValues(
 @Immutable
 data class ErrorStateValues(
     @param:StringRes val errorStateTitle: Int = R.string.empty_text,
-    @param:StringRes val errorStateText: Int = R.string.empty_text,
+    val errorStateText: UiText = UiText.StringResource(R.string.empty_text),
     @param:StringRes val errorStateButton: Int = R.string.empty_text,
 )
 

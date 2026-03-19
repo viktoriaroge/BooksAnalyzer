@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -313,7 +312,7 @@ private fun BooksList(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    text = stringResource(errorStateValues.errorStateText),
+                    text = customAnnotatedString(errorStateValues.errorStateText.asString()),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -435,7 +434,7 @@ private fun ErrorState(
         Spacer(Modifier.height(height = 24.dp))
         Text(
             modifier = Modifier.padding(horizontal = 32.dp),
-            text = customAnnotatedString(values.errorStateText),
+            text = customAnnotatedString(values.errorStateText.asString()),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,

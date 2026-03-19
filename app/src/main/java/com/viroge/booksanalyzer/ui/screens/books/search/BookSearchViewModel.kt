@@ -42,7 +42,7 @@ class BookSearchViewModel @Inject constructor(
     private val _mode = MutableStateFlow(SearchMode.ALL)
     private val _searchTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     private val _currentItems = MutableStateFlow<List<TempBook>>(emptyList())
-    private val _lastError = MutableStateFlow(SearchError.NONE)
+    private val _lastError: MutableStateFlow<SearchError> = MutableStateFlow(SearchError.None)
     private val _nextToken = MutableStateFlow<String?>(null)
     private val _loadingIndicator = MutableStateFlow(LoadingIndicator(canLoadMore = false, isLoadingMore = false))
 
@@ -106,11 +106,11 @@ class BookSearchViewModel @Inject constructor(
 
             SearchPhase.DisplayingResults -> when {
                 // Case A: No items and there was an error
-                items.isEmpty() && error != SearchError.NONE ->
+                items.isEmpty() && error != SearchError.None ->
                     SearchScreenState.Error(errorStateValues = mapper.getErrorStateValues(error))
 
                 // Case B: We have items but a new error occurred (e.g., during loadMore)
-                error != SearchError.NONE && items.isNotEmpty() -> SearchScreenState.Content(
+                error != SearchError.None && items.isNotEmpty() -> SearchScreenState.Content(
                     query = q,
                     items = items,
                     contentStateValues = mapper.getContentStateValues(),
@@ -203,7 +203,7 @@ class BookSearchViewModel @Inject constructor(
             _currentItems.value = mergeAndRank(_currentItems.value + result.items)
             _lastError.value = result.error
 
-            if (result.error != SearchError.NO_CONNECTION) _nextToken.value = result.nextToken
+            if (result.error !is SearchError.NoConnection) _nextToken.value = result.nextToken
 
             _loadingIndicator.update { it.copy(isLoadingMore = false) }
         }
@@ -211,7 +211,7 @@ class BookSearchViewModel @Inject constructor(
 
     private fun resetInternalData() {
         _currentItems.value = emptyList()
-        _lastError.value = SearchError.NONE
+        _lastError.value = SearchError.None
         _nextToken.value = null
         _loadingIndicator.update { it.copy(isLoadingMore = false, canLoadMore = false) }
     }

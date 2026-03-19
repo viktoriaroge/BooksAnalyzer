@@ -1,7 +1,8 @@
 package com.viroge.booksanalyzer.data.remote.google
 
-import com.viroge.booksanalyzer.data.remote.NetworkErrorMapper
 import com.viroge.booksanalyzer.data.common.util.BooksUtil.normalizeIsbn
+import com.viroge.booksanalyzer.data.remote.ApiSource
+import com.viroge.booksanalyzer.data.remote.NetworkErrorMapper
 import com.viroge.booksanalyzer.domain.model.SearchMode
 
 class GoogleBooksClient(
@@ -49,5 +50,5 @@ class GoogleBooksClient(
 
     private fun <T> Result<T>.mapError(): Result<T> = fold(
         onSuccess = { Result.success(value = it) },
-        onFailure = { Result.failure(exception = NetworkErrorMapper.map(it)) })
+        onFailure = { Result.failure(exception = NetworkErrorMapper.map(it, ApiSource.GOOGLE_BOOKS)) })
 }

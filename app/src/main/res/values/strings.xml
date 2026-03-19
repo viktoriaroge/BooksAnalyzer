@@ -86,7 +86,10 @@
     <string name="search_screen_search_field_hint">Seek by title, author, or ISBN</string>
     <string name="search_screen_error_title">The Connection Fades</string>
     <string name="search_screen_error_message_unknown">Some archives remain sealed to our call. \nA mystery for another time.</string>
-    <string name="search_screen_error_message_no_connection">The path is obscured. Verify your tether to the World Wide Web.</string>
+    <string name="search_screen_error_message_no_connection">The path is obscured. \nVerify your tether to the World Wide Web.</string>
+    <string name="search_screen_error_message_security_error">The connection to the library in \"{bol}%1$s{/bol}\" is not secure. \nTo protect your data, the ritual has been halted.</string>
+    <string name="search_screen_error_message_rate_limit">The Scribes in \"{bol}%1$s{/bol}\" are overwhelmed. \nPlease wait a moment.</string>
+    <string name="search_screen_error_message_timeout">The Oracles are slow to respond for \"{bol}%1$s{/bol}\". \nPerhaps, try that one again later.</string>
     <string name="search_screen_refresh_button">Re-Invoke</string>
     <string name="search_screen_no_results_error_title">The Oracles are Silent</string>
     <string name="search_screen_no_results_error_text">No records were found for \n\"{err}%1$s{/err}\". \n\nPerhaps it remains unwritten?</string>

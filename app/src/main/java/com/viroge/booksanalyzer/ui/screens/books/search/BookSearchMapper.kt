@@ -5,6 +5,7 @@ import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.SearchMode
 import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.usecase.search.SearchError
+import com.viroge.booksanalyzer.ui.common.util.UiText
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import javax.inject.Inject
@@ -33,9 +34,13 @@ class BookSearchMapper @Inject constructor() {
     fun getErrorStateValues(error: SearchError): ErrorStateValues = ErrorStateValues(
         errorStateTitle = R.string.search_screen_error_title,
         errorStateText = when (error) {
-            SearchError.NO_CONNECTION -> R.string.search_screen_error_message_no_connection
-            SearchError.UNKNOWN -> R.string.search_screen_error_message_unknown
-            SearchError.NONE -> R.string.empty_text
+            is SearchError.Timeout -> UiText.StringResource(R.string.search_screen_error_message_timeout, error.apiSource)
+            is SearchError.RateLimit -> UiText.StringResource(R.string.search_screen_error_message_rate_limit, error.apiSource)
+            is SearchError.SecurityError -> UiText.StringResource(R.string.search_screen_error_message_security_error, error.apiSource)
+            is SearchError.NoConnection -> UiText.StringResource(R.string.search_screen_error_message_no_connection) // no source
+            is SearchError.Unknown -> UiText.StringResource(R.string.search_screen_error_message_unknown) // no source
+            is SearchError.Cancelled -> UiText.StringResource(R.string.empty_text) // Ignore, show nothing
+            is SearchError.None -> UiText.StringResource(R.string.empty_text) // No error, show nothing
         },
         errorStateButton = R.string.search_screen_refresh_button,
     )
