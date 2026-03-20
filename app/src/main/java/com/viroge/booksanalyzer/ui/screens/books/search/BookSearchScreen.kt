@@ -32,7 +32,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -75,6 +80,22 @@ fun BookSearchScreen(
     val appScaffoldPadding = LocalAppScaffoldPadding.current
     val focusManager = LocalFocusManager.current
 
+    var localQuery by remember { mutableStateOf(state.query) }
+    LaunchedEffect(state.query) {
+        if (localQuery != state.query) {
+            localQuery = state.query
+        }
+    }
+
+    val keyboardType by remember {
+        derivedStateOf {
+            when (state.mode) {
+                BookSearchModeUi.Isbn -> KeyboardType.Number
+                else -> KeyboardType.Text
+            }
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = { PvTopAppBar(title = stringResource(state.screenValues.screenName)) },
@@ -93,13 +114,16 @@ fun BookSearchScreen(
             )
 
             OutlinedTextField(
-                value = state.query,
-                onValueChange = { onQueryChanged(it) },
+                value = localQuery,
+                onValueChange = {
+                    localQuery = it
+                    onQueryChanged(it)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(text = stringResource(state.screenValues.searchFieldHint)) },
                 singleLine = true,
                 trailingIcon = {
-                    IconButton(onClick = remember { { onQueryChanged("") } }) {
+                    IconButton(onClick = { onQueryChanged("") }) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = null,
@@ -108,20 +132,12 @@ fun BookSearchScreen(
                 },
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Search,
-                    keyboardType = when (state.mode) {
-                        BookSearchModeUi.All,
-                        BookSearchModeUi.Author,
-                        BookSearchModeUi.Title -> KeyboardType.Text
-
-                        BookSearchModeUi.Isbn -> KeyboardType.Number
-                    }
+                    keyboardType = keyboardType,
                 ),
                 keyboardActions = KeyboardActions(
-                    onSearch = remember {
-                        {
-                            focusManager.clearFocus()
-                            onRefresh()
-                        }
+                    onSearch = {
+                        focusManager.clearFocus()
+                        onRefresh()
                     }
                 ),
             )
@@ -162,18 +178,15 @@ fun BookSearchScreen(
                         contentStateValues = screenState.contentStateValues,
                         sharedTransitionScope = sharedTransitionScope,
                         animatedVisibilityScope = animatedVisibilityScope,
-                        query = state.query,
                         items = screenState.items,
-                        onSelect = remember {
-                            { book ->
-                                focusManager.clearFocus()
-                                onSelectBook(book)
-                            }
+                        onSelect = { book ->
+                            focusManager.clearFocus()
+                            onSelectBook(book)
                         },
                         canLoadMore = state.canLoadMore,
                         isLoadingMore = state.isLoadingMore,
                         onLoadMore = onLoadMore,
-                        onManualAdd = onManualAdd,
+                        onManualAdd = { onManualAdd(state.query) },
 
                         showErrorMessage = screenState.showError,
                         errorStateValues = screenState.errorStateValues,
@@ -198,7 +211,7 @@ fun SearchModeChips(
         options.forEach { mode ->
             FilterChip(
                 selected = selected == mode,
-                onClick = remember { { onSelect(mode) } },
+                onClick = { onSelect(mode) },
                 label = { Text(text = mode.label.asString()) },
             )
         }
@@ -210,17 +223,23 @@ private fun BooksList(
     contentStateValues: ContentStateValues,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    query: String,
     items: List<SearchBookDataState>,
     onSelect: (SearchBookDataState) -> Unit,
     canLoadMore: Boolean,
     isLoadingMore: Boolean,
     onLoadMore: () -> Unit,
-    onManualAdd: (String) -> Unit,
+    onManualAdd: () -> Unit,
 
     showErrorMessage: Boolean,
     errorStateValues: ErrorStateValues,
 ) {
+    val loadMoreTextRes by remember {
+        derivedStateOf {
+            if (isLoadingMore) contentStateValues.loadMoreInProgressButtonText
+            else contentStateValues.loadMoreDefaultButtonText
+        }
+    }
+
     LazyColumn(
         modifier = Modifier.padding(horizontal = 16.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
@@ -233,7 +252,7 @@ private fun BooksList(
         ) { book ->
             PvItemCard(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = remember { { onSelect(book) } },
+                onClick = { onSelect(book) },
             ) {
                 Row(
                     modifier = Modifier.padding(all = 12.dp),
@@ -329,9 +348,7 @@ private fun BooksList(
                 Spacer(Modifier.height(24.dp))
                 PvButton(
                     buttonType = PvButtonType.Secondary,
-                    text =
-                        if (isLoadingMore) stringResource(contentStateValues.loadMoreInProgressButtonText)
-                        else stringResource(contentStateValues.loadMoreDefaultButtonText),
+                    text = stringResource(loadMoreTextRes),
                     icon = Icons.Default.Download,
                     enabled = !isLoadingMore,
                     onClick = onLoadMore,
@@ -342,7 +359,7 @@ private fun BooksList(
             PvButton(
                 text = stringResource(contentStateValues.manualButtonText),
                 icon = Icons.Default.EditNote,
-                onClick = remember { { onManualAdd(query) } },
+                onClick = onManualAdd,
             )
 
             Spacer(Modifier.height(height = 24.dp))
@@ -394,7 +411,7 @@ private fun EmptyState(
             modifier = Modifier.padding(horizontal = 16.dp),
             text = stringResource(values.emptyStateButton),
             icon = Icons.Default.EditNote,
-            onClick = remember { { onManualAdd(state.query) } },
+            onClick = { onManualAdd(state.query) },
         )
 
         Spacer(Modifier.height(24.dp))
