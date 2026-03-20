@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.library.collection
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
@@ -16,7 +17,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -42,9 +45,9 @@ class CollectionViewModel @Inject constructor(
     val filters: StateFlow<CollectionFilters> = combine(
         _statusFilter,
         _sort
-    ) { status, sort ->
-        CollectionFilters(status, sort)
-    }.flowOn(Dispatchers.Default)
+    ) { status, sort -> CollectionFilters(status, sort) }
+        .flowOn(Dispatchers.Default)
+        .catch { _ -> Log.e("CollectionViewModel", "Failed to prepare filters.") } // TODO: Send error to UI
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
@@ -79,7 +82,8 @@ class CollectionViewModel @Inject constructor(
                     showEmptyStateButton = !hasAnyBooks,
                 )
             }
-    }.flowOn(Dispatchers.Default)
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
         .flatMapLatest { it }
 
     val state: StateFlow<CollectionUiState> = screenState
@@ -89,7 +93,9 @@ class CollectionViewModel @Inject constructor(
                 screenState = state,
             )
         }
+        .distinctUntilChanged()
         .flowOn(Dispatchers.Default)
+        .catch { _ -> Log.e("CollectionViewModel", "Failed to prepare ui state.") } // TODO: Send error to UI
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),

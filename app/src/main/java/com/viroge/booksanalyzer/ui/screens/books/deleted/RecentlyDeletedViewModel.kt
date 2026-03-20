@@ -5,12 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.usecase.book.GetRecentlyDeletedBooksUseCase
 import com.viroge.booksanalyzer.domain.usecase.book.RestoreBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,7 +36,8 @@ class RecentlyDeletedViewModel @Inject constructor(
             )
         }
         .distinctUntilChanged()
-        .catch { _ -> _message.emit("Failed to retrieve Books pending deletion.") }
+        .flowOn(Dispatchers.Default)
+        .catch { _ -> _message.emit("Failed to retrieve Books pending deletion.") } // TODO: Extract string error
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -44,7 +47,7 @@ class RecentlyDeletedViewModel @Inject constructor(
     fun restoreBook(bookId: String) {
         viewModelScope.launch {
             restoreBookUseCase(bookId)
-                .onFailure { _ -> _message.emit("Failed to restore book.") }
+                .onFailure { _ -> _message.emit("Failed to restore book.") } // TODO: Extract string error
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
@@ -69,7 +71,6 @@ class BookDetailsViewModel @Inject constructor(
                 needsMarking = false
             }
         }
-        .catch { _ -> _events.emit(BookDetailsEvent.Error(DetailsErrorType.LOADING_BOOK_FAILED)) }
         .flowOn(Dispatchers.Default)
 
     val state: StateFlow<BookDetailsUiState> = combine(
@@ -96,7 +97,9 @@ class BookDetailsViewModel @Inject constructor(
             )
         }
         BookDetailsUiState(screenState)
-    }.flowOn(Dispatchers.Default)
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .catch { _ -> _events.emit(BookDetailsEvent.Error(DetailsErrorType.LOADING_BOOK_FAILED)) }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),

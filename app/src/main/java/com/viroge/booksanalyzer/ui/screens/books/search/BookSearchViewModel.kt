@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.search
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.common.util.BooksUtil.mergeAndRank
@@ -19,7 +20,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -84,7 +87,9 @@ class BookSearchViewModel @Inject constructor(
                 // Now that _currentItems is updated, we signal the UI to display:
                 emit(SearchPhase.DisplayingResults)
             }
-        }.flowOn(Dispatchers.Default)
+        }
+        .distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
 
     private val screenState: Flow<SearchScreenState> = combine(
         _query,
@@ -132,7 +137,8 @@ class BookSearchViewModel @Inject constructor(
                 )
             }
         }
-    }.flowOn(Dispatchers.Default)
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
 
     val state: StateFlow<BookSearchUiState> = combine(
         getSearchHistoryUseCase(),
@@ -151,7 +157,9 @@ class BookSearchViewModel @Inject constructor(
             screenState = screenState,
             screenValues = mapper.getScreenValues(),
         )
-    }.flowOn(Dispatchers.Default)
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .catch { _ -> Log.e("BookSearchViewModel", "Failed to prepare ui state.") } // TODO: Send error to UI
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

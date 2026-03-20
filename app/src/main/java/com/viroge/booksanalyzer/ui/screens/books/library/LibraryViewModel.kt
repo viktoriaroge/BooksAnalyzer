@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.library
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
@@ -13,6 +14,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -47,7 +50,9 @@ class LibraryViewModel @Inject constructor(
                         currentBooks = data.currentlyReading.map { mapper.mapToData(it) },
                     )
                 }
-            }.flowOn(Dispatchers.Default)
+            }
+            .distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
 
     val state: StateFlow<LibraryUiState> = screenState
         .map { state ->
@@ -56,7 +61,9 @@ class LibraryViewModel @Inject constructor(
                 screenState = state,
             )
         }
+        .distinctUntilChanged()
         .flowOn(Dispatchers.Default)
+        .catch { _ -> Log.e("LibraryViewModel", "Failed to prepare ui state.") } // TODO: Send error to UI
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),

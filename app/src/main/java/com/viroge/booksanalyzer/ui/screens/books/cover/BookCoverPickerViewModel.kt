@@ -1,15 +1,20 @@
 package com.viroge.booksanalyzer.ui.screens.books.cover
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.model.BookSource
+import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverCandidatesUseCase
 import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverHeadersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -29,11 +34,14 @@ class CoverPickerViewModel @Inject constructor(
             screenState = innerState,
             coverState = pickerState,
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-        initialValue = BookCoverPickerUiState()
-    )
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .catch { _ -> Log.e("CoverPickerViewModel", "Failed to prepare ui state.") } // TODO: Send error to UI
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            initialValue = BookCoverPickerUiState()
+        )
 
     fun openCoverPicker(
         originalCoverUrl: String?,

@@ -1,12 +1,17 @@
 package com.viroge.booksanalyzer.ui.screens.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -32,6 +37,9 @@ class SettingsViewModel @Inject constructor(
             val version = BuildConfig.VERSION_NAME
             mapper.map(types, version)
         }
+        .distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .catch { _ -> Log.e("SettingsViewModel", "Failed to prepare ui state.") } // TODO: Send error to UI
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

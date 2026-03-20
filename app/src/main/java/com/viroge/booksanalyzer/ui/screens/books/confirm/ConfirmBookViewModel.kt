@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.confirm
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.BookSource
@@ -9,11 +10,15 @@ import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.book.SaveBookUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -60,11 +65,14 @@ class ConfirmBookViewModel @Inject constructor(
             screenState = newState,
             bookData = selectedBook?.let { mapper.mapToDataState(it, pickerState.selectedCandidate) },
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-        initialValue = ConfirmBookUiState()
-    )
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .catch { _ -> Log.e("ConfirmBookViewModel", "Failed to prepare ui state.") } // TODO: Send error to UI
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            initialValue = ConfirmBookUiState()
+        )
 
     init {
         needsInitializing = true
