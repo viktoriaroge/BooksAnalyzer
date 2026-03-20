@@ -36,13 +36,11 @@ class BookSelectionStateProvider @Inject constructor() {
     fun selectBookSeed(
         bookId: String,
         bookCoverUrl: String,
-        bookCoverRequestHeaders: Map<String, String>,
         bookAnimationKey: String,
     ) {
         _selectedBookSeed.value = BookSeed(
             id = bookId,
             url = bookCoverUrl,
-            headers = bookCoverRequestHeaders,
             animationKey = bookAnimationKey,
         )
     }
@@ -59,6 +57,5 @@ class BookSelectionStateProvider @Inject constructor() {
 data class BookSeed(
     val id: String,
     val url: String,
-    val headers: Map<String, String>,
     val animationKey: String,
 )

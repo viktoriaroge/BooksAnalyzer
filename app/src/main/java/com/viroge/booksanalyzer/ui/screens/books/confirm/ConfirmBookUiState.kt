@@ -29,7 +29,6 @@ data class ConfirmBookDataState(
     val isbn13: String?,
     val source: BookSourceUi,
     val url: String?,
-    val headers: Map<String, String>,
 )
 
 @Immutable

@@ -1,6 +1,5 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
@@ -110,7 +109,6 @@ class BookDetailsViewModel @Inject constructor(
                     bookData = BookDetailsDataState(
                         id = bookSelectionStateProvider.getSelectedBookSeed()?.id ?: "",
                         url = bookSelectionStateProvider.getSelectedBookSeed()?.url ?: "",
-                        headers = bookSelectionStateProvider.getSelectedBookSeed()?.headers ?: emptyMap(),
                         animationKey = bookSelectionStateProvider.getSelectedBookSeed()?.animationKey ?: "",
                     ),
                 )

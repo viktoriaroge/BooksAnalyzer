@@ -30,9 +30,10 @@ class OpenLibraryMapper @Inject constructor() {
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = coverUrl,
-            coverRequestHeaders = getHeaders(),
         )
     }
+
+    fun getBaseUrl(): String = "https://openlibrary.org/"
 
     fun getHeaders(): Map<String, String> = mapOf(
         "Accept" to "application/json",

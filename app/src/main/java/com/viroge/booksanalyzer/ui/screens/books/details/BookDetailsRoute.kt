@@ -116,7 +116,6 @@ fun BookDetailsRoute(
                     {
                         coverPickerVM.openCoverPicker(
                             originalCoverUrl = bookData.url,
-                            originalCoverRequestHeaders = bookData.headers,
                             source = bookData.source.domainSource,
                             isbn13 = bookData.isbn13,
                         )

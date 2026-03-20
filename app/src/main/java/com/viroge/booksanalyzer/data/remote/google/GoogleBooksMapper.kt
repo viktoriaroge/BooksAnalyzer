@@ -37,9 +37,10 @@ class GoogleBooksMapper @Inject constructor() {
             isbn13 = isbn13,
             isbn10 = isbn10,
             coverUrl = coverUrl,
-            coverRequestHeaders = getHeaders(),
         )
     }
+
+    fun getBaseUrl(): String = "https://www.googleapis.com/books/v1/"
 
     fun getHeaders(): Map<String, String> = mapOf(
         "Accept" to "application/json",

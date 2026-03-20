@@ -1,12 +1,10 @@
 package com.viroge.booksanalyzer.domain.usecase.bookcover
 
-import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import com.viroge.booksanalyzer.domain.model.BookSource
+import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import javax.inject.Inject
 
-class GetBookCoverCandidatesUseCase @Inject constructor(
-    private val getCoverHeaders: GetBookCoverHeadersUseCase,
-) {
+class GetBookCoverCandidatesUseCase @Inject constructor() {
 
     private val protocolRegex = Regex("^http://", RegexOption.IGNORE_CASE)
 
@@ -21,14 +19,9 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
         else listOf(getDefaultCover()) + candidates
     }
 
-    private fun containsDefaultCover(list: List<BookCoverCandidate>): Boolean = list.any {
-        it.url.isEmpty() && it.headers.isEmpty()
-    }
+    private fun containsDefaultCover(list: List<BookCoverCandidate>): Boolean = list.any { it.url.isEmpty() }
 
-    private fun getDefaultCover(): BookCoverCandidate = BookCoverCandidate(
-        url = "",
-        headers = emptyMap(),
-    )
+    private fun getDefaultCover(): BookCoverCandidate = BookCoverCandidate(url = "")
 
     /**
      * Get a list of cover candidates. Each candidate contains a pair of data:
@@ -63,8 +56,7 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
         return list.distinct().map { attachCoverHeaders(url = it) }
     }
 
-    private fun attachCoverHeaders(url: String): BookCoverCandidate =
-        BookCoverCandidate(url = url, headers = getCoverHeaders(url))
+    private fun attachCoverHeaders(url: String): BookCoverCandidate = BookCoverCandidate(url = url)
 
     private fun googleUpgrades(url: String): List<String> {
         // Upgrades only if it starts with http:// (case-insensitive)

@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 fun PvBookCoverHeader(
     modifier: Modifier = Modifier,
     imageUrl: String?,
-    headersForBookCover: Map<String, String>,
     // Animation parameters:
     animate: Boolean = false,
     animationKey: String? = null,
@@ -36,7 +35,6 @@ fun PvBookCoverHeader(
         PvHazyBookCoverBackground(
             headerCoverSize = headerCoverSize,
             imageUrl = imageUrl,
-            headersForBookCover = headersForBookCover,
         )
 
         // Cover image:
@@ -45,7 +43,6 @@ fun PvBookCoverHeader(
                 .align(Alignment.Center)
                 .padding(top = headerCoverPadding),
             url = imageUrl,
-            requestHeaders = headersForBookCover,
             imageSize = PvBookCoverImageSize.XLarge,
             // Animation parameters:
             animate = animate,

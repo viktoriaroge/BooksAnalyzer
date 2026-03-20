@@ -16,7 +16,6 @@ fun PvHazyBookCoverBackground(
     modifier: Modifier = Modifier,
     headerCoverSize: PvBookCoverImageSize,
     imageUrl: String?,
-    headersForBookCover: Map<String, String>,
     alphaOverlayValue: Float = 0.4f,
 ) {
     val isDarkTheme = isSystemInDarkTheme()
@@ -35,7 +34,6 @@ fun PvHazyBookCoverBackground(
             },
         contentScale = ContentScale.Crop,
         url = imageUrl,
-        requestHeaders = headersForBookCover,
         imageSize = headerCoverSize,
     )
 }

@@ -93,7 +93,6 @@ class ConfirmBookViewModel @Inject constructor(
                     bookSelectionStateProvider.selectBookSeed(
                         bookId = book.id,
                         bookCoverUrl = book.coverUrl ?: "",
-                        bookCoverRequestHeaders = book.coverRequestHeaders,
                         bookAnimationKey = BookTransitionKey.calculate(
                             title = book.title,
                             authors = book.authors,
@@ -149,7 +148,6 @@ class ConfirmBookViewModel @Inject constructor(
                     bookSelectionStateProvider.selectBookSeed(
                         bookId = book.id,
                         bookCoverUrl = book.coverUrl ?: "",
-                        bookCoverRequestHeaders = book.coverRequestHeaders,
                         bookAnimationKey = BookTransitionKey.calculate(
                             title = book.title,
                             authors = book.authors,
@@ -183,7 +181,6 @@ class ConfirmBookViewModel @Inject constructor(
             year = editState.editYear,
             isbn13 = editState.editIsbn13,
             coverUrl = coverPickerStateProvider.getSelected()?.url,
-            coverRequestHeaders = coverPickerStateProvider.getSelected()?.headers,
         )
     }
 

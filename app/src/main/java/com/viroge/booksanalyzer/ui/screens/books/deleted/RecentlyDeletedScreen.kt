@@ -163,7 +163,6 @@ private fun BookItemCard(
         ) {
             PvBookCoverAsyncImage(
                 url = book.coverUrl,
-                requestHeaders = book.coverHeaders,
                 imageSize = PvBookCoverImageSize.XSmall,
             )
 

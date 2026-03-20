@@ -72,7 +72,6 @@ class BookSearchMapper @Inject constructor() {
         source = BookSourceUi.fromDomain(book.source),
         sourceId = book.sourceId,
         url = book.coverUrl,
-        headers = book.coverRequestHeaders ?: emptyMap(),
     )
 
     fun mapToTempBook(
@@ -86,7 +85,6 @@ class BookSearchMapper @Inject constructor() {
         isbn13 = book.isbn13,
         isbn10 = book.isbn10,
         coverUrl = book.url,
-        coverRequestHeaders = book.headers,
     )
 
     fun mapToTempBook(
@@ -120,7 +118,6 @@ class BookSearchMapper @Inject constructor() {
         },
         isbn10 = null,
         coverUrl = null,
-        coverRequestHeaders = null,
     )
 
     private fun normalizeForManualInput(

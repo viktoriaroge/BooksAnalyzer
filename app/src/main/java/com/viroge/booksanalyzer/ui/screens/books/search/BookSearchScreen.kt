@@ -242,7 +242,6 @@ private fun BooksList(
                 ) {
                     PvBookCoverAsyncImage(
                         url = book.url,
-                        requestHeaders = book.headers,
                         imageSize = PvBookCoverImageSize.XSmall,
                         // Animation parameters:
                         animate = true,

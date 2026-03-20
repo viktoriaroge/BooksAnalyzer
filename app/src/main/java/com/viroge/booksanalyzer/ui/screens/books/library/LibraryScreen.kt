@@ -111,7 +111,6 @@ fun LibraryScreen(
                         modifier = Modifier.align(Alignment.TopCenter),
                         headerCoverSize = PvBookCoverImageSize.XXLarge,
                         imageUrl = it.url,
-                        headersForBookCover = it.headers,
                     )
                 }
 
@@ -198,7 +197,6 @@ private fun CurrentBooksCarousel(
             ) {
                 PvBookCoverAsyncImage(
                     url = book.url,
-                    requestHeaders = book.headers,
                     imageSize = imageSize,
                     // Animation parameters:
                     animate = true,

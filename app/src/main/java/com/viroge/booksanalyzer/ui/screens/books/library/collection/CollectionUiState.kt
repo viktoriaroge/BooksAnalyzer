@@ -65,7 +65,6 @@ data class CollectionBookData(
     val isbn10: String?,
     val meta: String?,
     val url: String?,
-    val headers: Map<String, String>,
     val status: BookReadingStatusUi = BookReadingStatusUi.NotStarted,
     val source: BookSourceUi = BookSourceUi.Manual,
 )

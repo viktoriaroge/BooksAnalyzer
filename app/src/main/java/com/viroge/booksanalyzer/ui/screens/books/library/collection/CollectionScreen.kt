@@ -290,7 +290,6 @@ private fun BookRowCard(
 
             PvBookCoverAsyncImage(
                 url = book.url,
-                requestHeaders = book.headers,
                 imageSize = PvBookCoverImageSize.Small,
                 // Animation parameters:
                 animate = true,

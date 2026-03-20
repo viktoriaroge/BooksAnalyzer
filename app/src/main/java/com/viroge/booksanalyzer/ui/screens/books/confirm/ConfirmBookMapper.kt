@@ -40,6 +40,5 @@ class ConfirmBookMapper @Inject constructor() {
         isbn13 = book.isbn13,
         source = BookSourceUi.fromDomain(book.source),
         url = selectedCandidate?.url ?: book.coverUrl,
-        headers = selectedCandidate?.headers ?: book.coverRequestHeaders ?: emptyMap(),
     )
 }

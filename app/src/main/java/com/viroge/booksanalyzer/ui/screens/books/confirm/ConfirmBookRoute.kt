@@ -57,7 +57,6 @@ fun ConfirmBookRoute(
 
             coverPickerVM.openCoverPicker(
                 originalCoverUrl = bookData.url,
-                originalCoverRequestHeaders = bookData.headers,
                 source = bookData.source.domainSource,
                 isbn13 = bookData.isbn13,
             )
@@ -80,7 +79,6 @@ fun ConfirmBookRoute(
 
             coverPickerVM.openCoverPicker(
                 originalCoverUrl = tempBook.coverUrl,
-                originalCoverRequestHeaders = tempBook.coverRequestHeaders ?: emptyMap(),
                 source = tempBook.source,
                 isbn13 = tempBook.isbn13,
             )

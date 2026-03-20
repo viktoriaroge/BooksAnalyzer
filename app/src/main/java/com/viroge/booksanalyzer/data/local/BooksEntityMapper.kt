@@ -10,7 +10,7 @@ import javax.inject.Singleton
 @Singleton
 class BooksEntityMapper @Inject constructor() {
 
-    fun map(entity: BookEntity, headers: Map<String, String>): Book = Book(
+    fun map(entity: BookEntity): Book = Book(
         id = entity.bookId,
         sourceId = entity.sourceId,
         source = when {
@@ -36,7 +36,6 @@ class BooksEntityMapper @Inject constructor() {
         isbn10 = entity.isbn10,
         originalCoverUrl = entity.originalCoverUrl,
         coverUrl = entity.coverUrl,
-        coverRequestHeaders = headers,
         createdAtEpochMs = entity.createdAtEpochMs,
         lastOpenAtEpochMs = entity.lastOpenAtEpochMs,
         lastMarkedToDelete = entity.lastMarkedToDelete,

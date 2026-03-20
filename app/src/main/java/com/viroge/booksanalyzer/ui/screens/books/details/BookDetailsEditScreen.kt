@@ -96,7 +96,6 @@ fun BookDetailsEditScreen(
 
             PvBookCoverHeader(
                 imageUrl = book.url,
-                headersForBookCover = book.headers,
                 modifier = Modifier.fillMaxWidth(),
             )
 

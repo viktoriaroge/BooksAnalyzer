@@ -67,6 +67,4 @@ interface BooksRepository {
         query: String,
         pageToken: String?, // null = first page
     ): BooksPage
-
-    fun getBookCoverHeaders(url: String?): Map<String, String>
 }

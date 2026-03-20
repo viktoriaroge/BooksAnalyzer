@@ -1,6 +1,5 @@
 package com.viroge.booksanalyzer.ui.components.bookcover
 
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
@@ -19,14 +18,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import com.viroge.booksanalyzer.BooksAnalyzerApp
 import com.viroge.booksanalyzer.R
 
 @Composable
 fun PvBookCoverAsyncImage(
     modifier: Modifier = Modifier,
     url: String?,
-    requestHeaders: Map<String, String>,
     @DrawableRes defaultImageRes: Int = R.drawable.ic_empty_book_cover,
     imageSize: PvBookCoverImageSize = PvBookCoverImageSize.Small,
     contentScale: ContentScale = ContentScale.Crop,
@@ -58,7 +56,6 @@ fun PvBookCoverAsyncImage(
                             animatedVisibilityScope = animatedVisibilityScope
                         ),
                     url = url,
-                    requestHeaders = requestHeaders,
                     defaultImageRes = defaultImageRes,
                     contentScale = contentScale,
                 )
@@ -66,7 +63,6 @@ fun PvBookCoverAsyncImage(
         } else {
             PvAsyncImage(
                 url = url,
-                requestHeaders = requestHeaders,
                 defaultImageRes = defaultImageRes,
                 contentScale = contentScale,
             )
@@ -78,31 +74,18 @@ fun PvBookCoverAsyncImage(
 private fun PvAsyncImage(
     modifier: Modifier = Modifier,
     url: String?,
-    requestHeaders: Map<String, String>,
     @DrawableRes defaultImageRes: Int = R.drawable.ic_empty_book_cover,
     contentScale: ContentScale = ContentScale.Crop,
 ) {
+    val context = LocalContext.current
+    val myImageLoader = (context.applicationContext as BooksAnalyzerApp).imageLoader
+
     AsyncImage(
         modifier = modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(12.dp)),
-        model = ImageRequest.Builder(context = LocalContext.current)
-            .data(data = url)
-            .memoryCacheKey(url)
-            .placeholderMemoryCacheKey(url)
-            .let { chain ->
-                for ((name, value) in requestHeaders) {
-                    chain.addHeader(name, value)
-                }
-                chain
-            }
-            .crossfade(enable = true)
-            .listener(
-                onCancel = { Log.println(Log.DEBUG, "CommonAsyncImage", "---> Loading Canceled for: $url") },
-                onError = { _, _ -> Log.println(Log.DEBUG, "CommonAsyncImage", "---> Loading Failed for: $url") },
-                onSuccess = { _, _ -> Log.println(Log.DEBUG, "CommonAsyncImage", "---> Loading Succeeded for: $url") },
-            )
-            .build(),
+        model = url,
+        imageLoader = myImageLoader,
         error = painterResource(id = defaultImageRes),
         contentScale = contentScale,
         contentDescription = null,

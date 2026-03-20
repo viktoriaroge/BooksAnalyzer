@@ -28,7 +28,6 @@ class RecentlyDeletedBookMapper @Inject constructor() {
                 authors = book.authors.joinToString(separator = ", "),
                 metadata = listOfNotNull(book.publishedYear, book.isbn13).joinToString(separator = " • "),
                 coverUrl = book.coverUrl,
-                coverHeaders = book.coverRequestHeaders,
                 sourceBadgeTextRes = when (book.source) {
                     BookSource.GOOGLE_BOOKS -> R.string.book_source_short_google_books
                     BookSource.OPEN_LIBRARY -> R.string.book_source_short_open_library

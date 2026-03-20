@@ -29,6 +29,5 @@ data class RecentlyDeletedBookState(
     val authors: String,
     val metadata: String,
     val coverUrl: String?,
-    val coverHeaders: Map<String, String>,
     @param:StringRes val sourceBadgeTextRes: Int,
 )

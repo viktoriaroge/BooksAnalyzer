@@ -2,9 +2,7 @@ package com.viroge.booksanalyzer.domain.usecase
 
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverCandidatesUseCase
-import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverHeadersUseCase
 import io.mockk.every
-import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.Before
@@ -12,15 +10,10 @@ import org.junit.Test
 
 class GetBookCoverCandidatesUseCaseTest {
 
-    private val getCoverHeaders = mockk<GetBookCoverHeadersUseCase>()
     private lateinit var useCase: GetBookCoverCandidatesUseCase
 
     @Before
-    fun setup() {
-        useCase = GetBookCoverCandidatesUseCase(getCoverHeaders)
-        // Mock headers to return empty for simplicity
-        every { getCoverHeaders(any()) } returns emptyMap()
-    }
+    fun setup() {}
 
     @Test
     fun `should always return default empty cover at the first position`() {

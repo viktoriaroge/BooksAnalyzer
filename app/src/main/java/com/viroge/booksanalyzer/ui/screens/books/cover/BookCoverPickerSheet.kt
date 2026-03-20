@@ -93,7 +93,6 @@ fun BookCoverPickerSheet(
                     val candidate = allItems[idx]
                     CoverChoiceTile(
                         url = candidate.url,
-                        requestHeaders = candidate.headers,
                         selected = candidate == state.coverState.selectedCandidate,
                         onClick = { onSelect(candidate.url) }
                     )
@@ -108,7 +107,6 @@ fun BookCoverPickerSheet(
 @Composable
 private fun CoverChoiceTile(
     url: String,
-    requestHeaders: Map<String, String>,
     selected: Boolean,
     onClick: () -> Unit,
 ) {
@@ -128,7 +126,6 @@ private fun CoverChoiceTile(
         PvBookCoverAsyncImage(
             modifier = Modifier.fillMaxSize(),
             url = url,
-            requestHeaders = requestHeaders,
             imageSize = PvBookCoverImageSize.Large,
         )
     }

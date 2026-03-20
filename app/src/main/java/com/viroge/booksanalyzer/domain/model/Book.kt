@@ -12,7 +12,6 @@ data class Book(
     val isbn10: String? = null,
     val originalCoverUrl: String? = null,
     val coverUrl: String? = null,
-    val coverRequestHeaders: Map<String, String>,
     val createdAtEpochMs: Long,
     val lastOpenAtEpochMs: Long,
     val lastMarkedToDelete: Long,

@@ -18,20 +18,19 @@ class CoverPickerStateProvider @Inject constructor() {
 
     fun selectCover(
         url: String?,
-        headers: Map<String, String>,
         isManualInput: Boolean = false,
     ) {
         when {
             isManualInput && url != null ->
                 _state.update {
                     it.copy(
-                        selectedCandidate = BookCoverCandidate(url, headers),
-                        manualBookCovers = listOf(BookCoverCandidate(url, headers)) + it.manualBookCovers,
+                        selectedCandidate = BookCoverCandidate(url),
+                        manualBookCovers = listOf(BookCoverCandidate(url)) + it.manualBookCovers,
                     )
                 }
 
             url != null ->
-                _state.update { it.copy(selectedCandidate = BookCoverCandidate(url, headers)) }
+                _state.update { it.copy(selectedCandidate = BookCoverCandidate(url)) }
 
             else -> _state.update { it.copy(selectedCandidate = null) }
         }
@@ -56,5 +55,4 @@ data class BookCoverState(
 
 data class BookCoverCandidate(
     val url: String,
-    val headers: Map<String, String>,
 )

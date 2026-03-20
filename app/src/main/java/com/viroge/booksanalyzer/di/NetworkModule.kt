@@ -11,7 +11,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.Dns
-import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -39,82 +38,64 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    @GoogleBooksRetrofit
-    fun provideGoogleRetrofit(
-        converter: Converter.Factory,
+    fun provideBaseOkHttpClient(
         logging: HttpLoggingInterceptor,
         googleBooksMapper: GoogleBooksMapper,
-    ): Retrofit {
-        val okHttp = OkHttpClient.Builder()
+        openLibraryMapper: OpenLibraryMapper,
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .dns(object : Dns {
                 override fun lookup(hostname: String): List<InetAddress> {
-                    val addresses = Dns.SYSTEM.lookup(hostname)
-                    // Move IPv4 to the front, IPv6 to the back
-                    // This ensures we try the "working" protocol first
-                    return addresses.sortedBy { it is Inet6Address }
+                    // Fixes the 40s hang globally for APIs and Images
+                    return Dns.SYSTEM.lookup(hostname).sortedBy { it is Inet6Address }
                 }
             })
-            .addInterceptor(Interceptor { chain ->
-                // NOTE: Google Books API authentication is multi-layered. :)
-                // It requires the package name and the SHA1 hash as headers.
-                // And later also the generated API key as a query parameter.
-                val requestBuilder = chain.request().newBuilder()
-                val headersToAdd = googleBooksMapper.getHeaders()
-                for ((name, value) in headersToAdd) {
-                    requestBuilder.header(name, value)
-                }
-                chain.proceed(requestBuilder.build())
-            })
-            .addInterceptor(logging)
-            .build()
+            .addInterceptor { chain ->
+                val request = chain.request()
+                val url = request.url.toString()
+                val builder = request.newBuilder()
 
-        return Retrofit.Builder()
-            .baseUrl("https://www.googleapis.com/books/v1/")
-            .client(okHttp)
-            .addConverterFactory(converter)
+                // Apply headers based on the destination:
+                when {
+                    googleBooksMapper.isUrlValid(url) ->
+                        googleBooksMapper.getHeaders().forEach { (k, v) -> builder.header(k, v) }
+
+                    openLibraryMapper.isUrlValid(url) ->
+                        openLibraryMapper.getHeaders().forEach { (k, v) -> builder.header(k, v) }
+                }
+                chain.proceed(builder.build())
+            }
+            .addInterceptor(logging)
             .build()
     }
 
     @Provides
     @Singleton
+    @GoogleBooksRetrofit
+    fun provideGoogleRetrofit(
+        baseClient: OkHttpClient,
+        converter: Converter.Factory,
+        googleBooksMapper: GoogleBooksMapper,
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(googleBooksMapper.getBaseUrl())
+        .client(baseClient)
+        .addConverterFactory(converter)
+        .build()
+
+    @Provides
+    @Singleton
     @OpenLibraryRetrofit
     fun provideOpenLibraryRetrofit(
+        baseClient: OkHttpClient,
         converter: Converter.Factory,
-        logging: HttpLoggingInterceptor,
         openLibraryMapper: OpenLibraryMapper,
-    ): Retrofit {
-        val okHttp = OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(10, TimeUnit.SECONDS)
-            .dns(object : Dns {
-                override fun lookup(hostname: String): List<InetAddress> {
-                    val addresses = Dns.SYSTEM.lookup(hostname)
-                    // Move IPv4 to the front, IPv6 to the back
-                    // This ensures we try the "working" protocol first
-                    return addresses.sortedBy { it is Inet6Address }
-                }
-            })
-            .addInterceptor(Interceptor { chain ->
-                // NOTE: Adding a user email in the header helps us get more allowed requests per second.
-                // For Open Library API that raises our requests from 1 to 3 per second.
-                val requestBuilder = chain.request().newBuilder()
-                val headersToAdd = openLibraryMapper.getHeaders()
-                for ((name, value) in headersToAdd) {
-                    requestBuilder.header(name, value)
-                }
-                chain.proceed(requestBuilder.build())
-            })
-            .addInterceptor(logging)
-            .build()
-
-        return Retrofit.Builder()
-            .baseUrl("https://openlibrary.org/")
-            .client(okHttp)
-            .addConverterFactory(converter)
-            .build()
-    }
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(openLibraryMapper.getBaseUrl())
+        .client(baseClient)
+        .addConverterFactory(converter)
+        .build()
 
     @Provides
     @Singleton

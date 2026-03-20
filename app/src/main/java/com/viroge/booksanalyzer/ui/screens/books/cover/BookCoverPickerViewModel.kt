@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverCandidatesUseCase
-import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverHeadersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +23,6 @@ import javax.inject.Inject
 class CoverPickerViewModel @Inject constructor(
     private val pickerStateProvider: CoverPickerStateProvider,
     private val getCoverCandidates: GetBookCoverCandidatesUseCase,
-    private val getCoverHeaders: GetBookCoverHeadersUseCase,
     private val mapper: BookCoverMapper,
 ) : ViewModel() {
 
@@ -45,7 +43,6 @@ class CoverPickerViewModel @Inject constructor(
 
     fun openCoverPicker(
         originalCoverUrl: String?,
-        originalCoverRequestHeaders: Map<String, String>,
         source: BookSource,
         isbn13: String?,
     ) {
@@ -65,10 +62,7 @@ class CoverPickerViewModel @Inject constructor(
 
         val selected = pickerStateProvider.getSelected()
         if (selected == null && originalCoverUrl != null) {
-            pickerStateProvider.selectCover(
-                url = originalCoverUrl,
-                headers = originalCoverRequestHeaders,
-            )
+            pickerStateProvider.selectCover(url = originalCoverUrl)
         }
 
         _state.update { it.copy(isLoading = false) }
@@ -98,7 +92,6 @@ class CoverPickerViewModel @Inject constructor(
 
         pickerStateProvider.selectCover(
             url = url,
-            headers = getCoverHeaders(url),
             isManualInput = true,
         )
     }
@@ -106,7 +99,6 @@ class CoverPickerViewModel @Inject constructor(
     fun selectCover(url: String) {
         pickerStateProvider.selectCover(
             url = url,
-            headers = getCoverHeaders(url),
         )
         closeCoverPicker()
     }

@@ -79,7 +79,6 @@ class LibraryViewModel @Inject constructor(
                 bookSelectionStateProvider.selectBookSeed(
                     bookId = book.id,
                     bookCoverUrl = book.coverUrl ?: "",
-                    bookCoverRequestHeaders = book.coverRequestHeaders,
                     bookAnimationKey = BookTransitionKey.calculate(
                         title = book.title,
                         authors = book.authors,
