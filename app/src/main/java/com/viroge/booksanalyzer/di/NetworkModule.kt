@@ -10,12 +10,15 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
+import okhttp3.Dns
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
+import java.net.Inet6Address
+import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -45,8 +48,14 @@ object NetworkModule {
         val okHttp = OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(10, TimeUnit.SECONDS)
-            .retryOnConnectionFailure(false)
+            .dns(object : Dns {
+                override fun lookup(hostname: String): List<InetAddress> {
+                    val addresses = Dns.SYSTEM.lookup(hostname)
+                    // Move IPv4 to the front, IPv6 to the back
+                    // This ensures we try the "working" protocol first
+                    return addresses.sortedBy { it is Inet6Address }
+                }
+            })
             .addInterceptor(Interceptor { chain ->
                 // NOTE: Google Books API authentication is multi-layered. :)
                 // It requires the package name and the SHA1 hash as headers.
@@ -79,8 +88,14 @@ object NetworkModule {
         val okHttp = OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(10, TimeUnit.SECONDS)
-            .retryOnConnectionFailure(false)
+            .dns(object : Dns {
+                override fun lookup(hostname: String): List<InetAddress> {
+                    val addresses = Dns.SYSTEM.lookup(hostname)
+                    // Move IPv4 to the front, IPv6 to the back
+                    // This ensures we try the "working" protocol first
+                    return addresses.sortedBy { it is Inet6Address }
+                }
+            })
             .addInterceptor(Interceptor { chain ->
                 // NOTE: Adding a user email in the header helps us get more allowed requests per second.
                 // For Open Library API that raises our requests from 1 to 3 per second.
