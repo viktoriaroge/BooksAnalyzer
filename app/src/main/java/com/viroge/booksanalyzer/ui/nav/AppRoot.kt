@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.nav
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
 import android.os.Build
@@ -36,14 +37,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.ui.AppEvent
-import com.viroge.booksanalyzer.ui.MainSharedViewModel
-import com.viroge.booksanalyzer.ui.activityViewModel
+import com.viroge.booksanalyzer.ui.MainActivity
+import com.viroge.booksanalyzer.ui.common.action.BookActionEvent
+import com.viroge.booksanalyzer.ui.common.action.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.common.util.truncate
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.components.snackbar.PvAppSnackbarController
@@ -145,9 +147,10 @@ fun AppRoot() {
     }
 }
 
+@SuppressLint("ContextCastToActivity", "LocalContextGetResourceValueCall")
 @Composable
 fun AppSnackbarHandler() {
-    val sharedViewModel: MainSharedViewModel = activityViewModel()
+    val sharedViewModel: MainSharedViewModel = hiltViewModel(LocalContext.current as MainActivity)
     val snackbar = LocalAppSnackbar.current
     val context = LocalContext.current
 
@@ -156,7 +159,7 @@ fun AppSnackbarHandler() {
             val titleLimit = 44
 
             when (event) {
-                is AppEvent.BookDeleted -> {
+                is BookActionEvent.BookDeleted -> {
                     val normalizedTitle = event.title.truncate(limit = titleLimit)
                     snackbar.show(
                         message = context.getString(R.string.app_root_event_book_deleted, normalizedTitle),
@@ -167,7 +170,7 @@ fun AppSnackbarHandler() {
                     )
                 }
 
-                is AppEvent.BookDeletingFailed -> {
+                is BookActionEvent.BookDeletingFailed -> {
                     val normalizedTitle = event.title.truncate(limit = titleLimit)
                     snackbar.show(
                         message = context.getString(R.string.app_root_event_book_delete_failed, normalizedTitle),
@@ -175,7 +178,7 @@ fun AppSnackbarHandler() {
                     )
                 }
 
-                is AppEvent.BookRestoreSuccess -> {
+                is BookActionEvent.BookRestoreSuccess -> {
                     val normalizedTitle = event.title.truncate(limit = titleLimit)
                     snackbar.show(
                         message = context.getString(R.string.app_root_event_book_restored, normalizedTitle),
@@ -183,7 +186,7 @@ fun AppSnackbarHandler() {
                     )
                 }
 
-                is AppEvent.BookRestoreFailed -> {
+                is BookActionEvent.BookRestoreFailed -> {
                     val normalizedTitle = event.title.truncate(limit = titleLimit)
                     snackbar.show(
                         message = context.getString(R.string.app_root_event_book_restore_failed, normalizedTitle),

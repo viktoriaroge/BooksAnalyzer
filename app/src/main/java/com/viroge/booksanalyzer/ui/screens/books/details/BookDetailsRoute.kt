@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
@@ -17,20 +18,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.viroge.booksanalyzer.ui.MainSharedViewModel
-import com.viroge.booksanalyzer.ui.activityViewModel
+import com.viroge.booksanalyzer.ui.MainActivity
+import com.viroge.booksanalyzer.ui.common.action.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.screens.books.cover.BookCoverPickerSheet
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun BookDetailsRoute(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     onBack: () -> Unit,
 ) {
-    val sharedVM: MainSharedViewModel = activityViewModel()
+    val sharedVM: MainSharedViewModel = hiltViewModel(LocalContext.current as MainActivity)
 
     val coverPickerVM: CoverPickerViewModel = hiltViewModel()
     val coverPickerState by coverPickerVM.state.collectAsState()

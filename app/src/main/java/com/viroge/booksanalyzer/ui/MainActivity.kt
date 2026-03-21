@@ -20,20 +20,19 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: MainSharedViewModel by viewModels()
+    private val startupViewModel: StartupViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Install splash screen:
         val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { startupViewModel.isLoading.value }
         splashScreen.setOnExitAnimationListener { splashScreenView ->
-            // 1. Safely grab the icon view
-            val iconView = try {
+            // Try to get the splash center icon and do a fade out animation:
+            try {
                 splashScreenView.iconView
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
-            }
-
-            if (iconView != null) {
+            }?.let { iconView ->
                 val scaleX = ObjectAnimator.ofFloat(iconView, View.SCALE_X, 1f, 5f)
                 val scaleY = ObjectAnimator.ofFloat(iconView, View.SCALE_Y, 1f, 5f)
                 val alpha = ObjectAnimator.ofFloat(splashScreenView.view, View.ALPHA, 1f, 0f)
@@ -44,8 +43,7 @@ class MainActivity : ComponentActivity() {
                     doOnEnd { splashScreenView.remove() }
                     start()
                 }
-            } else {
-                // 2. Fallback: If iconView is null, just fade out the whole splash view
+            } ?: {
                 splashScreenView.view.animate()
                     .alpha(0f)
                     .setDuration(400L)
@@ -65,11 +63,8 @@ class MainActivity : ComponentActivity() {
                 }
             )
         )
+
         super.onCreate(savedInstanceState)
-
-        // Keep on until DB maintenance is done:
-        splashScreen.setKeepOnScreenCondition { viewModel.isLoading.value }
-
         setContent {
             BooksAnalyzerTheme {
                 AppRoot()
