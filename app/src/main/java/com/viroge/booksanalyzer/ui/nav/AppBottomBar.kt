@@ -25,17 +25,17 @@ fun AppBottomBar(
 ) {
     val items = listOf(
         BottomItem(
-            route = Routes.LIBRARY,
+            route = Routes.LIBRARY_GRAPH,
             label = stringResource(R.string.library_screen_name),
             icon = Icons.Default.LocalLibrary,
         ),
         BottomItem(
-            route = Routes.SEARCH_BOOK,
+            route = Routes.SEARCH_BOOK_GRAPH,
             label = stringResource(R.string.search_screen_name),
             icon = Icons.Default.Search,
         ),
         BottomItem(
-            route = Routes.SETTINGS,
+            route = Routes.SETTINGS_GRAPH,
             label = stringResource(R.string.settings_screen_name),
             icon = Icons.Default.Settings,
         ),

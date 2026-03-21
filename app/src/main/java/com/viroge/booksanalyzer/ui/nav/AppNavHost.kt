@@ -1,10 +1,12 @@
 package com.viroge.booksanalyzer.ui.nav
 
+import android.util.Log
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
@@ -30,18 +32,24 @@ fun AppNavHost(
         isTabSwitch: Boolean = false,
         navOptionsBuilder: (NavOptionsBuilder.() -> Unit)? = null,
     ) {
-        if (navController.currentBackStackEntry?.destination?.route != route) {
+        val isAlreadyThere = navController.currentDestination?.hierarchy?.any { it.route == route } == true
+
+        if (!isAlreadyThere) {
             navController.navigate(route) {
                 if (isTabSwitch) {
+                    // Standard Tab Switching logic
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
                     }
                     launchSingleTop = true
                     restoreState = true
                 } else {
+                    // Custom options (like popUpTo) if provided
                     navOptionsBuilder?.invoke(this)
                 }
             }
+        } else {
+            Log.d("AppNavHost", "NAV_DEBUG: Navigation blocked: Already at or inside $route")
         }
     }
 
