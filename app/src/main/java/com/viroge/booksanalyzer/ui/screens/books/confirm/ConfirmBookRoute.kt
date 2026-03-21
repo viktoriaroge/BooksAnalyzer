@@ -9,7 +9,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.screens.books.cover.BookCoverPickerSheet
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
@@ -32,17 +35,21 @@ fun ConfirmBookRoute(
         onBack()
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val snackbar = LocalAppSnackbar.current
-    LaunchedEffect(key1 = Unit) {
-        vm.events.collect { event ->
-            when (event) {
-                is ConfirmEvent.Saved -> {
-                    onBookSaved()
-                }
 
-                is ConfirmEvent.Error -> {
-                    snackbar.show(message = event.errorType.message.asString(context), duration = SnackbarDuration.Short)
+    LaunchedEffect(vm.events, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            vm.events.collect { event ->
+                when (event) {
+                    is ConfirmEvent.Saved -> {
+                        onBookSaved()
+                    }
+
+                    is ConfirmEvent.Error -> {
+                        snackbar.show(message = event.errorType.message.asString(context), duration = SnackbarDuration.Short)
+                    }
                 }
             }
         }

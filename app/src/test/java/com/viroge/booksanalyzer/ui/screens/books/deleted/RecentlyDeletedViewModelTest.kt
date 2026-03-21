@@ -100,7 +100,7 @@ class RecentlyDeletedViewModelTest : ViewModelTest() {
         val messages = mutableListOf<String?>()
         // 1. Start collecting the message flow
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.message.collect { messages.add(it) }
+            viewModel.messages.collect { messages.add(it) }
         }
 
         // 2. Start collecting the state flow to trigger the catch block

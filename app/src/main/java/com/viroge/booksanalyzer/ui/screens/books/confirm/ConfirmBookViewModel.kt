@@ -11,14 +11,15 @@ import com.viroge.booksanalyzer.domain.usecase.book.SaveBookUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -34,8 +35,8 @@ class ConfirmBookViewModel @Inject constructor(
 
     private var needsInitializing: Boolean = true
 
-    private val _events = MutableSharedFlow<ConfirmEvent>()
-    val events = _events.asSharedFlow()
+    private val _events = Channel<ConfirmEvent>(Channel.BUFFERED)
+    val events: Flow<ConfirmEvent> = _events.receiveAsFlow()
 
     private val _internalState = MutableStateFlow(ConfirmBookScreenState())
     val state = combine(
@@ -101,11 +102,11 @@ class ConfirmBookViewModel @Inject constructor(
                             sourceId = book.sourceId,
                         )
                     )
-                    _events.emit(ConfirmEvent.Saved)
+                    _events.send(ConfirmEvent.Saved)
                     _internalState.update { it.copy(isSaving = false) }
                 }
                 .onFailure { _ ->
-                    _events.emit(ConfirmEvent.Error(ConfirmErrorType.SAVING_FAILED))
+                    _events.send(ConfirmEvent.Error(ConfirmErrorType.SAVING_FAILED))
                     _internalState.update { it.copy(isSaving = false) }
                 }
         }
@@ -156,11 +157,11 @@ class ConfirmBookViewModel @Inject constructor(
                             sourceId = book.sourceId,
                         )
                     )
-                    _events.emit(ConfirmEvent.Saved)
+                    _events.send(ConfirmEvent.Saved)
                     _internalState.update { it.copy(isSaving = false) }
                 }
                 .onFailure { _ ->
-                    _events.emit(ConfirmEvent.Error(ConfirmErrorType.SAVING_FAILED))
+                    _events.send(ConfirmEvent.Error(ConfirmErrorType.SAVING_FAILED))
                     _internalState.update { it.copy(isSaving = false) }
                 }
         }

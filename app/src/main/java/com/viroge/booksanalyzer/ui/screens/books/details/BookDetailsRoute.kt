@@ -1,6 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
-import android.annotation.SuppressLint
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
@@ -17,22 +17,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.viroge.booksanalyzer.ui.MainActivity
-import com.viroge.booksanalyzer.ui.common.action.MainSharedViewModel
+import androidx.lifecycle.repeatOnLifecycle
+import com.viroge.booksanalyzer.ui.common.action.BookActionViewModel
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.screens.books.cover.BookCoverPickerSheet
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
 
-@SuppressLint("ContextCastToActivity")
 @Composable
 fun BookDetailsRoute(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     onBack: () -> Unit,
 ) {
-    val sharedVM: MainSharedViewModel = hiltViewModel(LocalContext.current as MainActivity)
+    val activity = LocalContext.current as? ComponentActivity
+        ?: error("This Composable must be hosted in a ComponentActivity")
+    val sharedVM: BookActionViewModel = hiltViewModel(activity)
 
     val coverPickerVM: CoverPickerViewModel = hiltViewModel()
     val coverPickerState by coverPickerVM.state.collectAsStateWithLifecycle()
@@ -45,13 +48,17 @@ fun BookDetailsRoute(
         else onBack()
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val snackbar = LocalAppSnackbar.current
-    LaunchedEffect(key1 = Unit) {
-        vm.events.collect { event ->
-            when (event) {
-                is BookDetailsEvent.Error -> {
-                    snackbar.show(message = event.errorType.message.asString(context), duration = SnackbarDuration.Short)
+
+    LaunchedEffect(vm.events, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            vm.events.collect { event ->
+                when (event) {
+                    is BookDetailsEvent.Error -> {
+                        snackbar.show(message = event.errorType.message.asString(context), duration = SnackbarDuration.Short)
+                    }
                 }
             }
         }

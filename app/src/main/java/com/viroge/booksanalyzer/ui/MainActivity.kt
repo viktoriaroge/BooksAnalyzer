@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -25,7 +26,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // Install splash screen:
         val splashScreen = installSplashScreen()
-        splashScreen.setKeepOnScreenCondition { startupViewModel.isLoading.value }
+        splashScreen.setKeepOnScreenCondition {
+            startupViewModel.isLoading.value.also { Log.d("MainActivity", "STARTUP: isLoading: $it") }
+        }
         splashScreen.setOnExitAnimationListener { splashScreenView ->
             // Try to get the splash center icon and do a fade out animation:
             try {

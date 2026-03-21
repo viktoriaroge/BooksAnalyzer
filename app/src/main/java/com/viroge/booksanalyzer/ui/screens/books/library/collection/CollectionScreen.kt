@@ -52,6 +52,7 @@ import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverAsyncImage
 import com.viroge.booksanalyzer.ui.components.bookcover.PvBookCoverImageSize
 import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
+import kotlinx.coroutines.yield
 
 @Composable
 fun CollectionScreen(
@@ -139,7 +140,10 @@ fun CollectionScreen(
                         }
                     },
                 )
-                LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                LaunchedEffect(Unit) {
+                    yield() // Sometimes the keyboard needs a millisecond to breathe
+                    focusRequester.requestFocus()
+                }
             }
 
             if (state.allBooks.isEmpty()) {

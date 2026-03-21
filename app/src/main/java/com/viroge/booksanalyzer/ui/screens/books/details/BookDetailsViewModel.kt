@@ -12,18 +12,18 @@ import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -40,8 +40,8 @@ class BookDetailsViewModel @Inject constructor(
     private val mapper: BookDetailsMapper,
 ) : ViewModel() {
 
-    private val _events = MutableSharedFlow<BookDetailsEvent>()
-    val events = _events.asSharedFlow()
+    private val _events = Channel<BookDetailsEvent>(Channel.BUFFERED)
+    val events: Flow<BookDetailsEvent> = _events.receiveAsFlow()
 
     private var needsMarking = true
 
@@ -98,7 +98,7 @@ class BookDetailsViewModel @Inject constructor(
         BookDetailsUiState(screenState)
     }.distinctUntilChanged()
         .flowOn(Dispatchers.Default)
-        .catch { _ -> _events.emit(BookDetailsEvent.Error(DetailsErrorType.LOADING_BOOK_FAILED)) }
+        .catch { _ -> _events.send(BookDetailsEvent.Error(DetailsErrorType.LOADING_BOOK_FAILED)) }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
@@ -157,7 +157,7 @@ class BookDetailsViewModel @Inject constructor(
         val bookId = (state.value.screenState as? BookDetailsScreenState.Content)?.bookData?.id ?: return
         viewModelScope.launch {
             updateBookStatusUseCase(bookId, status.domainStatus)
-                .onFailure { _events.emit(BookDetailsEvent.Error(DetailsErrorType.UPDATING_STATUS_FAILED)) }
+                .onFailure { _events.send(BookDetailsEvent.Error(DetailsErrorType.UPDATING_STATUS_FAILED)) }
         }
     }
 
@@ -187,7 +187,7 @@ class BookDetailsViewModel @Inject constructor(
                 exitEditMode()
             }.onFailure {
                 isSaving.value = false
-                _events.emit(BookDetailsEvent.Error(DetailsErrorType.SAVING_FAILED))
+                _events.send(BookDetailsEvent.Error(DetailsErrorType.SAVING_FAILED))
             }
         }
     }

@@ -32,7 +32,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,11 +79,8 @@ fun BookSearchScreen(
     val appScaffoldPadding = LocalAppScaffoldPadding.current
     val focusManager = LocalFocusManager.current
 
-    var localQuery by remember { mutableStateOf(state.query) }
-    LaunchedEffect(state.query) {
-        if (localQuery != state.query) {
-            localQuery = state.query
-        }
+    var localQuery by remember(state.query) {
+        mutableStateOf(state.query)
     }
 
     val keyboardType by remember {

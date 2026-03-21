@@ -5,18 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.repository.BooksRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainSharedViewModel @Inject constructor(
+class BookActionViewModel @Inject constructor(
     private val booksRepo: BooksRepository,
 ) : ViewModel() {
 
-    private val _events = MutableSharedFlow<BookActionEvent>()
-    val events: SharedFlow<BookActionEvent> = _events
+    private val _events = Channel<BookActionEvent>(Channel.BUFFERED)
+    val events: Flow<BookActionEvent> = _events.receiveAsFlow()
 
     private var lastDeletedBook: MarkedBook? = null
 
@@ -30,10 +31,10 @@ class MainSharedViewModel @Inject constructor(
                     )
 
                     if (deletedBookData != null) {
-                        _events.emit(BookActionEvent.BookDeleted(id = bookId, title = title))
+                        _events.send(BookActionEvent.BookDeleted(id = bookId, title = title))
                     }
                 }
-                .onFailure { _ -> _events.emit(BookActionEvent.BookDeletingFailed(title = title)) }
+                .onFailure { _ -> _events.send(BookActionEvent.BookDeletingFailed(title = title)) }
         }
     }
 
@@ -44,9 +45,9 @@ class MainSharedViewModel @Inject constructor(
             runCatching { booksRepo.restoreBookMarkedToDelete(bookId = toRestoreBook.id) }
                 .onSuccess {
                     lastDeletedBook = null
-                    _events.emit(BookActionEvent.BookRestoreSuccess(title = toRestoreBook.title))
+                    _events.send(BookActionEvent.BookRestoreSuccess(title = toRestoreBook.title))
                 }
-                .onFailure { _ -> _events.emit(BookActionEvent.BookRestoreFailed(title = toRestoreBook.title)) }
+                .onFailure { _ -> _events.send(BookActionEvent.BookRestoreFailed(title = toRestoreBook.title)) }
         }
     }
 }

@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
 import android.os.Build
+import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -38,14 +40,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.ui.MainActivity
 import com.viroge.booksanalyzer.ui.common.action.BookActionEvent
-import com.viroge.booksanalyzer.ui.common.action.MainSharedViewModel
+import com.viroge.booksanalyzer.ui.common.action.BookActionViewModel
 import com.viroge.booksanalyzer.ui.common.util.truncate
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.components.snackbar.PvAppSnackbarController
@@ -54,7 +58,6 @@ val LocalAppScaffoldPadding = staticCompositionLocalOf { PaddingValues(0.dp) }
 
 @Composable
 fun AppRoot() {
-
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -82,6 +85,17 @@ fun AppRoot() {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 window.isNavigationBarContrastEnforced = false
+            }
+        }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(navController, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            navController.currentBackStackEntryFlow.collect { entry ->
+                Log.d("AppRoot", "NAV_DEBUG: Current Route: ${entry.destination.route}")
+                Log.d("AppRoot", "NAV_DEBUG: Arguments: ${entry.arguments}")
             }
         }
     }
@@ -147,51 +161,54 @@ fun AppRoot() {
     }
 }
 
-@SuppressLint("ContextCastToActivity", "LocalContextGetResourceValueCall")
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun AppSnackbarHandler() {
-    val sharedViewModel: MainSharedViewModel = hiltViewModel(LocalContext.current as MainActivity)
     val snackbar = LocalAppSnackbar.current
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(key1 = Unit) {
-        sharedViewModel.events.collect { event ->
-            val titleLimit = 44
+    val activity = LocalContext.current as? ComponentActivity
+        ?: error("This Composable must be hosted in a ComponentActivity")
+    val bookActionVM: BookActionViewModel = hiltViewModel(activity)
 
-            when (event) {
-                is BookActionEvent.BookDeleted -> {
-                    val normalizedTitle = event.title.truncate(limit = titleLimit)
-                    snackbar.show(
-                        message = context.getString(R.string.app_root_event_book_deleted, normalizedTitle),
-                        actionLabel = context.getString(R.string.app_root_event_book_deleted_undo),
-                        withDismissAction = true,
-                        duration = SnackbarDuration.Long,
-                        onActionPerformed = { sharedViewModel.undoMarkToDelete() },
-                    )
-                }
+    LaunchedEffect(bookActionVM.events, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            bookActionVM.events.collect { event ->
+                val titleLimit = 44
+                fun String.limit() = this.truncate(titleLimit)
 
-                is BookActionEvent.BookDeletingFailed -> {
-                    val normalizedTitle = event.title.truncate(limit = titleLimit)
-                    snackbar.show(
-                        message = context.getString(R.string.app_root_event_book_delete_failed, normalizedTitle),
-                        duration = SnackbarDuration.Short,
-                    )
-                }
+                when (event) {
+                    is BookActionEvent.BookDeleted -> {
+                        snackbar.show(
+                            message = context.getString(R.string.app_root_event_book_deleted, event.title.limit()),
+                            actionLabel = context.getString(R.string.app_root_event_book_deleted_undo),
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Long,
+                            onActionPerformed = { bookActionVM.undoMarkToDelete() },
+                        )
+                    }
 
-                is BookActionEvent.BookRestoreSuccess -> {
-                    val normalizedTitle = event.title.truncate(limit = titleLimit)
-                    snackbar.show(
-                        message = context.getString(R.string.app_root_event_book_restored, normalizedTitle),
-                        duration = SnackbarDuration.Short,
-                    )
-                }
+                    is BookActionEvent.BookDeletingFailed -> {
+                        snackbar.show(
+                            message = context.getString(R.string.app_root_event_book_delete_failed, event.title.limit()),
+                            duration = SnackbarDuration.Short,
+                        )
+                    }
 
-                is BookActionEvent.BookRestoreFailed -> {
-                    val normalizedTitle = event.title.truncate(limit = titleLimit)
-                    snackbar.show(
-                        message = context.getString(R.string.app_root_event_book_restore_failed, normalizedTitle),
-                        duration = SnackbarDuration.Short,
-                    )
+                    is BookActionEvent.BookRestoreSuccess -> {
+                        snackbar.show(
+                            message = context.getString(R.string.app_root_event_book_restored, event.title.limit()),
+                            duration = SnackbarDuration.Short,
+                        )
+                    }
+
+                    is BookActionEvent.BookRestoreFailed -> {
+                        snackbar.show(
+                            message = context.getString(R.string.app_root_event_book_restore_failed, event.title.limit()),
+                            duration = SnackbarDuration.Short,
+                        )
+                    }
                 }
             }
         }
