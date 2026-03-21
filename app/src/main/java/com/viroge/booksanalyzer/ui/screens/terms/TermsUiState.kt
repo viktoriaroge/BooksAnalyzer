@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import com.viroge.booksanalyzer.R
+import com.viroge.booksanalyzer.ui.common.util.UiText
 
 @Immutable
 data class TermsUiState(
@@ -15,10 +16,7 @@ data class TermsUiState(
 
 @Immutable
 data class TermsRowState(
-    val showTitle: Boolean = false,
-    val title: String? = null,
-    @param:StringRes val titleRes: Int = R.string.empty_text,
-    val showSubtitle: Boolean = false,
-    val subtitle: String? = null,
-    @param:StringRes val subtitleRes: Int = R.string.empty_text,
+    val id: String,
+    val title: UiText? = null,
+    val subtitle: UiText? = null,
 )
