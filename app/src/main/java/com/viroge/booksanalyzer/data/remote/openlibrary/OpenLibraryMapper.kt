@@ -1,6 +1,5 @@
 package com.viroge.booksanalyzer.data.remote.openlibrary
 
-import com.viroge.booksanalyzer.BuildConfig
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.TempBook
 import javax.inject.Inject
@@ -32,15 +31,6 @@ class OpenLibraryMapper @Inject constructor() {
             coverUrl = coverUrl,
         )
     }
-
-    fun getBaseUrl(): String = "https://openlibrary.org/"
-
-    fun getHeaders(): Map<String, String> = mapOf(
-        "Accept" to "application/json",
-        "User-Agent" to "BooksAnalyzerApp (${BuildConfig.USER_EMAIL})",
-    )
-
-    fun isUrlValid(url: String): Boolean = url.contains("openlibrary.org")
 
     private fun splitIsbns(
         isbns: List<String>,

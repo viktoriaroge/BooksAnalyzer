@@ -2,9 +2,9 @@ package com.viroge.booksanalyzer.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksApi
-import com.viroge.booksanalyzer.data.remote.google.GoogleBooksMapper
+import com.viroge.booksanalyzer.data.remote.google.GoogleBooksConfig
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryApi
-import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryMapper
+import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,8 +39,8 @@ object NetworkModule {
     @Singleton
     fun provideBaseOkHttpClient(
         logging: HttpLoggingInterceptor,
-        googleBooksMapper: GoogleBooksMapper,
-        openLibraryMapper: OpenLibraryMapper,
+        googleBooksConfig: GoogleBooksConfig,
+        openLibraryConfig: OpenLibraryConfig,
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
@@ -64,11 +64,11 @@ object NetworkModule {
 
                 // Apply headers based on the destination:
                 when {
-                    googleBooksMapper.isUrlValid(url) ->
-                        googleBooksMapper.getHeaders().forEach { (k, v) -> builder.header(k, v) }
+                    googleBooksConfig.isGoogleBooksRequest(url) ->
+                        googleBooksConfig.headers.forEach { (k, v) -> builder.header(k, v) }
 
-                    openLibraryMapper.isUrlValid(url) ->
-                        openLibraryMapper.getHeaders().forEach { (k, v) -> builder.header(k, v) }
+                    openLibraryConfig.isOpenLibraryRequest(url) ->
+                        openLibraryConfig.headers.forEach { (k, v) -> builder.header(k, v) }
                 }
                 chain.proceed(builder.build())
             }
@@ -82,9 +82,9 @@ object NetworkModule {
     fun provideGoogleRetrofit(
         baseClient: OkHttpClient,
         converter: Converter.Factory,
-        googleBooksMapper: GoogleBooksMapper,
+        googleBooksConfig: GoogleBooksConfig,
     ): Retrofit = Retrofit.Builder()
-        .baseUrl(googleBooksMapper.getBaseUrl())
+        .baseUrl(googleBooksConfig.baseUrl)
         .client(baseClient)
         .addConverterFactory(converter)
         .build()
@@ -95,9 +95,9 @@ object NetworkModule {
     fun provideOpenLibraryRetrofit(
         baseClient: OkHttpClient,
         converter: Converter.Factory,
-        openLibraryMapper: OpenLibraryMapper,
+        openLibraryConfig: OpenLibraryConfig,
     ): Retrofit = Retrofit.Builder()
-        .baseUrl(openLibraryMapper.getBaseUrl())
+        .baseUrl(openLibraryConfig.baseUrl)
         .client(baseClient)
         .addConverterFactory(converter)
         .build()

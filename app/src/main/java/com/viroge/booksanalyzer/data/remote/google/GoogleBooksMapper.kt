@@ -1,6 +1,5 @@
 package com.viroge.booksanalyzer.data.remote.google
 
-import com.viroge.booksanalyzer.BuildConfig
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.TempBook
 import javax.inject.Inject
@@ -39,14 +38,4 @@ class GoogleBooksMapper @Inject constructor() {
             coverUrl = coverUrl,
         )
     }
-
-    fun getBaseUrl(): String = "https://www.googleapis.com/books/v1/"
-
-    fun getHeaders(): Map<String, String> = mapOf(
-        "Accept" to "application/json",
-        "X-Android-Package" to BuildConfig.APPLICATION_ID,
-        "X-Android-Cert" to BuildConfig.DEBUG_SHA1.replace(oldValue = ":", newValue = "").lowercase(),
-    )
-
-    fun isUrlValid(url: String): Boolean = url.contains("google.com/books") || url.contains("googleapis.com")
 }
