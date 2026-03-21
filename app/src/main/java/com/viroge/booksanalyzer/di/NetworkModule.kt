@@ -16,7 +16,6 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
-import java.net.Inet6Address
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -48,10 +47,16 @@ object NetworkModule {
             .readTimeout(10, TimeUnit.SECONDS)
             .dns(object : Dns {
                 override fun lookup(hostname: String): List<InetAddress> {
-                    // Fixes the 40s hang globally for APIs and Images
-                    return Dns.SYSTEM.lookup(hostname).sortedBy { it is Inet6Address }
+                    val addresses = Dns.SYSTEM.lookup(hostname)
+                    if (addresses.size <= 1) return addresses
+
+                    val (ipv4, ipv6) = addresses.partition { it is java.net.Inet4Address }
+                    return ipv4 + ipv6 // keep both but start with ipv4, due to issues on some networks
                 }
             })
+            // TODO: Once the fastFallback functionality is added in follow-up versions of okhttp,
+            // TODO: add it here to make the dns resolution even smoother:
+            // .fastFallback(true)
             .addInterceptor { chain ->
                 val request = chain.request()
                 val url = request.url.toString()
