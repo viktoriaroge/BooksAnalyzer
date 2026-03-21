@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -42,36 +41,41 @@ fun SettingsScreen(
                 .padding(bottom = appScaffoldPadding.calculateBottomPadding())
                 .fillMaxSize(),
         ) {
-            items(items = state.rowStates) { item ->
+            items(count = state.rowStates.size, key = { state.rowStates[it].id }) { position ->
+                val entry = state.rowStates[position]
 
-                HorizontalDivider(thickness = 1.dp)
+                HorizontalDivider(thickness = 0.8.dp)
 
                 ListItem(
-                    tonalElevation = if (item.isHeader) 2.dp else 0.dp,
+                    modifier = entry.route?.let { Modifier.clickable { onOpenEntry(it) } } ?: Modifier,
+
+                    tonalElevation = if (entry.isHeader) 4.dp else 0.dp,
+                    shadowElevation = 0.dp,
+
                     leadingContent =
-                        if (item.icon != null) {
-                            { Icon(item.icon, contentDescription = null) }
+                        if (entry.icon != null) {
+                            { Icon(entry.icon, contentDescription = null) }
                         } else null,
+
                     headlineContent = {
-                        if (item.showTitle) {
+                        entry.title?.let {
                             Text(
                                 modifier = Modifier.padding(vertical = 4.dp),
-                                text = item.title ?: stringResource(item.titleRes),
+                                text = it.asString(),
                                 style = MaterialTheme.typography.titleMedium,
                             )
                         }
                     },
-                    supportingContent =
-                        if (item.showSubtitle) {
-                            {
-                                Text(
-                                    modifier = Modifier.padding(vertical = 4.dp),
-                                    text = item.subtitle ?: stringResource(item.subtitleRes),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
-                            }
-                        } else null,
-                    modifier = Modifier.clickable { item.route?.let { onOpenEntry(it) } }
+
+                    supportingContent = entry.subtitle?.let {
+                        {
+                            Text(
+                                modifier = Modifier.padding(vertical = 4.dp),
+                                text = it.asString(),
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    },
                 )
             }
         }

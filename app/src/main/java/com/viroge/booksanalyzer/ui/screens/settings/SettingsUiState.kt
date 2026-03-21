@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.viroge.booksanalyzer.R
+import com.viroge.booksanalyzer.ui.common.util.UiText
 
 @Immutable
 data class SettingsUiState(
@@ -14,14 +15,11 @@ data class SettingsUiState(
 
 @Immutable
 data class SettingsRowState(
+    val id: String,
     val isHeader: Boolean = false,
     val isEnabled: Boolean = true,
     val route: String? = null,
     val icon: ImageVector? = null,
-    val showTitle: Boolean = false,
-    val title: String? = null,
-    @param:StringRes val titleRes: Int = R.string.empty_text,
-    val showSubtitle: Boolean = false,
-    val subtitle: String? = null,
-    @param:StringRes val subtitleRes: Int = R.string.empty_text,
+    val title: UiText? = null,
+    val subtitle: UiText? = null,
 )
