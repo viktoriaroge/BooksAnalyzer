@@ -6,13 +6,13 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun SearchBookRoute(
@@ -20,9 +20,8 @@ fun SearchBookRoute(
     animatedVisibilityScope: AnimatedVisibilityScope,
     onGoToConfirm: () -> Unit,
 ) {
-
     val vm: BookSearchViewModel = hiltViewModel()
-    val state by vm.state.collectAsState()
+    val state by vm.state.collectAsStateWithLifecycle()
 
     var confirmClear by remember { mutableStateOf(value = false) }
 

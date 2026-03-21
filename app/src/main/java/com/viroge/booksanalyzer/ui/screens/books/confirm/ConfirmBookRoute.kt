@@ -6,10 +6,10 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.screens.books.cover.BookCoverPickerSheet
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
@@ -22,11 +22,11 @@ fun ConfirmBookRoute(
     onBookSaved: () -> Unit,
 ) {
     val coverPickerVM: CoverPickerViewModel = hiltViewModel()
-    val coverPickerState by coverPickerVM.state.collectAsState()
+    val coverPickerState by coverPickerVM.state.collectAsStateWithLifecycle()
 
     val vm: ConfirmBookViewModel = hiltViewModel()
-    val state by vm.state.collectAsState()
-    val bookData = state.bookData
+    val state by vm.state.collectAsStateWithLifecycle()
+    val book = state.bookData
 
     BackHandler(enabled = true) {
         onBack()
@@ -53,12 +53,12 @@ fun ConfirmBookRoute(
         animatedVisibilityScope = animatedVisibilityScope,
         state = state,
         onOpenCoverPicker = {
-            bookData ?: return@ConfirmBookScreen
+            book ?: return@ConfirmBookScreen
 
             coverPickerVM.openCoverPicker(
-                originalCoverUrl = bookData.url,
-                source = bookData.source.domainSource,
-                isbn13 = bookData.isbn13,
+                originalCoverUrl = book.url,
+                source = book.source.domainSource,
+                isbn13 = book.isbn13,
             )
         },
         onBack = onBack,

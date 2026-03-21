@@ -7,13 +7,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun CollectionRoute(
@@ -23,9 +23,8 @@ fun CollectionRoute(
     onOpenSearch: () -> Unit,
     onOpenBook: () -> Unit,
 ) {
-
     val vm: CollectionViewModel = hiltViewModel()
-    val state by vm.state.collectAsState()
+    val state by vm.state.collectAsStateWithLifecycle()
 
     when (val screenState = state.screenState) {
         CollectionScreenState.Loading -> {
@@ -34,8 +33,8 @@ fun CollectionRoute(
         }
 
         is CollectionScreenState.Content -> {
-            val filters by vm.filters.collectAsState()
-            val query by vm.query.collectAsState()
+            val filters by vm.filters.collectAsStateWithLifecycle()
+            val query by vm.query.collectAsStateWithLifecycle()
 
             var showSearch by rememberSaveable { mutableStateOf(value = false) }
             var showFilters by rememberSaveable { mutableStateOf(value = false) }

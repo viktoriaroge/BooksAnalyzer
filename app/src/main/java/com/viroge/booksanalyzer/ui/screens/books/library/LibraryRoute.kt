@@ -8,10 +8,10 @@ import androidx.compose.material.icons.filled.LocalLibrary
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun LibraryRoute(
@@ -21,9 +21,8 @@ fun LibraryRoute(
     onOpenCollection: () -> Unit,
     onOpenBook: () -> Unit,
 ) {
-
     val vm: LibraryViewModel = hiltViewModel()
-    val state by vm.state.collectAsState()
+    val state by vm.state.collectAsStateWithLifecycle()
 
     when (val screenState = state.screenState) {
         LibraryScreenState.Loading -> {

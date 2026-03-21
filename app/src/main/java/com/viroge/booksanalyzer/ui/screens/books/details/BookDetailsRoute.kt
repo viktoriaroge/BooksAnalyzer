@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.viroge.booksanalyzer.ui.MainActivity
 import com.viroge.booksanalyzer.ui.common.action.MainSharedViewModel
 import com.viroge.booksanalyzer.ui.common.util.customAnnotatedString
@@ -35,10 +35,10 @@ fun BookDetailsRoute(
     val sharedVM: MainSharedViewModel = hiltViewModel(LocalContext.current as MainActivity)
 
     val coverPickerVM: CoverPickerViewModel = hiltViewModel()
-    val coverPickerState by coverPickerVM.state.collectAsState()
+    val coverPickerState by coverPickerVM.state.collectAsStateWithLifecycle()
 
     val vm: BookDetailsViewModel = hiltViewModel()
-    val state by vm.state.collectAsState()
+    val state by vm.state.collectAsStateWithLifecycle()
 
     BackHandler(enabled = true) {
         if (state.screenState is BookDetailsScreenState.Edit) vm.exitEditMode()
