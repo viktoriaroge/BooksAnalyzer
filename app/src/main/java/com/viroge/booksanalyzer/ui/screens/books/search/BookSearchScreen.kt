@@ -39,6 +39,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -82,15 +84,7 @@ fun BookSearchScreen(
     var localQuery by remember(state.query) {
         mutableStateOf(state.query)
     }
-
-    val keyboardType by remember {
-        derivedStateOf {
-            when (state.mode) {
-                BookSearchModeUi.Isbn -> KeyboardType.Number
-                else -> KeyboardType.Text
-            }
-        }
-    }
+    val focusRequester = remember { FocusRequester() }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -106,7 +100,12 @@ fun BookSearchScreen(
 
             SearchModeChips(
                 selected = state.mode,
-                onSelect = { onModeChanged(it) },
+                onSelect = {
+                    focusManager.clearFocus()
+                    onModeChanged(it)
+
+                    if (localQuery.isBlank()) focusRequester.requestFocus()
+                },
             )
 
             OutlinedTextField(
@@ -115,7 +114,9 @@ fun BookSearchScreen(
                     localQuery = it
                     onQueryChanged(it)
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
                 label = { Text(text = stringResource(state.screenValues.searchFieldHint)) },
                 singleLine = true,
                 trailingIcon = {
@@ -128,7 +129,10 @@ fun BookSearchScreen(
                 },
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Search,
-                    keyboardType = keyboardType,
+                    keyboardType = when (state.mode) {
+                        BookSearchModeUi.Isbn -> KeyboardType.Number
+                        else -> KeyboardType.Text
+                    },
                 ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
@@ -148,7 +152,10 @@ fun BookSearchScreen(
                     RecentSearchesSection(
                         values = screenState.recentSearchesValues,
                         recent = state.recent,
-                        onPick = onRecentSearchSelected,
+                        onPick = {
+                            focusManager.clearFocus()
+                            onRecentSearchSelected(it)
+                        },
                         onDeleteOne = onRemoveRecentSearch,
                         onClearAll = onClearRecentSearches,
                     )
