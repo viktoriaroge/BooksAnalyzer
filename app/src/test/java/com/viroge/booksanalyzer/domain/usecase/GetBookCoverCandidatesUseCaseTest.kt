@@ -1,7 +1,7 @@
 package com.viroge.booksanalyzer.domain.usecase
 
 import com.viroge.booksanalyzer.domain.model.BookSource
-import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverCandidatesUseCase
+import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverUrlsUseCase
 import io.mockk.every
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
@@ -10,7 +10,7 @@ import org.junit.Test
 
 class GetBookCoverCandidatesUseCaseTest {
 
-    private lateinit var useCase: GetBookCoverCandidatesUseCase
+    private lateinit var useCase: GetBookCoverUrlsUseCase
 
     @Before
     fun setup() {}

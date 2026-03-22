@@ -3,7 +3,6 @@ package com.viroge.booksanalyzer.ui.screens.books.cover
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import com.viroge.booksanalyzer.R
-import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +18,13 @@ class BookCoverMapper @Inject constructor() {
         inputFieldIcon = Icons.Default.Check,
     )
 
-    fun map(entry: BookCoverCandidate): BookCoverPickerItem = BookCoverPickerItem(
+    fun map(entry: BookCover): BookCoverPickerItem = BookCoverPickerItem(
+        shouldReportOnFailToLoad = entry.url.trim().isNotEmpty(),
         url = entry.url,
+    )
+
+    fun map(url: String): BookCoverPickerItem = BookCoverPickerItem(
+        shouldReportOnFailToLoad = url.trim().isNotEmpty(),
+        url = url,
     )
 }

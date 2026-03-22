@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
-import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverCandidatesUseCase
+import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverUrlsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,13 +19,15 @@ import javax.inject.Inject
 @HiltViewModel
 class CoverPickerViewModel @Inject constructor(
     private val pickerStateProvider: CoverPickerStateProvider,
-    private val getCoverCandidates: GetBookCoverCandidatesUseCase,
+    private val getBookCoverUrlsUseCase: GetBookCoverUrlsUseCase,
     private val mapper: BookCoverMapper,
 ) : ViewModel() {
 
     private val _isInitialized = MutableStateFlow(false)
     private val _isOpen = MutableStateFlow(false)
     private val _manualInput = MutableStateFlow("")
+    private val _manualBookCovers: MutableStateFlow<List<BookCover>> = MutableStateFlow(emptyList())
+    private val _bookCovers: MutableStateFlow<List<BookCover>> = MutableStateFlow(emptyList())
     private val _state = MutableStateFlow(InnerState.Loading)
 
     private enum class InnerState {
@@ -35,10 +37,20 @@ class CoverPickerViewModel @Inject constructor(
     val state = combine(
         _isInitialized,
         _isOpen,
-        _manualInput,
         _state,
-        pickerStateProvider.state
-    ) { isInitialized, isOpen, input, innerState, pickerState ->
+        _manualInput,
+        _manualBookCovers,
+        _bookCovers,
+        pickerStateProvider.selectedCoverUrl
+    ) { args ->
+        val isInitialized = args[0] as Boolean
+        val isOpen = args[1] as Boolean
+        val innerState = args[2] as InnerState
+        val input = args[3] as String
+        val manualBookCovers = args[4] as List<BookCover>
+        val bookCovers = args[5] as List<BookCover>
+        val selected = args[6] as String?
+
         when (innerState) {
             InnerState.Loading -> BookCoverPickerUiState(
                 initialized = isInitialized,
@@ -54,10 +66,10 @@ class CoverPickerViewModel @Inject constructor(
                 screenState = BookCoverPickerScreenState.Content(
                     manualUrlInput = input,
                     values = mapper.getContentStateValues(),
-                    selectedCover = pickerState.selectedCandidate?.let { mapper.map(it) },
+                    selectedCover = selected?.let { mapper.map(it) },
                     bookCovers = // Show manual first, then the rest:
-                        pickerState.manualBookCovers.map { mapper.map(it) } +
-                                pickerState.bookCovers.map { mapper.map(it) },
+                        manualBookCovers.map { mapper.map(it) } +
+                                bookCovers.map { mapper.map(it) },
                 ),
             )
         }
@@ -75,24 +87,32 @@ class CoverPickerViewModel @Inject constructor(
             )
         )
 
+    init {
+        _isInitialized.value = false
+    }
+
     fun openCoverPicker(
         selectedCoverUrl: String?,
         originalCoverUrl: String?,
         isbn13: String?,
     ) {
-        _isInitialized.value = true
         _isOpen.value = true
-        _state.value = InnerState.Loading
 
-        val allBookCovers = getCoverCandidates(selectedCoverUrl, originalCoverUrl, isbn13)
-        pickerStateProvider.updateBookCovers(bookCovers = allBookCovers)
+        val isInitialized = _isInitialized.value
+        if (!isInitialized) {
+            _state.value = InnerState.Loading
 
-        val selected = pickerStateProvider.getSelected()
-        if (selected == null && selectedCoverUrl != null) {
-            pickerStateProvider.selectCover(url = selectedCoverUrl)
+            val allBookCovers = getBookCoverUrlsUseCase(selectedCoverUrl, originalCoverUrl, isbn13)
+            _bookCovers.value = allBookCovers.map { BookCover(url = it) }
+
+            val selected = pickerStateProvider.getSelectedCoverUrl()
+            if (selected == null && selectedCoverUrl != null) {
+                pickerStateProvider.selectCoverUrl(url = selectedCoverUrl)
+            }
+            _state.value = InnerState.Content
+
+            _isInitialized.value = true
         }
-
-        _state.value = InnerState.Content
     }
 
     fun closeCoverPicker() {
@@ -107,8 +127,8 @@ class CoverPickerViewModel @Inject constructor(
         val url = _manualInput.value.trim()
         if (url.isEmpty()) return
 
-        val bookCovers = pickerStateProvider.getBookCoverCandidates()
-        val manualBookCovers = pickerStateProvider.getManualBookCoverCandidates()
+        val bookCovers = _bookCovers.value
+        val manualBookCovers = _manualBookCovers.value
 
         if (bookCovers.any { it.url == url } || manualBookCovers.any { it.url == url }) {
             _manualInput.value = ""
@@ -116,17 +136,27 @@ class CoverPickerViewModel @Inject constructor(
         }
 
         _manualInput.value = ""
+        _manualBookCovers.value = listOf(BookCover(url = url)) + manualBookCovers
 
-        pickerStateProvider.selectCover(
-            url = url,
-            isManualInput = true,
-        )
+        pickerStateProvider.selectCoverUrl(url = url)
     }
 
     fun selectCover(url: String) {
-        pickerStateProvider.selectCover(
-            url = url,
-        )
+        pickerStateProvider.selectCoverUrl(url = url)
         closeCoverPicker()
     }
+
+    fun removeInvalidUrl(url: String) {
+        Log.d("CoverPickerViewModel", "Removing invalid url: $url")
+
+        val bookCovers = _bookCovers.value
+        if (bookCovers.any { it.url == url }) _bookCovers.value = bookCovers.filterNot { it.url == url }
+
+        val manualBookCovers = _manualBookCovers.value
+        if (manualBookCovers.any { it.url == url }) _manualBookCovers.value = manualBookCovers.filterNot { it.url == url }
+    }
 }
+
+data class BookCover(
+    val url: String,
+)

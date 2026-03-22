@@ -45,5 +45,6 @@ data class BookCoverPickerContentValues(
 
 @Immutable
 data class BookCoverPickerItem(
+    val shouldReportOnFailToLoad: Boolean,
     val url: String,
 )

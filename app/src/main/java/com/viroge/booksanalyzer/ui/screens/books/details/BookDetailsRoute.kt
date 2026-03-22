@@ -137,6 +137,7 @@ fun BookDetailsRoute(
                 onManualUrlChange = coverPickerVM::onManualUrlChange,
                 onAddManualUrl = coverPickerVM::addManualUrl,
                 onSelect = coverPickerVM::selectCover,
+                onRemoveInvalidUrl = coverPickerVM::removeInvalidUrl,
                 onDismiss = coverPickerVM::closeCoverPicker,
             )
         }

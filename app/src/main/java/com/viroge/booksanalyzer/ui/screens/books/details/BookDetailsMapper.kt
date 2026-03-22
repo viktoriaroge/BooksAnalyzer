@@ -2,7 +2,6 @@ package com.viroge.booksanalyzer.ui.screens.books.details
 
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.Book
-import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import com.viroge.booksanalyzer.ui.common.util.UiText
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
@@ -49,7 +48,7 @@ class BookDetailsMapper @Inject constructor() {
 
     fun mapToDataState(
         book: Book,
-        selectedCandidate: BookCoverCandidate?,
+        selectedCoverUrl: String?,
     ): BookDetailsDataState = BookDetailsDataState(
         animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13, book.source, book.sourceId),
         id = book.id,
@@ -59,7 +58,7 @@ class BookDetailsMapper @Inject constructor() {
         isbn13 = book.isbn13,
         isbn10 = book.isbn10,
         meta = listOfNotNull(book.publishedYear, book.isbn13).joinToString(separator = " • "),
-        url = selectedCandidate?.url ?: book.coverUrl,
+        url = selectedCoverUrl ?: book.coverUrl,
         originalUrl = book.originalCoverUrl,
         source = BookSourceUi.fromDomain(book.source),
         status = BookReadingStatusUi.fromDomain(book.status),

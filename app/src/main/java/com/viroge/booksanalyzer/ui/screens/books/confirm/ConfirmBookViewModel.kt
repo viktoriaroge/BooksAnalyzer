@@ -41,9 +41,9 @@ class ConfirmBookViewModel @Inject constructor(
     private val _internalState = MutableStateFlow(ConfirmBookScreenState())
     val state = combine(
         _internalState,
-        coverPickerStateProvider.state,
+        coverPickerStateProvider.selectedCoverUrl,
         bookSelectionStateProvider.selectedTempBook, // temp book, not in DB (both confirm and manual)
-    ) { internalState, pickerState, selectedBook ->
+    ) { internalState, selectedCoverUrl, selectedBook ->
 
         val newState = internalState.copy(
             screenValues = mapper.getScreenValues(),
@@ -64,7 +64,7 @@ class ConfirmBookViewModel @Inject constructor(
 
         ConfirmBookUiState(
             screenState = newState,
-            bookData = selectedBook?.let { mapper.mapToDataState(it, pickerState.selectedCandidate) },
+            bookData = selectedBook?.let { mapper.mapToDataState(it, selectedCoverUrl) },
         )
     }.distinctUntilChanged()
         .flowOn(Dispatchers.Default)
@@ -86,7 +86,7 @@ class ConfirmBookViewModel @Inject constructor(
             _internalState.update { it.copy(isSaving = true) }
 
             val originalBook = bookSelectionStateProvider.getSelectedTempBook() ?: return@launch
-            val editedBook = originalBook.copy(coverUrl = coverPickerStateProvider.getSelected()?.url ?: originalBook.coverUrl)
+            val editedBook = originalBook.copy(coverUrl = coverPickerStateProvider.getSelectedCoverUrl() ?: originalBook.coverUrl)
 
             saveBookUseCase(editedBook)
                 .onSuccess { result ->
@@ -140,7 +140,7 @@ class ConfirmBookViewModel @Inject constructor(
                 authors = editState.editAuthors.split(",").map { it.trim() },
                 year = editState.editYear,
                 isbn13 = editState.editIsbn13,
-                coverUrl = coverPickerStateProvider.getSelected()?.url,
+                coverUrl = coverPickerStateProvider.getSelectedCoverUrl(),
             )
 
             saveBookUseCase(editedBook)
@@ -181,7 +181,7 @@ class ConfirmBookViewModel @Inject constructor(
             authors = editState.editAuthors.split(",").map { it.trim() },
             year = editState.editYear,
             isbn13 = editState.editIsbn13,
-            coverUrl = coverPickerStateProvider.getSelected()?.url,
+            coverUrl = coverPickerStateProvider.getSelectedCoverUrl(),
         )
     }
 

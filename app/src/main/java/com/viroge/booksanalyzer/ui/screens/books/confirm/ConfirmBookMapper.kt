@@ -2,7 +2,6 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import com.viroge.booksanalyzer.R
 import com.viroge.booksanalyzer.domain.model.TempBook
-import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import javax.inject.Inject
@@ -32,13 +31,13 @@ class ConfirmBookMapper @Inject constructor() {
 
     fun mapToDataState(
         book: TempBook,
-        selectedCandidate: BookCoverCandidate?,
+        selectedCoverUrl: String?,
     ): ConfirmBookDataState = ConfirmBookDataState(
         animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13, book.source, book.sourceId),
         title = book.title,
         authors = book.authors.joinToString(separator = ", "),
         isbn13 = book.isbn13,
         source = BookSourceUi.fromDomain(book.source),
-        url = selectedCandidate?.url ?: book.coverUrl,
+        url = selectedCoverUrl ?: book.coverUrl,
     )
 }

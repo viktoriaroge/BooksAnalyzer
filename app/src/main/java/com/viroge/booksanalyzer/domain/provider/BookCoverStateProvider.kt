@@ -2,57 +2,24 @@ package com.viroge.booksanalyzer.domain.provider
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class CoverPickerStateProvider @Inject constructor() {
 
-    private val _state = MutableStateFlow(BookCoverState())
-    val state = _state.asStateFlow()
+    private val _selectedCoverUrl: MutableStateFlow<String?> = MutableStateFlow(null)
+    val selectedCoverUrl = _selectedCoverUrl.asStateFlow()
 
-    fun getSelected(): BookCoverCandidate? = _state.value.selectedCandidate
-    fun getBookCoverCandidates(): List<BookCoverCandidate> = _state.value.bookCovers
-    fun getManualBookCoverCandidates(): List<BookCoverCandidate> = _state.value.manualBookCovers
+    fun getSelectedCoverUrl(): String? = _selectedCoverUrl.value
 
-    fun selectCover(
+    fun selectCoverUrl(
         url: String?,
-        isManualInput: Boolean = false,
     ) {
-        when {
-            isManualInput && url != null ->
-                _state.update {
-                    it.copy(
-                        selectedCandidate = BookCoverCandidate(url),
-                        manualBookCovers = listOf(BookCoverCandidate(url)) + it.manualBookCovers,
-                    )
-                }
-
-            url != null ->
-                _state.update { it.copy(selectedCandidate = BookCoverCandidate(url)) }
-
-            else -> _state.update { it.copy(selectedCandidate = null) }
-        }
-    }
-
-    fun updateBookCovers(
-        bookCovers: List<BookCoverCandidate>,
-    ) {
-        _state.update { it.copy(bookCovers = bookCovers) }
+        _selectedCoverUrl.value = url
     }
 
     fun clear() {
-        _state.value = BookCoverState()
+        _selectedCoverUrl.value = null
     }
 }
-
-data class BookCoverState(
-    val selectedCandidate: BookCoverCandidate? = null,
-    val bookCovers: List<BookCoverCandidate> = emptyList(),
-    val manualBookCovers: List<BookCoverCandidate> = emptyList(),
-)
-
-data class BookCoverCandidate(
-    val url: String,
-)

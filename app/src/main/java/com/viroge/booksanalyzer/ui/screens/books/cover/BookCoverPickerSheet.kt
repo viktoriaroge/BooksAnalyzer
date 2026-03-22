@@ -36,6 +36,7 @@ fun BookCoverPickerSheet(
     onManualUrlChange: (String) -> Unit,
     onAddManualUrl: () -> Unit,
     onSelect: (String) -> Unit,
+    onRemoveInvalidUrl: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     if (!state.isOpen) return
@@ -90,9 +91,10 @@ fun BookCoverPickerSheet(
                         items(screenState.bookCovers.size) { idx ->
                             val cover = screenState.bookCovers[idx]
                             CoverChoiceTile(
-                                url = cover.url,
+                                cover = cover,
                                 selected = cover == screenState.selectedCover,
-                                onClick = { onSelect(cover.url) }
+                                onClick = { onSelect(cover.url) },
+                                onInvalidUrl = { onRemoveInvalidUrl(cover.url) },
                             )
                         }
                     }
@@ -106,9 +108,10 @@ fun BookCoverPickerSheet(
 
 @Composable
 private fun CoverChoiceTile(
-    url: String,
+    cover: BookCoverPickerItem,
     selected: Boolean,
     onClick: () -> Unit,
+    onInvalidUrl: () -> Unit,
 ) {
     Card(
         onClick = onClick,
@@ -125,8 +128,11 @@ private fun CoverChoiceTile(
     ) {
         PvBookCoverAsyncImage(
             modifier = Modifier.fillMaxSize(),
-            url = url,
+            url = cover.url,
             imageSize = PvBookCoverImageSize.Large,
+
+            reportOnLoadingError = cover.shouldReportOnFailToLoad,
+            onLoadingError = onInvalidUrl,
         )
     }
 }

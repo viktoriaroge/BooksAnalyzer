@@ -60,9 +60,8 @@ class BookDetailsViewModel @Inject constructor(
             val currentSeed = seed ?: throw IllegalStateException("No book seed found for details.")
 
             getBookUseCase(currentSeed.id)
-                .combine(coverPickerStateProvider.state) { dbBook, pickerState ->
-                    mapper.mapToDataState(dbBook, pickerState.selectedCandidate)
-                }
+                .combine(coverPickerStateProvider.selectedCoverUrl)
+                { dbBook, selectedCoverUrl -> mapper.mapToDataState(dbBook, selectedCoverUrl) }
         }
         .onEach { book ->
             if (needsMarking) {
@@ -183,7 +182,7 @@ class BookDetailsViewModel @Inject constructor(
                 year = editState.editYear.trim().takeIf { it.isNotEmpty() },
                 isbn13 = editState.editIsbn13.trim().takeIf { it.isNotEmpty() },
                 isbn10 = editState.editIsbn10.trim().takeIf { it.isNotEmpty() },
-                coverUrl = coverPickerStateProvider.state.value.selectedCandidate?.url ?: book.url,
+                coverUrl = coverPickerStateProvider.getSelectedCoverUrl() ?: book.url,
             ).onSuccess {
                 exitEditMode()
             }.onFailure {

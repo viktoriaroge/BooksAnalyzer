@@ -2,10 +2,9 @@ package com.viroge.booksanalyzer.domain.usecase.bookcover
 
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksConfig
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryConfig
-import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import javax.inject.Inject
 
-class GetBookCoverCandidatesUseCase @Inject constructor(
+class GetBookCoverUrlsUseCase @Inject constructor(
     private val googleBooksConfig: GoogleBooksConfig,
     private val openLibraryConfig: OpenLibraryConfig,
 ) {
@@ -16,20 +15,20 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
         selectedCoverUrl: String?,
         originalCoverUrl: String?,
         isbn13: String?,
-    ): List<BookCoverCandidate> {
+    ): List<String> {
         val candidates = getCoverCandidates(selectedCoverUrl, originalCoverUrl, isbn13)
 
         return if (containsEmpty(candidates)) candidates
-        else candidates + BookCoverCandidate(url = "") // The generated url-s and finally an empty in the end
+        else candidates + "" // The generated url-s and finally an empty in the end
     }
 
-    private fun containsEmpty(list: List<BookCoverCandidate>): Boolean = list.any { it.url.isEmpty() }
+    private fun containsEmpty(list: List<String>): Boolean = list.any { it.isEmpty() }
 
     private fun getCoverCandidates(
         selectedCoverUrl: String?,
         originalCoverUrl: String?,
         isbn13: String?,
-    ): List<BookCoverCandidate> {
+    ): List<String> {
         val urls = mutableSetOf<String>()
 
         selectedCoverUrl?.let { selected -> if (selected.isNotBlank()) urls += selected }
@@ -46,7 +45,7 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
             urls += "https://covers.openlibrary.org/b/isbn/$isbn-M.jpg$suffixToFailBlank"
         }
 
-        return urls.map { BookCoverCandidate(url = it) }
+        return urls.toList()
     }
 
     private fun getUpgradedUrls(url: String?): Set<String> {
