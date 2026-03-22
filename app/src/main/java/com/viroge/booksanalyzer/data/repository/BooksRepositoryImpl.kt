@@ -12,6 +12,7 @@ import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksConfig
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksMapper
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
+import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryConfig
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryMapper
 import com.viroge.booksanalyzer.domain.model.Book
 import com.viroge.booksanalyzer.domain.model.BooksPage
@@ -36,6 +37,7 @@ class BooksRepositoryImpl @Inject constructor(
     private val googleBooksConfig: GoogleBooksConfig,
     private val openLibraryClient: OpenLibraryClient,
     private val openLibraryMapper: OpenLibraryMapper,
+    private val openLibraryConfig: OpenLibraryConfig,
 ) : BooksRepository {
 
     override fun observeLibrary(): Flow<List<Book>> = bookDao.observeAll()
@@ -250,7 +252,10 @@ class BooksRepositoryImpl @Inject constructor(
                 query = query,
                 page = token.olPage,
             ).map { items ->
-                items.mapNotNull { item -> openLibraryMapper.mapOrNull(item) }
+                items.mapNotNull { item ->
+                    val coverUrl = item.coverId?.let { openLibraryConfig.getCoverUrl(it.toString()) }
+                    openLibraryMapper.mapOrNull(item, coverUrl)
+                }
             }
         }
 

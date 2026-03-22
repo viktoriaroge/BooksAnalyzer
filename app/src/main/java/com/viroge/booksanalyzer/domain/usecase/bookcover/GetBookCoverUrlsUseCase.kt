@@ -2,6 +2,7 @@ package com.viroge.booksanalyzer.domain.usecase.bookcover
 
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksConfig
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryConfig
+import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryCoverSize
 import com.viroge.booksanalyzer.domain.model.BookSource
 import javax.inject.Inject
 
@@ -9,8 +10,6 @@ class GetBookCoverUrlsUseCase @Inject constructor(
     private val googleBooksConfig: GoogleBooksConfig,
     private val openLibraryConfig: OpenLibraryConfig,
 ) {
-
-    private val protocolRegex = Regex("^http://", RegexOption.IGNORE_CASE)
 
     operator fun invoke(
         selectedCoverUrl: String?,
@@ -57,10 +56,9 @@ class GetBookCoverUrlsUseCase @Inject constructor(
 
         // OpenLibrary by ISBN if not added already:
         isbn13?.trim()?.takeIf { it.isNotBlank() }?.let { isbn ->
-            val suffixToFailBlank = "?default=false"
-            urls += "https://covers.openlibrary.org/b/isbn/$isbn-XL.jpg$suffixToFailBlank"
-            urls += "https://covers.openlibrary.org/b/isbn/$isbn-L.jpg$suffixToFailBlank"
-            urls += "https://covers.openlibrary.org/b/isbn/$isbn-M.jpg$suffixToFailBlank"
+            urls += openLibraryConfig.getCoverUrl(coverId = isbn, imageSize = OpenLibraryCoverSize.XL)
+            urls += openLibraryConfig.getCoverUrl(coverId = isbn, imageSize = OpenLibraryCoverSize.L)
+            urls += openLibraryConfig.getCoverUrl(coverId = isbn, imageSize = OpenLibraryCoverSize.M)
         }
 
         return urls.toList()
@@ -69,9 +67,6 @@ class GetBookCoverUrlsUseCase @Inject constructor(
     private fun getUpgradedUrls(url: String?): Set<String> {
         val urls = mutableSetOf<String>()
         url?.let {
-            if (googleBooksConfig.isGoogleBooksRequest(it)) {
-                urls += googleUpgrades(it)
-            }
             if (openLibraryConfig.isOpenLibraryRequest(it)) {
                 urls += openLibraryUpgrades(it)
             }
@@ -79,25 +74,13 @@ class GetBookCoverUrlsUseCase @Inject constructor(
         return urls
     }
 
-    private fun googleUpgrades(url: String): List<String> {
-        // Upgrades only if it starts with http:// (case-insensitive)
-        val baseUrl = url.replace(protocolRegex, "https://")
-
-        return if (baseUrl.contains("zoom=")) {
-            listOf("3", "2", "1").map { level ->
-                baseUrl.replace(Regex("zoom=\\d+"), "zoom=$level")
-            }
-        } else {
-            listOf(baseUrl)
-        }
-    }
-
     private fun openLibraryUpgrades(url: String): List<String> {
+        val protocolRegex = Regex("^http://", RegexOption.IGNORE_CASE)
         val baseUrl = url.replace(protocolRegex, "https://")
 
         // Defines the sizes in order of preference
-        return listOf("-XL.jpg", "-L.jpg", "-M.jpg").map { size ->
-            baseUrl.replace(Regex("-(S|M|L|XL)\\.jpg$"), size)
-        }
+        val urls = listOf("-XL.jpg", "-L.jpg", "-M.jpg")
+            .map { size -> baseUrl.replace(Regex("-(S|M|L|XL)\\.jpg"), size) }
+        return urls
     }
 }

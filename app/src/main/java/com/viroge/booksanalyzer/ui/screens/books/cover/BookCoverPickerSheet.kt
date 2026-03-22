@@ -1,5 +1,6 @@
 package com.viroge.booksanalyzer.ui.screens.books.cover
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -94,12 +95,17 @@ fun BookCoverPickerSheet(
                         ) {
                             items(count = screenState.bookCovers.size, key = { idx -> screenState.bookCovers[idx].url }) { idx ->
                                 val cover = screenState.bookCovers[idx]
-                                CoverChoiceTile(
-                                    cover = cover,
-                                    selected = cover == screenState.selectedCover,
-                                    onClick = { onSelect(cover.url) },
-                                    onInvalidUrl = { onRemoveInvalidUrl(cover.url) },
-                                )
+
+                                Log.d("BookCoverPickerSheet", "Load Cover: ${cover.url}")
+
+                                Box(modifier = Modifier.animateItem()) {
+                                    CoverChoiceTile(
+                                        cover = cover,
+                                        selected = cover == screenState.selectedCover,
+                                        onClick = { onSelect(cover.url) },
+                                        onInvalidUrl = { onRemoveInvalidUrl(cover.url) },
+                                    )
+                                }
                             }
                         }
                     }
