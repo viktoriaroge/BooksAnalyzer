@@ -34,7 +34,6 @@ data class GoogleVolumeInfo(
     val publisher: String = "",
     val publishedDate: String? = null,
     val industryIdentifiers: List<GoogleIndustryIdentifier> = emptyList(),
-    val imageLinks: GoogleImageLinks? = null,
     val pageCount: Int? = null,
 )
 
@@ -42,14 +41,4 @@ data class GoogleVolumeInfo(
 data class GoogleIndustryIdentifier(
     val type: String = "",
     val identifier: String = "",
-)
-
-@Serializable
-data class GoogleImageLinks(
-    val extraLarge: String? = null,
-    val large: String? = null,
-    val medium: String? = null,
-    val small: String? = null,
-    val thumbnail: String? = null,
-    val smallThumbnail: String? = null,
 )

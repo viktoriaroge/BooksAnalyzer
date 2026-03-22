@@ -65,7 +65,7 @@
     <string name="book_details_screen_delete_book_dialog_delete_button">Banish</string>
     <string name="book_details_screen_delete_book_dialog_cancel_button">Keep</string>
     <string name="book_details_screen_in_edit_screen_name">Alter the Record</string>
-    <string name="book_details_screen_in_edit_change_book_cover_button_label">Change the Visage</string>
+    <string name="book_details_screen_in_edit_change_book_cover_button_label">Calibrate the Visage</string>
     <string name="book_details_screen_in_edit_title_label">Title</string>
     <string name="book_details_screen_in_edit_author_label">Authors</string>
     <string name="book_details_screen_in_edit_author_hint">e.g.: Jane Doe, John Smith</string>
@@ -107,7 +107,7 @@
 
     <string name="confirm_book_screen_name">Finalize the PageVow</string>
     <string name="confirm_book_screen_in_manual_mode_name">Inscribe by Hand</string>
-    <string name="confirm_book_screen_change_book_cover_button_label">Change the Visage</string>
+    <string name="confirm_book_screen_change_book_cover_button_label">Calibrate the Visage</string>
     <string name="confirm_book_screen_isbn13_label">ISBN-13: %1$s</string>
     <string name="confirm_book_screen_source_label">Origin:</string>
     <string name="confirm_book_screen_save_button_label">Commit to Chronicle</string>

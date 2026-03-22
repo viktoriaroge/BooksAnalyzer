@@ -19,18 +19,12 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
     ): List<BookCoverCandidate> {
         val candidates = getCoverCandidates(selectedCoverUrl, originalCoverUrl, isbn13)
 
-        return if (containsDefaultCover(candidates)) candidates
-        else listOf(getDefaultCover()) + candidates
+        return if (containsEmpty(candidates)) candidates
+        else candidates + BookCoverCandidate(url = "") // The generated url-s and finally an empty in the end
     }
 
-    private fun containsDefaultCover(list: List<BookCoverCandidate>): Boolean = list.any { it.url.isEmpty() }
+    private fun containsEmpty(list: List<BookCoverCandidate>): Boolean = list.any { it.url.isEmpty() }
 
-    private fun getDefaultCover(): BookCoverCandidate = BookCoverCandidate(url = "")
-
-    /**
-     * Get a list of cover candidates. Each candidate contains a pair of data:
-     * First: the url, Second: a map of headers needed to load it.
-     */
     private fun getCoverCandidates(
         selectedCoverUrl: String?,
         originalCoverUrl: String?,
@@ -46,12 +40,13 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
 
         // OpenLibrary by ISBN if not added already:
         isbn13?.trim()?.takeIf { it.isNotBlank() }?.let { isbn ->
-            urls += "https://covers.openlibrary.org/b/isbn/$isbn-XL.jpg"
-            urls += "https://covers.openlibrary.org/b/isbn/$isbn-L.jpg"
-            urls += "https://covers.openlibrary.org/b/isbn/$isbn-M.jpg"
+            val suffixToFailBlank = "?default=false"
+            urls += "https://covers.openlibrary.org/b/isbn/$isbn-XL.jpg$suffixToFailBlank"
+            urls += "https://covers.openlibrary.org/b/isbn/$isbn-L.jpg$suffixToFailBlank"
+            urls += "https://covers.openlibrary.org/b/isbn/$isbn-M.jpg$suffixToFailBlank"
         }
 
-        return urls.map { attachCoverHeaders(url = it) }
+        return urls.map { BookCoverCandidate(url = it) }
     }
 
     private fun getUpgradedUrls(url: String?): Set<String> {
@@ -66,8 +61,6 @@ class GetBookCoverCandidatesUseCase @Inject constructor(
         }
         return urls
     }
-
-    private fun attachCoverHeaders(url: String): BookCoverCandidate = BookCoverCandidate(url = url)
 
     private fun googleUpgrades(url: String): List<String> {
         // Upgrades only if it starts with http:// (case-insensitive)

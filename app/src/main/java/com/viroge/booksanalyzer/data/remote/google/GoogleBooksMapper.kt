@@ -22,10 +22,7 @@ class GoogleBooksMapper @Inject constructor() {
         }?.identifier
 
         val year = item.volumeInfo.publishedDate?.take(4)
-        val coverUrl = (item.volumeInfo.imageLinks?.thumbnail ?: item.volumeInfo.imageLinks?.smallThumbnail)?.replace(
-            oldValue = "http://",
-            newValue = "https://"
-        )
+        val coverUrl = getGoogleBooksHighResCover(item.id)
 
         return TempBook(
             sourceId = item.id,
@@ -37,5 +34,10 @@ class GoogleBooksMapper @Inject constructor() {
             isbn10 = isbn10,
             coverUrl = coverUrl,
         )
+    }
+
+    fun getGoogleBooksHighResCover(volumeId: String, width: Int = 800): String {
+        // Use 'fife' to request a specific width and NO height so it maintains aspect ratio:
+        return "https://books.google.com/books/publisher/content/images/frontcover/$volumeId?fife=w$width"
     }
 }
