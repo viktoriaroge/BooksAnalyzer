@@ -3,6 +3,7 @@ package com.viroge.booksanalyzer.ui.screens.books.cover
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverUrlsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -95,6 +96,8 @@ class CoverPickerViewModel @Inject constructor(
         selectedCoverUrl: String?,
         originalCoverUrl: String?,
         isbn13: String?,
+        source: BookSource,
+        sourceId: String?,
     ) {
         _isOpen.value = true
 
@@ -102,7 +105,7 @@ class CoverPickerViewModel @Inject constructor(
         if (!isInitialized) {
             _state.value = InnerState.Loading
 
-            val allBookCovers = getBookCoverUrlsUseCase(selectedCoverUrl, originalCoverUrl, isbn13)
+            val allBookCovers = getBookCoverUrlsUseCase(selectedCoverUrl, originalCoverUrl, isbn13, source, sourceId)
             _bookCovers.value = allBookCovers.map { BookCover(url = it) }
 
             val selected = pickerStateProvider.getSelectedCoverUrl()

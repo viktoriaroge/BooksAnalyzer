@@ -127,6 +127,8 @@ fun BookDetailsRoute(
                             selectedCoverUrl = bookData.url,
                             originalCoverUrl = bookData.originalUrl,
                             isbn13 = bookData.isbn13,
+                            source = bookData.source.domainSource,
+                            sourceId = bookData.sourceId,
                         )
                     }
                 }

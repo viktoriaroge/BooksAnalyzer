@@ -38,6 +38,7 @@ class ConfirmBookMapper @Inject constructor() {
         authors = book.authors.joinToString(separator = ", "),
         isbn13 = book.isbn13,
         source = BookSourceUi.fromDomain(book.source),
+        sourceId = book.sourceId,
         url = selectedCoverUrl ?: book.coverUrl,
     )
 }

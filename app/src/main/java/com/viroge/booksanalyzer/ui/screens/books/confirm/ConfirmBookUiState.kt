@@ -28,6 +28,7 @@ data class ConfirmBookDataState(
     val authors: String,
     val isbn13: String?,
     val source: BookSourceUi,
+    val sourceId: String?,
     val url: String?,
 )
 

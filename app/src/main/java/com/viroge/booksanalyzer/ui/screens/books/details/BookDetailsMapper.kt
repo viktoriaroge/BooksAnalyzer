@@ -61,6 +61,7 @@ class BookDetailsMapper @Inject constructor() {
         url = selectedCoverUrl ?: book.coverUrl,
         originalUrl = book.originalCoverUrl,
         source = BookSourceUi.fromDomain(book.source),
+        sourceId = book.sourceId,
         status = BookReadingStatusUi.fromDomain(book.status),
     )
 }

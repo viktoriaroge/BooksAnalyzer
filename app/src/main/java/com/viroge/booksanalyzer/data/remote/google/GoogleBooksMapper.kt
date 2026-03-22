@@ -8,7 +8,7 @@ import javax.inject.Singleton
 @Singleton
 class GoogleBooksMapper @Inject constructor() {
 
-    fun map(item: GoogleVolumeItem): TempBook {
+    fun map(item: GoogleVolumeItem, coverUrl: String?): TempBook {
         val isbn13 = item.volumeInfo.industryIdentifiers.firstOrNull {
             it.type.equals(
                 other = "ISBN_13", ignoreCase = true
@@ -22,8 +22,6 @@ class GoogleBooksMapper @Inject constructor() {
         }?.identifier
 
         val year = item.volumeInfo.publishedDate?.take(4)
-        val coverUrl = getGoogleBooksHighResCover(item.id)
-
         return TempBook(
             sourceId = item.id,
             source = BookSource.GOOGLE_BOOKS,
@@ -34,10 +32,5 @@ class GoogleBooksMapper @Inject constructor() {
             isbn10 = isbn10,
             coverUrl = coverUrl,
         )
-    }
-
-    fun getGoogleBooksHighResCover(volumeId: String, width: Int = 800): String {
-        // Use 'fife' to request a specific width and NO height so it maintains aspect ratio:
-        return "https://books.google.com/books/publisher/content/images/frontcover/$volumeId?fife=w$width"
     }
 }

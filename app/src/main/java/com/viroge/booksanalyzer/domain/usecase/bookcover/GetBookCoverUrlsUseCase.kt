@@ -2,6 +2,7 @@ package com.viroge.booksanalyzer.domain.usecase.bookcover
 
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksConfig
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryConfig
+import com.viroge.booksanalyzer.domain.model.BookSource
 import javax.inject.Inject
 
 class GetBookCoverUrlsUseCase @Inject constructor(
@@ -15,8 +16,10 @@ class GetBookCoverUrlsUseCase @Inject constructor(
         selectedCoverUrl: String?,
         originalCoverUrl: String?,
         isbn13: String?,
+        source: BookSource,
+        sourceId: String?,
     ): List<String> {
-        val candidates = getCoverCandidates(selectedCoverUrl, originalCoverUrl, isbn13)
+        val candidates = getCoverCandidates(selectedCoverUrl, originalCoverUrl, isbn13, source, sourceId)
 
         return if (containsEmpty(candidates)) candidates
         else candidates + "" // The generated url-s and finally an empty in the end
@@ -28,6 +31,8 @@ class GetBookCoverUrlsUseCase @Inject constructor(
         selectedCoverUrl: String?,
         originalCoverUrl: String?,
         isbn13: String?,
+        source: BookSource,
+        sourceId: String?,
     ): List<String> {
         val urls = mutableSetOf<String>()
 
@@ -36,6 +41,19 @@ class GetBookCoverUrlsUseCase @Inject constructor(
 
         originalCoverUrl?.let { original -> if (original.isNotBlank()) urls += original }
         getUpgradedUrls(originalCoverUrl?.trim()).also { urls += it }
+
+        // GoogleBooks by sourceId if not added already:
+        when (source) {
+            BookSource.GOOGLE_BOOKS -> {
+                sourceId?.let { id ->
+                    googleBooksConfig.getCoverUrl(id).also { urls += it }
+                }
+            }
+
+            BookSource.OPEN_LIBRARY, BookSource.MANUAL -> {
+                // No op
+            }
+        }
 
         // OpenLibrary by ISBN if not added already:
         isbn13?.trim()?.takeIf { it.isNotBlank() }?.let { isbn ->

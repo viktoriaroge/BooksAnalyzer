@@ -9,6 +9,7 @@ import com.viroge.booksanalyzer.data.local.books.BookDao
 import com.viroge.booksanalyzer.data.local.books.BookEntity
 import com.viroge.booksanalyzer.data.local.books.InsertBookResult
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksClient
+import com.viroge.booksanalyzer.data.remote.google.GoogleBooksConfig
 import com.viroge.booksanalyzer.data.remote.google.GoogleBooksMapper
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryClient
 import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryMapper
@@ -32,6 +33,7 @@ class BooksRepositoryImpl @Inject constructor(
     private val booksEntityMapper: BooksEntityMapper,
     private val googleBooksClient: GoogleBooksClient,
     private val googleBooksMapper: GoogleBooksMapper,
+    private val googleBooksConfig: GoogleBooksConfig,
     private val openLibraryClient: OpenLibraryClient,
     private val openLibraryMapper: OpenLibraryMapper,
 ) : BooksRepository {
@@ -236,7 +238,10 @@ class BooksRepositoryImpl @Inject constructor(
                 query = query,
                 startIndex = token.googleStart,
             ).map { items ->
-                items.map { item -> googleBooksMapper.map(item) }
+                items.map { item ->
+                    val coverUrl = googleBooksConfig.getCoverUrl(item.id)
+                    googleBooksMapper.map(item, coverUrl)
+                }
             }
         }
         val o = async {

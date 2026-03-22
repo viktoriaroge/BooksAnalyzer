@@ -89,7 +89,7 @@ fun BookCoverPickerSheet(
                             columns = GridCells.Fixed(3),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(16.dp),
+                            contentPadding = PaddingValues(32.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             items(count = screenState.bookCovers.size, key = { idx -> screenState.bookCovers[idx].url }) { idx ->

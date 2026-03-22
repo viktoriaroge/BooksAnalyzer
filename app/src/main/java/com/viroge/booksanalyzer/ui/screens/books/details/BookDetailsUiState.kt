@@ -56,6 +56,7 @@ data class BookDetailsDataState(
     val meta: String = "",
     val status: BookReadingStatusUi = BookReadingStatusUi.NotStarted,
     val source: BookSourceUi = BookSourceUi.Manual,
+    val sourceId: String? = null,
 )
 
 @Immutable

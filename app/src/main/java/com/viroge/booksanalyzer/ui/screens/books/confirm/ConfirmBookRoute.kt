@@ -66,6 +66,8 @@ fun ConfirmBookRoute(
                 selectedCoverUrl = book.url,
                 originalCoverUrl = book.url,
                 isbn13 = book.isbn13,
+                source = book.source.domainSource,
+                sourceId = book.sourceId,
             )
         },
         onBack = onBack,
@@ -88,6 +90,8 @@ fun ConfirmBookRoute(
                 selectedCoverUrl = tempBook.coverUrl,
                 originalCoverUrl = tempBook.coverUrl,
                 isbn13 = tempBook.isbn13,
+                source = tempBook.source,
+                sourceId = tempBook.sourceId,
             )
         },
         onSave = vm::saveManualBook,

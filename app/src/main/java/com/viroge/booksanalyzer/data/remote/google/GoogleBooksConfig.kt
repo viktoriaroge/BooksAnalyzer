@@ -15,4 +15,9 @@ class GoogleBooksConfig @Inject constructor() {
     )
 
     fun isGoogleBooksRequest(url: String): Boolean = url.contains("googleapis.com") || url.contains("google.com/books")
+
+    fun getCoverUrl(volumeId: String, width: Int = 800): String {
+        // Use 'fife' to request a specific width and NO height so it maintains aspect ratio:
+        return "https://books.google.com/books/publisher/content/images/frontcover/$volumeId?fife=w$width"
+    }
 }
