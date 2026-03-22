@@ -2,13 +2,13 @@ package com.viroge.booksanalyzer.ui.screens.books.cover
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -46,9 +46,12 @@ fun BookCoverPickerSheet(
     ModalBottomSheet(
         sheetState = sheetState,
         onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxSize(),
     ) {
         Column(
-            Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.9f),
         ) {
             Text(
                 modifier = Modifier
@@ -81,25 +84,25 @@ fun BookCoverPickerSheet(
                     )
 
                     // Grid with image candidates:
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(screenState.bookCovers.size) { idx ->
-                            val cover = screenState.bookCovers[idx]
-                            CoverChoiceTile(
-                                cover = cover,
-                                selected = cover == screenState.selectedCover,
-                                onClick = { onSelect(cover.url) },
-                                onInvalidUrl = { onRemoveInvalidUrl(cover.url) },
-                            )
+                    Box(modifier = Modifier.weight(1f)) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(16.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(count = screenState.bookCovers.size, key = { idx -> screenState.bookCovers[idx].url }) { idx ->
+                                val cover = screenState.bookCovers[idx]
+                                CoverChoiceTile(
+                                    cover = cover,
+                                    selected = cover == screenState.selectedCover,
+                                    onClick = { onSelect(cover.url) },
+                                    onInvalidUrl = { onRemoveInvalidUrl(cover.url) },
+                                )
+                            }
                         }
                     }
-
-                    Spacer(Modifier.height(16.dp))
                 }
             }
         }
