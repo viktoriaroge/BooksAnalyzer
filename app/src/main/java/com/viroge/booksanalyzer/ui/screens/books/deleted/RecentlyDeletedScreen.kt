@@ -50,13 +50,10 @@ fun RecentlyDeletedScreen(
 ) {
     val appScaffoldPadding = LocalAppScaffoldPadding.current
 
-    var selectedBook by remember { mutableStateOf<RecentlyDeletedBookState?>(null) }
-    val values = state.screenValues
-
     Scaffold(
         topBar = {
             PvTopAppBar(
-                title = stringResource(values.screenName),
+                title = stringResource(state.screenValues.screenName),
                 canGoBack = true,
                 onBack = onBack,
             )
@@ -69,48 +66,59 @@ fun RecentlyDeletedScreen(
                 .fillMaxSize()
         ) {
 
-            if (state.books.isEmpty()) {
-                EmptyStateView(values)
-            } else {
-                LazyColumn(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    contentPadding = PaddingValues(vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    items(items = state.books, key = { it.id }) { book ->
-                        BookItemCard(
-                            book = book,
-                            sourceLabel = stringResource(values.sourceLabel),
-                            onClick = { selectedBook = book }
+            when (val screenState = state.screenState) {
+                RecentlyDeletedScreenState.Loading -> {
+                    // Empty screen is fine for now since loading is almost instant.
+                }
+
+                is RecentlyDeletedScreenState.Empty -> {
+                    EmptyStateView(screenState.values)
+                }
+
+                is RecentlyDeletedScreenState.Content -> {
+                    var selectedBook by remember { mutableStateOf<RecentlyDeletedBookState?>(null) }
+
+                    LazyColumn(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        contentPadding = PaddingValues(vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        items(items = screenState.books, key = { it.id }) { book ->
+                            BookItemCard(
+                                book = book,
+                                sourceLabel = stringResource(screenState.values.sourceLabel),
+                                onClick = { selectedBook = book }
+                            )
+                        }
+                    }
+
+                    selectedBook?.let { book ->
+                        val dialogBookTitle = book.title
+                        AlertDialog(
+                            onDismissRequest = { selectedBook = null },
+                            title = { Text(stringResource(screenState.values.restoreDialogTitle)) },
+                            text = { Text(customAnnotatedString(screenState.values.restoreDialogText, dialogBookTitle)) },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    onRestoreBook(book.id)
+                                    selectedBook = null
+                                }) { Text(stringResource(screenState.values.restoreButtonLabel)) }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { selectedBook = null }) {
+                                    Text(stringResource(screenState.values.cancelButtonLabel))
+                                }
+                            }
                         )
                     }
                 }
-            }
-
-            selectedBook?.let { book ->
-                AlertDialog(
-                    onDismissRequest = { selectedBook = null },
-                    title = { Text(stringResource(values.restoreDialogTitle)) },
-                    text = { Text(customAnnotatedString(values.restoreDialogText, book.title)) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            onRestoreBook(book.id)
-                            selectedBook = null
-                        }) { Text(stringResource(values.restoreButtonLabel)) }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { selectedBook = null }) {
-                            Text(stringResource(values.cancelButtonLabel))
-                        }
-                    }
-                )
             }
         }
     }
 }
 
 @Composable
-private fun EmptyStateView(values: RecentlyDeletedScreenValues) {
+private fun EmptyStateView(values: RecentlyDeletedEmptyValues) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -206,7 +214,7 @@ private fun BookItemCard(
                         style = MaterialTheme.typography.bodySmall,
                     )
                     PvBookSourceBadge(
-                        sourceTextRes = book.sourceBadgeTextRes,
+                        sourceText = book.source.shortLabel.asString(),
                     )
                 }
             }

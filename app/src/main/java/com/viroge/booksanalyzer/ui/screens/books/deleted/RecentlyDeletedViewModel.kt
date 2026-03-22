@@ -31,10 +31,22 @@ class RecentlyDeletedViewModel @Inject constructor(
 
     val state: StateFlow<RecentlyDeletedUiState> = getRecentlyDeletedBooks()
         .map { books ->
-            RecentlyDeletedUiState(
-                screenValues = mapper.getScreenValues(),
-                books = mapper.map(books)
-            )
+            if (books.isEmpty()) {
+                RecentlyDeletedUiState(
+                    screenValues = mapper.getScreenValues(),
+                    screenState = RecentlyDeletedScreenState.Empty(
+                        values = mapper.getEmptyStateValues()
+                    )
+                )
+            } else {
+                RecentlyDeletedUiState(
+                    screenValues = mapper.getScreenValues(),
+                    screenState = RecentlyDeletedScreenState.Content(
+                        values = mapper.getContentStateValues(),
+                        books = mapper.map(books),
+                    ),
+                )
+            }
         }
         .distinctUntilChanged()
         .flowOn(Dispatchers.Default)
@@ -42,7 +54,10 @@ class RecentlyDeletedViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = RecentlyDeletedUiState()
+            initialValue = RecentlyDeletedUiState(
+                screenValues = mapper.getScreenValues(),
+                screenState = RecentlyDeletedScreenState.Loading,
+            )
         )
 
     fun restoreBook(bookId: String) {
