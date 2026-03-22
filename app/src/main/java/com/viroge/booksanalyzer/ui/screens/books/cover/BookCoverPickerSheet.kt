@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,7 +38,7 @@ fun BookCoverPickerSheet(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    if (!state.screenState.isOpen) return
+    if (!state.isOpen) return
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -55,51 +54,52 @@ fun BookCoverPickerSheet(
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
                     .padding(horizontal = 16.dp),
-                text = stringResource(state.screenState.screenValues.screenTitle),
+                text = stringResource(state.screenValues.screenTitle),
                 style = MaterialTheme.typography.titleLarge
             )
 
-            // Manual url input:
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = state.screenState.manualUrlInput,
-                onValueChange = onManualUrlChange,
-                label = { Text(stringResource(state.screenState.screenValues.inputFieldLabel)) },
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                trailingIcon = {
-                    IconButton(onClick = onAddManualUrl) {
-                        Icon(state.screenState.screenValues.inputFieldIcon, contentDescription = "")
-                    }
+            when (val screenState = state.screenState) {
+                BookCoverPickerScreenState.Loading -> {
+                    // Empty screen is fine for now since loading is almost instant.
                 }
-            )
 
-            if (state.screenState.isLoading) {
-                CircularProgressIndicator()
-                Spacer(Modifier.height(24.dp))
-                return@ModalBottomSheet
-            }
-
-            val allItems = state.coverState.manualBookCovers + state.coverState.bookCovers
-            // Grid with image candidates:
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(allItems.size) { idx ->
-                    val candidate = allItems[idx]
-                    CoverChoiceTile(
-                        url = candidate.url,
-                        selected = candidate == state.coverState.selectedCandidate,
-                        onClick = { onSelect(candidate.url) }
+                is BookCoverPickerScreenState.Content -> {
+                    // Manual url input:
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = screenState.manualUrlInput,
+                        onValueChange = onManualUrlChange,
+                        label = { Text(stringResource(screenState.values.inputFieldLabel)) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        trailingIcon = {
+                            IconButton(onClick = onAddManualUrl) {
+                                Icon(screenState.values.inputFieldIcon, contentDescription = "")
+                            }
+                        }
                     )
+
+                    // Grid with image candidates:
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(16.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(screenState.bookCovers.size) { idx ->
+                            val cover = screenState.bookCovers[idx]
+                            CoverChoiceTile(
+                                url = cover.url,
+                                selected = cover == screenState.selectedCover,
+                                onClick = { onSelect(cover.url) }
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
                 }
             }
-
-            Spacer(Modifier.height(16.dp))
         }
     }
 }

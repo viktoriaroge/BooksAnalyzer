@@ -63,8 +63,8 @@ fun ConfirmBookRoute(
             book ?: return@ConfirmBookScreen
 
             coverPickerVM.openCoverPicker(
+                selectedCoverUrl = book.url,
                 originalCoverUrl = book.url,
-                source = book.source.domainSource,
                 isbn13 = book.isbn13,
             )
         },
@@ -85,8 +85,8 @@ fun ConfirmBookRoute(
             val tempBook = vm.getTempManualBookForCoverPicker() ?: return@ConfirmManualBookScreen
 
             coverPickerVM.openCoverPicker(
+                selectedCoverUrl = tempBook.coverUrl,
                 originalCoverUrl = tempBook.coverUrl,
-                source = tempBook.source,
                 isbn13 = tempBook.isbn13,
             )
         },

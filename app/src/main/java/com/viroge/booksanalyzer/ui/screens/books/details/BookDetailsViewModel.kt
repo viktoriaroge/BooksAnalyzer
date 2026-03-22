@@ -109,6 +109,7 @@ class BookDetailsViewModel @Inject constructor(
                     bookData = BookDetailsDataState(
                         id = bookSelectionStateProvider.getSelectedBookSeed()?.id ?: "",
                         url = bookSelectionStateProvider.getSelectedBookSeed()?.url ?: "",
+                        originalUrl = bookSelectionStateProvider.getSelectedBookSeed()?.url ?: "",
                         animationKey = bookSelectionStateProvider.getSelectedBookSeed()?.animationKey ?: "",
                     ),
                 )

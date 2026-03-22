@@ -47,6 +47,7 @@ data class BookDetailsDataState(
     val animationKey: String,
     val id: String,
     val url: String?,
+    val originalUrl: String?,
     val title: String = "",
     val authors: String = "",
     val year: String? = null,

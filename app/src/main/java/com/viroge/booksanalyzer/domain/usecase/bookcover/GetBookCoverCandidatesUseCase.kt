@@ -1,19 +1,23 @@
 package com.viroge.booksanalyzer.domain.usecase.bookcover
 
-import com.viroge.booksanalyzer.domain.model.BookSource
+import com.viroge.booksanalyzer.data.remote.google.GoogleBooksConfig
+import com.viroge.booksanalyzer.data.remote.openlibrary.OpenLibraryConfig
 import com.viroge.booksanalyzer.domain.provider.BookCoverCandidate
 import javax.inject.Inject
 
-class GetBookCoverCandidatesUseCase @Inject constructor() {
+class GetBookCoverCandidatesUseCase @Inject constructor(
+    private val googleBooksConfig: GoogleBooksConfig,
+    private val openLibraryConfig: OpenLibraryConfig,
+) {
 
     private val protocolRegex = Regex("^http://", RegexOption.IGNORE_CASE)
 
     operator fun invoke(
-        coverUrl: String?,
-        source: BookSource,
+        selectedCoverUrl: String?,
+        originalCoverUrl: String?,
         isbn13: String?,
     ): List<BookCoverCandidate> {
-        val candidates = getCoverCandidates(coverUrl, source, isbn13)
+        val candidates = getCoverCandidates(selectedCoverUrl, originalCoverUrl, isbn13)
 
         return if (containsDefaultCover(candidates)) candidates
         else listOf(getDefaultCover()) + candidates
@@ -28,32 +32,39 @@ class GetBookCoverCandidatesUseCase @Inject constructor() {
      * First: the url, Second: a map of headers needed to load it.
      */
     private fun getCoverCandidates(
-        coverUrl: String?,
-        source: BookSource,
+        selectedCoverUrl: String?,
+        originalCoverUrl: String?,
         isbn13: String?,
     ): List<BookCoverCandidate> {
-        val list = mutableListOf<String>() // urls
-        val url = coverUrl?.trim().orEmpty()
+        val urls = mutableSetOf<String>()
 
-        if (url.isNotBlank()) {
-            when (source) {
-                BookSource.GOOGLE_BOOKS -> list += googleUpgrades(url)
-                BookSource.OPEN_LIBRARY -> list += openLibraryUpgrades(url)
-                BookSource.MANUAL -> {}
-            }
-        }
+        selectedCoverUrl?.let { selected -> if (selected.isNotBlank()) urls += selected }
+        getUpgradedUrls(selectedCoverUrl?.trim()).also { urls += it }
+
+        originalCoverUrl?.let { original -> if (original.isNotBlank()) urls += original }
+        getUpgradedUrls(originalCoverUrl?.trim()).also { urls += it }
 
         // OpenLibrary by ISBN if not added already:
         isbn13?.trim()?.takeIf { it.isNotBlank() }?.let { isbn ->
-            list += "https://covers.openlibrary.org/b/isbn/$isbn-XL.jpg"
-            list += "https://covers.openlibrary.org/b/isbn/$isbn-L.jpg"
-            list += "https://covers.openlibrary.org/b/isbn/$isbn-M.jpg"
+            urls += "https://covers.openlibrary.org/b/isbn/$isbn-XL.jpg"
+            urls += "https://covers.openlibrary.org/b/isbn/$isbn-L.jpg"
+            urls += "https://covers.openlibrary.org/b/isbn/$isbn-M.jpg"
         }
 
-        // Always include original at the end as fallback:
-        coverUrl?.let { original -> if (original.isNotBlank()) list += original }
+        return urls.map { attachCoverHeaders(url = it) }
+    }
 
-        return list.distinct().map { attachCoverHeaders(url = it) }
+    private fun getUpgradedUrls(url: String?): Set<String> {
+        val urls = mutableSetOf<String>()
+        url?.let {
+            if (googleBooksConfig.isGoogleBooksRequest(it)) {
+                urls += googleUpgrades(it)
+            }
+            if (openLibraryConfig.isOpenLibraryRequest(it)) {
+                urls += openLibraryUpgrades(it)
+            }
+        }
+        return urls
     }
 
     private fun attachCoverHeaders(url: String): BookCoverCandidate = BookCoverCandidate(url = url)
