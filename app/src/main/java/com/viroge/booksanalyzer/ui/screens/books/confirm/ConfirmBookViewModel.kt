@@ -182,6 +182,7 @@ class ConfirmBookViewModel @Inject constructor(
             year = editState.editYear,
             isbn13 = editState.editIsbn13,
             coverUrl = coverPickerStateProvider.getSelectedCoverUrl(),
+            originalCoverUrl = coverPickerStateProvider.getSelectedCoverUrl(),
         )
     }
 

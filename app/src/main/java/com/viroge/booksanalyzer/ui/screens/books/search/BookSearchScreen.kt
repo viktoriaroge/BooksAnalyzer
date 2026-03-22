@@ -256,7 +256,7 @@ private fun BooksList(
                     horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
                 ) {
                     PvBookCoverAsyncImage(
-                        url = book.url,
+                        url = book.coverUrl,
                         imageSize = PvBookCoverImageSize.XSmall,
                         // Animation parameters:
                         animate = true,

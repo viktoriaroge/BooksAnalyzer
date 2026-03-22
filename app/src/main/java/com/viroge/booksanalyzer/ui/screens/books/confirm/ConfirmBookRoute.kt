@@ -63,8 +63,8 @@ fun ConfirmBookRoute(
             book ?: return@ConfirmBookScreen
 
             coverPickerVM.openCoverPicker(
-                selectedCoverUrl = book.url,
-                originalCoverUrl = book.url,
+                selectedCoverUrl = book.coverUrl,
+                originalCoverUrl = book.originalCoverUrl,
                 isbn13 = book.isbn13,
                 source = book.source.domainSource,
                 sourceId = book.sourceId,
@@ -88,7 +88,7 @@ fun ConfirmBookRoute(
 
             coverPickerVM.openCoverPicker(
                 selectedCoverUrl = tempBook.coverUrl,
-                originalCoverUrl = tempBook.coverUrl,
+                originalCoverUrl = tempBook.originalCoverUrl,
                 isbn13 = tempBook.isbn13,
                 source = tempBook.source,
                 sourceId = tempBook.sourceId,

@@ -22,6 +22,7 @@ class OpenLibraryMapper @Inject constructor() {
             year = doc.firstPublishYear?.toString(),
             isbn13 = isbn13,
             isbn10 = isbn10,
+            originalCoverUrl = coverUrl,
             coverUrl = coverUrl,
         )
     }

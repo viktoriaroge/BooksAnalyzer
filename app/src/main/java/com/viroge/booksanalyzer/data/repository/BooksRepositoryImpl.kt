@@ -174,7 +174,6 @@ class BooksRepositoryImpl @Inject constructor(
 
         // Not in DB, add a new entry:
         val id = UUID.randomUUID().toString()
-        val coverUrl = book.coverUrl?.trim()?.takeIf { it.isNotBlank() }
         val entity = BookEntity(
             bookId = id,
             titleKey = key,
@@ -185,8 +184,8 @@ class BooksRepositoryImpl @Inject constructor(
             publishedYear = book.year?.trim()?.takeIf { it.isNotBlank() },
             isbn13 = book.isbn13?.trim()?.takeIf { it.isNotBlank() },
             isbn10 = book.isbn10?.trim()?.takeIf { it.isNotBlank() },
-            originalCoverUrl = coverUrl, // This is only written once, later just read
-            coverUrl = coverUrl,
+            originalCoverUrl = book.originalCoverUrl?.trim()?.takeIf { it.isNotBlank() },
+            coverUrl = book.coverUrl?.trim()?.takeIf { it.isNotBlank() },
             status = ReadingStatus.NOT_STARTED.name,
             createdAtEpochMs = System.currentTimeMillis(),
             lastOpenAtEpochMs = System.currentTimeMillis(),

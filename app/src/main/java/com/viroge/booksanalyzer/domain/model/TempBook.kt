@@ -5,8 +5,9 @@ data class TempBook(
     val sourceId: String?,
     val title: String,
     val authors: List<String>,
-    val year: String? = null,
-    val isbn13: String? = null,
-    val isbn10: String? = null,
-    val coverUrl: String? = null,
+    val year: String?,
+    val isbn13: String?,
+    val isbn10: String?,
+    val originalCoverUrl: String?,
+    val coverUrl: String?,
 )

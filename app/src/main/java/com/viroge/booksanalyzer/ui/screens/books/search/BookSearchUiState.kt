@@ -64,7 +64,8 @@ data class SearchBookDataState(
     val meta: String,
     val source: BookSourceUi,
     val sourceId: String?,
-    val url: String?,
+    val originalCoverUrl: String?,
+    val coverUrl: String?,
 )
 
 @Immutable

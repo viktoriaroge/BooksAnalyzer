@@ -67,11 +67,28 @@ class GetBookCoverUrlsUseCase @Inject constructor(
     private fun getUpgradedUrls(url: String?): Set<String> {
         val urls = mutableSetOf<String>()
         url?.let {
+            if (googleBooksConfig.isGoogleBooksRequest(it)) {
+                urls += googleUpgrades(it)
+            }
             if (openLibraryConfig.isOpenLibraryRequest(it)) {
                 urls += openLibraryUpgrades(it)
             }
         }
         return urls
+    }
+
+    private fun googleUpgrades(url: String): List<String> {
+        val protocolRegex = Regex("^http://", RegexOption.IGNORE_CASE)
+        // Upgrades only if it starts with http:// (case-insensitive)
+        val baseUrl = url.replace(protocolRegex, "https://")
+
+        return if (baseUrl.contains("zoom=")) {
+            listOf("3", "2", "1").map { level ->
+                baseUrl.replace(Regex("zoom=\\d+"), "zoom=$level")
+            }
+        } else {
+            listOf(baseUrl)
+        }
     }
 
     private fun openLibraryUpgrades(url: String): List<String> {

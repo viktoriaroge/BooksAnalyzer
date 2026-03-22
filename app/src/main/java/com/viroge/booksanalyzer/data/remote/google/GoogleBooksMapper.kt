@@ -22,6 +22,10 @@ class GoogleBooksMapper @Inject constructor() {
         }?.identifier
 
         val year = item.volumeInfo.publishedDate?.take(4)
+
+        val originalCoverUrl = (item.volumeInfo.imageLinks?.thumbnail ?: item.volumeInfo.imageLinks?.smallThumbnail)
+            ?.replace(oldValue = "http://", newValue = "https://")
+
         return TempBook(
             sourceId = item.id,
             source = BookSource.GOOGLE_BOOKS,
@@ -30,6 +34,7 @@ class GoogleBooksMapper @Inject constructor() {
             year = year,
             isbn13 = isbn13,
             isbn10 = isbn10,
+            originalCoverUrl = originalCoverUrl,
             coverUrl = coverUrl,
         )
     }

@@ -71,7 +71,8 @@ class BookSearchMapper @Inject constructor() {
         meta = listOfNotNull(book.year, book.isbn13).joinToString(separator = " • "),
         source = BookSourceUi.fromDomain(book.source),
         sourceId = book.sourceId,
-        url = book.coverUrl,
+        originalCoverUrl = book.originalCoverUrl,
+        coverUrl = book.coverUrl,
     )
 
     fun mapToTempBook(
@@ -84,7 +85,8 @@ class BookSearchMapper @Inject constructor() {
         year = book.year,
         isbn13 = book.isbn13,
         isbn10 = book.isbn10,
-        coverUrl = book.url,
+        originalCoverUrl = book.originalCoverUrl,
+        coverUrl = book.coverUrl,
     )
 
     fun mapToTempBook(
@@ -117,6 +119,7 @@ class BookSearchMapper @Inject constructor() {
             SearchMode.ISBN -> query
         },
         isbn10 = null,
+        originalCoverUrl = null,
         coverUrl = null,
     )
 

@@ -83,7 +83,7 @@ fun ConfirmBookScreen(
         ) {
 
             PvBookCoverHeader(
-                imageUrl = book.url,
+                imageUrl = book.coverUrl,
                 // Animation parameters:
                 animate = true,
                 animationKey = book.animationKey,
