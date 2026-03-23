@@ -10,11 +10,13 @@ import com.viroge.booksanalyzer.domain.usecase.search.GetSearchHistoryUseCase
 import com.viroge.booksanalyzer.domain.usecase.search.ManageSearchHistoryUseCase
 import com.viroge.booksanalyzer.domain.usecase.search.SearchBooksUseCase
 import com.viroge.booksanalyzer.domain.usecase.search.SearchError
+import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverUrlUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectTempBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -35,11 +38,15 @@ import javax.inject.Inject
 @HiltViewModel
 class BookSearchViewModel @Inject constructor(
     private val selectTempBookUseCase: SelectTempBookUseCase,
+    private val selectBookCoverUrlUseCase: SelectBookCoverUrlUseCase,
     private val searchBooksUseCase: SearchBooksUseCase,
     getSearchHistoryUseCase: GetSearchHistoryUseCase,
     private val manageHistoryUseCase: ManageSearchHistoryUseCase,
     private val mapper: BookSearchMapper,
 ) : ViewModel() {
+
+    private val _events = Channel<BookSearchEvent>(Channel.BUFFERED)
+    val events: Flow<BookSearchEvent> = _events.receiveAsFlow()
 
     private val _query = MutableStateFlow("")
     private val _mode = MutableStateFlow(SearchMode.ALL)
@@ -192,13 +199,20 @@ class BookSearchViewModel @Inject constructor(
 
     fun selectBook(book: SearchBookDataState) {
         viewModelScope.launch {
-            selectTempBookUseCase(mapper.mapToTempBook(book))
+            val tempBookSeed = mapper.mapToTempBook(book)
+            selectTempBookUseCase(tempBookSeed)
+            selectBookCoverUrlUseCase(null)
+
+            _events.send(BookSearchEvent.OpenBookConfirmation(tempBookSeed))
         }
     }
 
     fun setManualPrefill(query: String, mode: BookSearchModeUi) {
         viewModelScope.launch {
-            selectTempBookUseCase(mapper.mapToTempBook(query, mode.domainStatus))
+            val tempBookSeed = mapper.mapToTempBook(query, mode.domainStatus)
+            selectTempBookUseCase(tempBookSeed)
+
+            _events.send(BookSearchEvent.OpenBookConfirmation(tempBookSeed))
         }
     }
 

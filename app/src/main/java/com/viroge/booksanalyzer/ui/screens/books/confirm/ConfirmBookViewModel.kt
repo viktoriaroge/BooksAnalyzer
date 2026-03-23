@@ -1,6 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.BookCoverDataSeed
@@ -11,6 +12,7 @@ import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookCoverUrlSele
 import com.viroge.booksanalyzer.domain.usecase.selection.ObserveTempBookSelectionUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverDataSeedUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookSeedUseCase
+import com.viroge.booksanalyzer.ui.nav.Routes
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +33,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConfirmBookViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val observeTempBookSelectionUseCase: ObserveTempBookSelectionUseCase,
     private val observeBookCoverUrlSelectionUseCase: ObserveBookCoverUrlSelectionUseCase,
     private val selectBookSeedUseCase: SelectBookSeedUseCase,
@@ -38,6 +41,8 @@ class ConfirmBookViewModel @Inject constructor(
     private val saveBookUseCase: SaveBookUseCase,
     private val mapper: ConfirmBookMapper,
 ) : ViewModel() {
+
+    private val navSeed: BookSeed? = savedStateHandle[Routes.BOOK_SEED_ARG]
 
     private var needsInitializing: Boolean = true
 

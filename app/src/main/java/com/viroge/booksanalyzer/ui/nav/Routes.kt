@@ -19,5 +19,6 @@ object Routes {
     const val APP_TERMS = "app_terms"
 
     // Arguments:
-    const val BOOK_SEED_ARG = "book_seed_arg"
+    const val BOOK_SEED_ARG = "book_seed_arg" // book details
+    const val TEMP_BOOK_SEED_ARG = "temp_book_seed_arg" // confirm book
 }

@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.viroge.booksanalyzer.domain.model.BookSeed
+import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.ui.screens.books.confirm.ConfirmBookRoute
 import com.viroge.booksanalyzer.ui.screens.books.deleted.RecentlyDeletedRoute
 import com.viroge.booksanalyzer.ui.screens.books.details.BookDetailsRoute
@@ -53,6 +54,28 @@ fun AppNavHost(
         }
 
         override fun put(bundle: Bundle, key: String, value: BookSeed?) {
+            bundle.putParcelable(key, value)
+        }
+    }
+
+    val tempBookSeedNavType = object : NavType<TempBook?>(isNullableAllowed = true) {
+        override fun get(bundle: Bundle, key: String): TempBook? {
+            // Modern type-safe way (API 33+)
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                bundle.getParcelable(key, TempBook::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                bundle.getParcelable(key)
+            }
+        }
+
+        override fun parseValue(value: String): TempBook? {
+            // If the value is "null" (as a string from the route), return null
+            if (value == "null") return null
+            return Json.decodeFromString<TempBook>(Uri.decode(value))
+        }
+
+        override fun put(bundle: Bundle, key: String, value: TempBook?) {
             bundle.putParcelable(key, value)
         }
     }
@@ -152,11 +175,19 @@ fun AppNavHost(
                     SearchBookRoute(
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
-                        onGoToConfirm = { navigateSafe(Routes.CONFIRM_BOOK) },
+                        onOpenBookConfirmation = { seed ->
+                            val seedJson = Uri.encode(Json.encodeToString(seed))
+                            navigateSafe("${Routes.CONFIRM_BOOK}/$seedJson")
+                        },
                     )
                 }
 
-                composable(Routes.CONFIRM_BOOK) {
+                composable(
+                    route = "${Routes.CONFIRM_BOOK}/{${Routes.TEMP_BOOK_SEED_ARG}}",
+                    arguments = listOf(
+                        navArgument(Routes.TEMP_BOOK_SEED_ARG) { type = tempBookSeedNavType }
+                    )
+                ) {
                     ConfirmBookRoute(
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
