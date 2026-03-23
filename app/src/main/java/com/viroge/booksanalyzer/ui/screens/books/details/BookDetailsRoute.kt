@@ -54,10 +54,16 @@ fun BookDetailsRoute(
 
     LaunchedEffect(vm.events, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            vm.markOpen()
+
             vm.events.collect { event ->
                 when (event) {
                     is BookDetailsEvent.Error -> {
                         snackbar.show(message = event.errorType.message.asString(context), duration = SnackbarDuration.Short)
+                    }
+
+                    BookDetailsEvent.OpenBookCoverPicker -> {
+                        coverPickerVM.openCoverPicker()
                     }
                 }
             }
@@ -123,7 +129,7 @@ fun BookDetailsRoute(
                 onUpdateEditIsbn10 = vm::updateEditIsbn10,
                 onOpenCoverPicker = remember {
                     {
-                        coverPickerVM.openCoverPicker(
+                        vm.onOpenCoverPicker(
                             selectedCoverUrl = bookData.url,
                             originalCoverUrl = bookData.originalUrl,
                             isbn13 = bookData.isbn13,

@@ -3,9 +3,10 @@ package com.viroge.booksanalyzer.ui.screens.books.cover
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.domain.model.BookSource
-import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.bookcover.GetBookCoverUrlsUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookCoverDataSeedSelectionUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookCoverUrlSelectionUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverUrlUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,13 +14,17 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CoverPickerViewModel @Inject constructor(
-    private val pickerStateProvider: CoverPickerStateProvider,
+    private val observeBookCoverDataSeedSelectionUseCase: ObserveBookCoverDataSeedSelectionUseCase,
+    private val observeBookCoverUrlSelectionUseCase: ObserveBookCoverUrlSelectionUseCase,
+    private val selectBookCoverUrlUseCase: SelectBookCoverUrlUseCase,
     private val getBookCoverUrlsUseCase: GetBookCoverUrlsUseCase,
     private val mapper: BookCoverMapper,
 ) : ViewModel() {
@@ -42,7 +47,7 @@ class CoverPickerViewModel @Inject constructor(
         _manualInput,
         _manualBookCovers,
         _bookCovers,
-        pickerStateProvider.selectedCoverUrl
+        observeBookCoverUrlSelectionUseCase()
     ) { args ->
         val isInitialized = args[0] as Boolean
         val isOpen = args[1] as Boolean
@@ -92,29 +97,26 @@ class CoverPickerViewModel @Inject constructor(
         _isInitialized.value = false
     }
 
-    fun openCoverPicker(
-        selectedCoverUrl: String?,
-        originalCoverUrl: String?,
-        isbn13: String?,
-        source: BookSource,
-        sourceId: String?,
-    ) {
+    fun openCoverPicker() {
         _isOpen.value = true
 
-        val isInitialized = _isInitialized.value
-        if (!isInitialized) {
-            _state.value = InnerState.Loading
+        viewModelScope.launch {
+            val isInitialized = _isInitialized.value
+            if (!isInitialized) {
+                _state.value = InnerState.Loading
 
-            val allBookCovers = getBookCoverUrlsUseCase(selectedCoverUrl, originalCoverUrl, isbn13, source, sourceId)
-            _bookCovers.value = allBookCovers.map { BookCover(url = it) }
+                val seed = observeBookCoverDataSeedSelectionUseCase().firstOrNull() ?: return@launch
+                val allBookCovers = getBookCoverUrlsUseCase(seed)
+                _bookCovers.value = allBookCovers.map { BookCover(url = it) }
 
-            val selected = pickerStateProvider.getSelectedCoverUrl()
-            if (selected == null && selectedCoverUrl != null) {
-                pickerStateProvider.selectCoverUrl(url = selectedCoverUrl)
+                val selected = observeBookCoverUrlSelectionUseCase().firstOrNull()
+                if (selected == null && seed.selectedCoverUrl != null) {
+                    selectBookCoverUrlUseCase(seed.selectedCoverUrl)
+                }
+                _state.value = InnerState.Content
+
+                _isInitialized.value = true
             }
-            _state.value = InnerState.Content
-
-            _isInitialized.value = true
         }
     }
 
@@ -141,12 +143,16 @@ class CoverPickerViewModel @Inject constructor(
         _manualInput.value = ""
         _manualBookCovers.value = listOf(BookCover(url = url)) + manualBookCovers
 
-        pickerStateProvider.selectCoverUrl(url = url)
+        viewModelScope.launch {
+            selectBookCoverUrlUseCase(url)
+        }
     }
 
     fun selectCover(url: String) {
-        pickerStateProvider.selectCoverUrl(url = url)
-        closeCoverPicker()
+        viewModelScope.launch {
+            selectBookCoverUrlUseCase(url)
+            closeCoverPicker()
+        }
     }
 
     fun removeInvalidUrl(url: String) {

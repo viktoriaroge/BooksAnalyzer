@@ -43,12 +43,16 @@ fun ConfirmBookRoute(
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             vm.events.collect { event ->
                 when (event) {
-                    is ConfirmEvent.Saved -> {
+                    is ConfirmBookEvent.Saved -> {
                         onBookSaved()
                     }
 
-                    is ConfirmEvent.Error -> {
+                    is ConfirmBookEvent.Error -> {
                         snackbar.show(message = event.errorType.message.asString(context), duration = SnackbarDuration.Short)
+                    }
+
+                    ConfirmBookEvent.OpenBookCoverPicker -> {
+                        coverPickerVM.openCoverPicker()
                     }
                 }
             }
@@ -62,7 +66,7 @@ fun ConfirmBookRoute(
         onOpenCoverPicker = {
             book ?: return@ConfirmBookScreen
 
-            coverPickerVM.openCoverPicker(
+            vm.onOpenCoverPicker(
                 selectedCoverUrl = book.coverUrl,
                 originalCoverUrl = book.originalCoverUrl,
                 isbn13 = book.isbn13,
@@ -84,15 +88,8 @@ fun ConfirmBookRoute(
         onYearChange = vm::onYearChange,
         onIsbnChange = vm::onIsbnChange,
         onOpenCoverPicker = {
-            val tempBook = vm.getTempManualBookForCoverPicker() ?: return@ConfirmManualBookScreen
-
-            coverPickerVM.openCoverPicker(
-                selectedCoverUrl = tempBook.coverUrl,
-                originalCoverUrl = tempBook.originalCoverUrl,
-                isbn13 = tempBook.isbn13,
-                source = tempBook.source,
-                sourceId = tempBook.sourceId,
-            )
+            vm.onOpenCoverPickerInManualInputMode()
+            coverPickerVM.openCoverPicker()
         },
         onSave = vm::saveManualBook,
     )

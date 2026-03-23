@@ -2,12 +2,15 @@ package com.viroge.booksanalyzer.ui.screens.books.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
-import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
+import com.viroge.booksanalyzer.domain.model.BookCoverDataSeed
+import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.usecase.book.EditBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.book.MarkBookAsOpenedUseCase
 import com.viroge.booksanalyzer.domain.usecase.book.ObserveBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.book.UpdateBookStatusUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookCoverUrlSelectionUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookSeedSelectionUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverDataSeedUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -20,9 +23,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -31,8 +34,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookDetailsViewModel @Inject constructor(
-    private val bookSelectionStateProvider: BookSelectionStateProvider,
-    private val coverPickerStateProvider: CoverPickerStateProvider,
+    private val selectBookCoverDataSeedUseCase: SelectBookCoverDataSeedUseCase,
+    private val observeBookCoverUrlSelectionUseCase: ObserveBookCoverUrlSelectionUseCase,
+    private val observeBookSeedSelectionUseCase: ObserveBookSeedSelectionUseCase,
     private val getBookUseCase: ObserveBookUseCase,
     private val markBookAsOpened: MarkBookAsOpenedUseCase,
     private val updateBookStatusUseCase: UpdateBookStatusUseCase,
@@ -42,8 +46,6 @@ class BookDetailsViewModel @Inject constructor(
 
     private val _events = Channel<BookDetailsEvent>(Channel.BUFFERED)
     val events: Flow<BookDetailsEvent> = _events.receiveAsFlow()
-
-    private var needsMarking = true
 
     private val uiMode = MutableStateFlow<UiMode>(UiMode.Content)
 
@@ -55,19 +57,13 @@ class BookDetailsViewModel @Inject constructor(
     private val editInputState = MutableStateFlow<BookDetailsEditState?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val bookDataFlow: Flow<BookDetailsDataState> = bookSelectionStateProvider.selectedBookSeed
+    private val bookDataFlow: Flow<BookDetailsDataState> = observeBookSeedSelectionUseCase()
         .flatMapLatest { seed ->
             val currentSeed = seed ?: throw IllegalStateException("No book seed found for details.")
 
             getBookUseCase(currentSeed.id)
-                .combine(coverPickerStateProvider.selectedCoverUrl)
+                .combine(observeBookCoverUrlSelectionUseCase())
                 { dbBook, selectedCoverUrl -> mapper.mapToDataState(dbBook, selectedCoverUrl) }
-        }
-        .onEach { book ->
-            if (needsMarking) {
-                markBookAsOpened(book.id)
-                needsMarking = false
-            }
         }
         .flowOn(Dispatchers.Default)
 
@@ -106,14 +102,22 @@ class BookDetailsViewModel @Inject constructor(
                     isLoading = true,
                     screenValues = mapper.getScreenValues(),
                     bookData = BookDetailsDataState(
-                        id = bookSelectionStateProvider.getSelectedBookSeed()?.id ?: "",
-                        url = bookSelectionStateProvider.getSelectedBookSeed()?.url ?: "",
-                        originalUrl = bookSelectionStateProvider.getSelectedBookSeed()?.url ?: "",
-                        animationKey = bookSelectionStateProvider.getSelectedBookSeed()?.animationKey ?: "",
+                        // TODO: Pass navigation seed for those:
+                        id = "",
+                        url = "",
+                        originalUrl = "",
+                        animationKey = "",
                     ),
                 )
             )
         )
+
+    fun markOpen() {
+        viewModelScope.launch {
+            val bookId = observeBookSeedSelectionUseCase().firstOrNull()?.id ?: return@launch
+            markBookAsOpened(bookId)
+        }
+    }
 
     fun enterEditMode() {
         val currentBook = (state.value.screenState as? BookDetailsScreenState.Content)?.bookData ?: return
@@ -182,7 +186,7 @@ class BookDetailsViewModel @Inject constructor(
                 year = editState.editYear.trim().takeIf { it.isNotEmpty() },
                 isbn13 = editState.editIsbn13.trim().takeIf { it.isNotEmpty() },
                 isbn10 = editState.editIsbn10.trim().takeIf { it.isNotEmpty() },
-                coverUrl = coverPickerStateProvider.getSelectedCoverUrl() ?: book.url,
+                coverUrl = observeBookCoverUrlSelectionUseCase().firstOrNull() ?: book.url,
             ).onSuccess {
                 exitEditMode()
             }.onFailure {
@@ -192,9 +196,24 @@ class BookDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        coverPickerStateProvider.clear()
-        bookSelectionStateProvider.clearSelection()
+    fun onOpenCoverPicker(
+        selectedCoverUrl: String?,
+        originalCoverUrl: String?,
+        isbn13: String?,
+        source: BookSource,
+        sourceId: String?
+    ) {
+        viewModelScope.launch {
+            val seed = BookCoverDataSeed(
+                selectedCoverUrl = selectedCoverUrl,
+                originalCoverUrl = originalCoverUrl,
+                isbn13 = isbn13,
+                source = source,
+                sourceId = sourceId,
+            )
+            selectBookCoverDataSeedUseCase(seed)
+
+            _events.send(BookDetailsEvent.OpenBookCoverPicker)
+        }
     }
 }

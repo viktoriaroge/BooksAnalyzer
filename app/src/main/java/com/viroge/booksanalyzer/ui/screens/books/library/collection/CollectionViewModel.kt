@@ -3,15 +3,20 @@ package com.viroge.booksanalyzer.ui.screens.books.library.collection
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
+import com.viroge.booksanalyzer.domain.model.BookSeed
 import com.viroge.booksanalyzer.domain.usecase.book.GetBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.book.ObserveHasAvailableBooksUseCase
 import com.viroge.booksanalyzer.domain.usecase.book.ObserveLibraryDataUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverUrlUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookSeedUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
+import com.viroge.booksanalyzer.ui.screens.books.library.LibraryEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,22 +24,28 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CollectionViewModel @Inject constructor(
-    private val bookSelectionStateProvider: BookSelectionStateProvider,
+    private val selectBookCoverUrlUseCase: SelectBookCoverUrlUseCase,
+    private val selectBookSeedUseCase: SelectBookSeedUseCase,
     private val observeLibraryDataUseCase: ObserveLibraryDataUseCase,
     observeHasAvailableBooksUseCase: ObserveHasAvailableBooksUseCase,
     private val getBookUseCase: GetBookUseCase,
     private val mapper: CollectionMapper,
 ) : ViewModel() {
+
+    private val _events = Channel<LibraryEvent>(Channel.BUFFERED)
+    val events: Flow<LibraryEvent> = _events.receiveAsFlow()
 
     private val _statusFilter = MutableStateFlow<BookReadingStatusUi?>(value = null) // null == All
     private val _sort: MutableStateFlow<CollectionSortUi> = MutableStateFlow(value = CollectionSortUi.Added)
@@ -62,9 +73,9 @@ class CollectionViewModel @Inject constructor(
             initialValue = false
         )
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     private val screenState: Flow<CollectionScreenState> = combine(
-        _query,
+        _query.debounce(300),
         _statusFilter,
         _sort,
         hasBooks
@@ -122,21 +133,25 @@ class CollectionViewModel @Inject constructor(
         _sort.value = CollectionSortUi.Added
     }
 
-    fun selectBook(bookId: String) {
+    fun onOpenBook(bookId: String) {
         viewModelScope.launch {
-            getBookUseCase(bookId)?.let { book ->
-                bookSelectionStateProvider.selectBookSeed(
-                    bookId = book.id,
-                    bookCoverUrl = book.coverUrl ?: "",
-                    bookAnimationKey = BookTransitionKey.calculate(
-                        title = book.title,
-                        authors = book.authors,
-                        isbn = book.isbn13,
-                        source = book.source,
-                        sourceId = book.sourceId,
-                    )
+            val book = getBookUseCase(bookId) ?: return@launch
+
+            val seed = BookSeed(
+                id = book.id,
+                url = book.coverUrl ?: "",
+                animationKey = BookTransitionKey.calculate(
+                    title = book.title,
+                    authors = book.authors,
+                    isbn = book.isbn13,
+                    source = book.source,
+                    sourceId = book.sourceId,
                 )
-            }
+            )
+            selectBookSeedUseCase(seed)
+            selectBookCoverUrlUseCase(null)
+
+            _events.send(LibraryEvent.OpenBook)
         }
     }
 }

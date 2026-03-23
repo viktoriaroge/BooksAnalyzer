@@ -6,11 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.common.util.BooksUtil.mergeAndRank
 import com.viroge.booksanalyzer.domain.model.SearchMode
 import com.viroge.booksanalyzer.domain.model.TempBook
-import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
 import com.viroge.booksanalyzer.domain.usecase.search.GetSearchHistoryUseCase
 import com.viroge.booksanalyzer.domain.usecase.search.ManageSearchHistoryUseCase
 import com.viroge.booksanalyzer.domain.usecase.search.SearchBooksUseCase
 import com.viroge.booksanalyzer.domain.usecase.search.SearchError
+import com.viroge.booksanalyzer.domain.usecase.selection.SelectTempBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,7 +34,7 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class BookSearchViewModel @Inject constructor(
-    private val bookSelectionStateProvider: BookSelectionStateProvider,
+    private val selectTempBookUseCase: SelectTempBookUseCase,
     private val searchBooksUseCase: SearchBooksUseCase,
     getSearchHistoryUseCase: GetSearchHistoryUseCase,
     private val manageHistoryUseCase: ManageSearchHistoryUseCase,
@@ -191,11 +191,15 @@ class BookSearchViewModel @Inject constructor(
     fun clearRecents() = viewModelScope.launch { manageHistoryUseCase.clearAll() }
 
     fun selectBook(book: SearchBookDataState) {
-        bookSelectionStateProvider.selectTempBook(mapper.mapToTempBook(book))
+        viewModelScope.launch {
+            selectTempBookUseCase(mapper.mapToTempBook(book))
+        }
     }
 
     fun setManualPrefill(query: String, mode: BookSearchModeUi) {
-        bookSelectionStateProvider.selectTempBook(mapper.mapToTempBook(query, mode.domainStatus))
+        viewModelScope.launch {
+            selectTempBookUseCase(mapper.mapToTempBook(query, mode.domainStatus))
+        }
     }
 
     fun loadMore() {

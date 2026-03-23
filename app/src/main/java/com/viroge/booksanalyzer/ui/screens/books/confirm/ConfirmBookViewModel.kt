@@ -3,11 +3,14 @@ package com.viroge.booksanalyzer.ui.screens.books.confirm
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.viroge.booksanalyzer.domain.model.BookCoverDataSeed
+import com.viroge.booksanalyzer.domain.model.BookSeed
 import com.viroge.booksanalyzer.domain.model.BookSource
-import com.viroge.booksanalyzer.domain.model.TempBook
-import com.viroge.booksanalyzer.domain.provider.BookSelectionStateProvider
-import com.viroge.booksanalyzer.domain.provider.CoverPickerStateProvider
 import com.viroge.booksanalyzer.domain.usecase.book.SaveBookUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookCoverUrlSelectionUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.ObserveTempBookSelectionUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverDataSeedUseCase
+import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookSeedUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +21,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -27,22 +31,24 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConfirmBookViewModel @Inject constructor(
-    private val bookSelectionStateProvider: BookSelectionStateProvider,
-    private val coverPickerStateProvider: CoverPickerStateProvider,
+    private val observeTempBookSelectionUseCase: ObserveTempBookSelectionUseCase,
+    private val observeBookCoverUrlSelectionUseCase: ObserveBookCoverUrlSelectionUseCase,
+    private val selectBookSeedUseCase: SelectBookSeedUseCase,
+    private val selectBookCoverDataSeedUseCase: SelectBookCoverDataSeedUseCase,
     private val saveBookUseCase: SaveBookUseCase,
     private val mapper: ConfirmBookMapper,
 ) : ViewModel() {
 
     private var needsInitializing: Boolean = true
 
-    private val _events = Channel<ConfirmEvent>(Channel.BUFFERED)
-    val events: Flow<ConfirmEvent> = _events.receiveAsFlow()
+    private val _events = Channel<ConfirmBookEvent>(Channel.BUFFERED)
+    val events: Flow<ConfirmBookEvent> = _events.receiveAsFlow()
 
     private val _internalState = MutableStateFlow(ConfirmBookScreenState())
     val state = combine(
         _internalState,
-        coverPickerStateProvider.selectedCoverUrl,
-        bookSelectionStateProvider.selectedTempBook, // temp book, not in DB (both confirm and manual)
+        observeBookCoverUrlSelectionUseCase(),
+        observeTempBookSelectionUseCase(), // temp book, not in DB (both confirm and manual)
     ) { internalState, selectedCoverUrl, selectedBook ->
 
         val newState = internalState.copy(
@@ -85,28 +91,31 @@ class ConfirmBookViewModel @Inject constructor(
         viewModelScope.launch {
             _internalState.update { it.copy(isSaving = true) }
 
-            val originalBook = bookSelectionStateProvider.getSelectedTempBook() ?: return@launch
-            val editedBook = originalBook.copy(coverUrl = coverPickerStateProvider.getSelectedCoverUrl() ?: originalBook.coverUrl)
+            val originalBook = observeTempBookSelectionUseCase().firstOrNull() ?: return@launch
+            val selectedCoverUrl = observeBookCoverUrlSelectionUseCase().firstOrNull()
+            val editedBook = originalBook.copy(coverUrl = selectedCoverUrl ?: originalBook.coverUrl)
 
             saveBookUseCase(editedBook)
                 .onSuccess { result ->
                     val book = result.book
-                    bookSelectionStateProvider.selectBookSeed(
-                        bookId = book.id,
-                        bookCoverUrl = book.coverUrl ?: "",
-                        bookAnimationKey = BookTransitionKey.calculate(
-                            title = book.title,
-                            authors = book.authors,
-                            isbn = book.isbn13,
-                            source = book.source,
-                            sourceId = book.sourceId,
+                    selectBookSeedUseCase(
+                        BookSeed(
+                            id = book.id,
+                            url = book.coverUrl ?: "",
+                            animationKey = BookTransitionKey.calculate(
+                                title = book.title,
+                                authors = book.authors,
+                                isbn = book.isbn13,
+                                source = book.source,
+                                sourceId = book.sourceId,
+                            )
                         )
                     )
-                    _events.send(ConfirmEvent.Saved)
+                    _events.send(ConfirmBookEvent.Saved)
                     _internalState.update { it.copy(isSaving = false) }
                 }
                 .onFailure { _ ->
-                    _events.send(ConfirmEvent.Error(ConfirmErrorType.SAVING_FAILED))
+                    _events.send(ConfirmBookEvent.Error(ConfirmErrorType.SAVING_FAILED))
                     _internalState.update { it.copy(isSaving = false) }
                 }
         }
@@ -116,7 +125,7 @@ class ConfirmBookViewModel @Inject constructor(
         if (_internalState.value.isSaving) return
 
         viewModelScope.launch {
-            val book = bookSelectionStateProvider.getSelectedTempBook() ?: return@launch
+            val book = observeTempBookSelectionUseCase().firstOrNull() ?: return@launch
             val editState = _internalState.value.editState
 
             val editTitle = editState.editTitle.trim()
@@ -140,28 +149,30 @@ class ConfirmBookViewModel @Inject constructor(
                 authors = editState.editAuthors.split(",").map { it.trim() },
                 year = editState.editYear,
                 isbn13 = editState.editIsbn13,
-                coverUrl = coverPickerStateProvider.getSelectedCoverUrl(),
+                coverUrl = observeBookCoverUrlSelectionUseCase().firstOrNull(),
             )
 
             saveBookUseCase(editedBook)
                 .onSuccess { result ->
                     val book = result.book
-                    bookSelectionStateProvider.selectBookSeed(
-                        bookId = book.id,
-                        bookCoverUrl = book.coverUrl ?: "",
-                        bookAnimationKey = BookTransitionKey.calculate(
-                            title = book.title,
-                            authors = book.authors,
-                            isbn = book.isbn13,
-                            source = book.source,
-                            sourceId = book.sourceId,
+                    selectBookSeedUseCase(
+                        BookSeed(
+                            id = book.id,
+                            url = book.coverUrl ?: "",
+                            animationKey = BookTransitionKey.calculate(
+                                title = book.title,
+                                authors = book.authors,
+                                isbn = book.isbn13,
+                                source = book.source,
+                                sourceId = book.sourceId,
+                            )
                         )
                     )
-                    _events.send(ConfirmEvent.Saved)
+                    _events.send(ConfirmBookEvent.Saved)
                     _internalState.update { it.copy(isSaving = false) }
                 }
                 .onFailure { _ ->
-                    _events.send(ConfirmEvent.Error(ConfirmErrorType.SAVING_FAILED))
+                    _events.send(ConfirmBookEvent.Error(ConfirmErrorType.SAVING_FAILED))
                     _internalState.update { it.copy(isSaving = false) }
                 }
         }
@@ -172,23 +183,40 @@ class ConfirmBookViewModel @Inject constructor(
     fun onYearChange(value: String) = _internalState.update { it.copy(editState = it.editState.copy(editYear = value)) }
     fun onIsbnChange(value: String) = _internalState.update { it.copy(editState = it.editState.copy(editIsbn13 = value)) }
 
-    fun getTempManualBookForCoverPicker(): TempBook? {
-        val book = bookSelectionStateProvider.getSelectedTempBook() ?: return null
+    fun onOpenCoverPicker(
+        selectedCoverUrl: String?,
+        originalCoverUrl: String?,
+        isbn13: String?,
+        source: BookSource,
+        sourceId: String?
+    ) {
+        viewModelScope.launch {
+            val seed = BookCoverDataSeed(
+                selectedCoverUrl = selectedCoverUrl,
+                originalCoverUrl = originalCoverUrl,
+                isbn13 = isbn13,
+                source = source,
+                sourceId = sourceId,
+            )
+            selectBookCoverDataSeedUseCase(seed)
 
-        val editState = _internalState.value.editState
-        return book.copy(
-            title = editState.editTitle,
-            authors = editState.editAuthors.split(",").map { it.trim() },
-            year = editState.editYear,
-            isbn13 = editState.editIsbn13,
-            coverUrl = coverPickerStateProvider.getSelectedCoverUrl(),
-            originalCoverUrl = coverPickerStateProvider.getSelectedCoverUrl(),
-        )
+            _events.send(ConfirmBookEvent.OpenBookCoverPicker)
+        }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        coverPickerStateProvider.clear()
-        bookSelectionStateProvider.clearTempSelection()
+    fun onOpenCoverPickerInManualInputMode() {
+        viewModelScope.launch {
+            val editState = _internalState.value.editState
+            val seed = BookCoverDataSeed(
+                selectedCoverUrl = observeBookCoverUrlSelectionUseCase().firstOrNull(),
+                originalCoverUrl = null,
+                isbn13 = editState.editIsbn13,
+                source = BookSource.MANUAL,
+                sourceId = null,
+            )
+            selectBookCoverDataSeedUseCase(seed)
+
+            _events.send(ConfirmBookEvent.OpenBookCoverPicker)
+        }
     }
 }

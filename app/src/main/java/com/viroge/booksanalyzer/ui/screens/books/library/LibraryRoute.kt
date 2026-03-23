@@ -11,7 +11,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 
 @Composable
 fun LibraryRoute(
@@ -23,6 +26,20 @@ fun LibraryRoute(
 ) {
     val vm: LibraryViewModel = hiltViewModel()
     val state by vm.state.collectAsStateWithLifecycle()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(vm.events, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            vm.events.collect { event ->
+                when (event) {
+                    LibraryEvent.OpenBook -> {
+                        onOpenBook()
+                    }
+                }
+            }
+        }
+    }
 
     when (val screenState = state.screenState) {
         LibraryScreenState.Loading -> {
@@ -70,12 +87,7 @@ fun LibraryRoute(
                 values = screenState.contentStateValues,
                 pagerState = pagerState,
                 onOpenCollection = onOpenCollection,
-                onOpenBook = remember {
-                    { bookId ->
-                        vm.selectBook(bookId)
-                        onOpenBook()
-                    }
-                },
+                onOpenBook = vm::onOpenBook,
             )
         }
     }

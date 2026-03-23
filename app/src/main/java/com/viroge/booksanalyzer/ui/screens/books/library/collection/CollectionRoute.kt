@@ -13,7 +13,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import com.viroge.booksanalyzer.ui.screens.books.library.LibraryEvent
 
 @Composable
 fun CollectionRoute(
@@ -25,6 +29,20 @@ fun CollectionRoute(
 ) {
     val vm: CollectionViewModel = hiltViewModel()
     val state by vm.state.collectAsStateWithLifecycle()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(vm.events, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            vm.events.collect { event ->
+                when (event) {
+                    LibraryEvent.OpenBook -> {
+                        onOpenBook()
+                    }
+                }
+            }
+        }
+    }
 
     when (val screenState = state.screenState) {
         CollectionScreenState.Loading -> {
@@ -64,12 +82,7 @@ fun CollectionRoute(
                 onClearFilters = vm::onClearFilters,
                 onQueryChange = vm::onQueryChange,
                 onBack = onBack,
-                onOpenBook = remember {
-                    { bookId ->
-                        vm.selectBook(bookId)
-                        onOpenBook()
-                    }
-                },
+                onOpenBook = vm::onOpenBook,
             )
 
             if (showFilters) {

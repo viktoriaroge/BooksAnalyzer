@@ -7,6 +7,8 @@ sealed interface BookDetailsEvent {
     data class Error(
         val errorType: DetailsErrorType,
     ) : BookDetailsEvent
+
+    data object OpenBookCoverPicker : BookDetailsEvent
 }
 
 enum class DetailsErrorType(val message: UiText) {

@@ -2,6 +2,8 @@ package com.viroge.booksanalyzer.di
 
 import com.viroge.booksanalyzer.data.repository.BooksRepository
 import com.viroge.booksanalyzer.data.repository.BooksRepositoryImpl
+import com.viroge.booksanalyzer.data.repository.UserSelectionRepository
+import com.viroge.booksanalyzer.data.repository.UserSelectionRepositoryImpl
 import com.viroge.booksanalyzer.data.repository.search.SearchHistoryRepository
 import com.viroge.booksanalyzer.data.repository.search.SearchHistoryRepositoryImpl
 import com.viroge.booksanalyzer.data.sync.book.DeleteBooksScheduler
@@ -15,6 +17,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DataModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindSessionRepository(
+        repo: UserSelectionRepositoryImpl,
+    ): UserSelectionRepository
 
     @Binds
     @Singleton
