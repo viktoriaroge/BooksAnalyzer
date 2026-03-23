@@ -1,5 +1,8 @@
 package com.viroge.booksanalyzer.ui.nav
 
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
@@ -10,9 +13,12 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.viroge.booksanalyzer.domain.model.BookSeed
 import com.viroge.booksanalyzer.ui.screens.books.confirm.ConfirmBookRoute
 import com.viroge.booksanalyzer.ui.screens.books.deleted.RecentlyDeletedRoute
 import com.viroge.booksanalyzer.ui.screens.books.details.BookDetailsRoute
@@ -21,11 +27,35 @@ import com.viroge.booksanalyzer.ui.screens.books.library.collection.CollectionRo
 import com.viroge.booksanalyzer.ui.screens.books.search.SearchBookRoute
 import com.viroge.booksanalyzer.ui.screens.settings.SettingsRoute
 import com.viroge.booksanalyzer.ui.screens.terms.TermsRoute
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
 ) {
+
+    val bookSeedNavType = object : NavType<BookSeed?>(isNullableAllowed = true) {
+        override fun get(bundle: Bundle, key: String): BookSeed? {
+            // Modern type-safe way (API 33+)
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                bundle.getParcelable(key, BookSeed::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                bundle.getParcelable(key)
+            }
+        }
+
+        override fun parseValue(value: String): BookSeed? {
+            // If the value is "null" (as a string from the route), return null
+            if (value == "null") return null
+            return Json.decodeFromString<BookSeed>(Uri.decode(value))
+        }
+
+        override fun put(bundle: Bundle, key: String, value: BookSeed?) {
+            bundle.putParcelable(key, value)
+        }
+    }
 
     fun navigateSafe(
         route: String,
@@ -73,7 +103,10 @@ fun AppNavHost(
                             navigateSafe(route = Routes.SEARCH_BOOK_GRAPH, isTabSwitch = true)
                         },
                         onOpenCollection = { navigateSafe(Routes.COLLECTION) },
-                        onOpenBook = { navigateSafe(Routes.BOOK_DETAILS) },
+                        onOpenBook = { seed ->
+                            val seedJson = Uri.encode(Json.encodeToString(seed))
+                            navigateSafe("${Routes.BOOK_DETAILS}/$seedJson")
+                        },
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
                     )
@@ -86,13 +119,21 @@ fun AppNavHost(
                             navController.popBackStack(route = Routes.LIBRARY, inclusive = false)
                             navigateSafe(route = Routes.SEARCH_BOOK_GRAPH, isTabSwitch = true)
                         },
-                        onOpenBook = { navigateSafe(Routes.BOOK_DETAILS) },
+                        onOpenBook = { seed ->
+                            val seedJson = Uri.encode(Json.encodeToString(seed))
+                            navigateSafe("${Routes.BOOK_DETAILS}/$seedJson")
+                        },
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
                     )
                 }
 
-                composable(Routes.BOOK_DETAILS) {
+                composable(
+                    route = "${Routes.BOOK_DETAILS}/{${Routes.BOOK_SEED_ARG}}",
+                    arguments = listOf(
+                        navArgument(Routes.BOOK_SEED_ARG) { type = bookSeedNavType }
+                    )
+                ) {
                     BookDetailsRoute(
                         onBack = navController::popBackStack,
                         sharedTransitionScope = this@SharedTransitionLayout,
@@ -120,19 +161,25 @@ fun AppNavHost(
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
                         onBack = navController::popBackStack,
-                        onBookSaved = {
-                            navigateSafe(Routes.BOOK_DETAILS) {
+                        onOpenBook = { seed ->
+                            val seedJson = Uri.encode(Json.encodeToString(seed))
+                            navigateSafe("${Routes.BOOK_DETAILS}/$seedJson") {
                                 popUpTo(Routes.SEARCH_BOOK) { inclusive = false }
                             }
                         },
                     )
                 }
 
-                composable(Routes.BOOK_DETAILS) {
+                composable(
+                    route = "${Routes.BOOK_DETAILS}/{${Routes.BOOK_SEED_ARG}}",
+                    arguments = listOf(
+                        navArgument(Routes.BOOK_SEED_ARG) { type = bookSeedNavType }
+                    )
+                ) {
                     BookDetailsRoute(
+                        onBack = navController::popBackStack,
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
-                        onBack = navController::popBackStack,
                     )
                 }
             }

@@ -98,20 +98,20 @@ class ConfirmBookViewModel @Inject constructor(
             saveBookUseCase(editedBook)
                 .onSuccess { result ->
                     val book = result.book
-                    selectBookSeedUseCase(
-                        BookSeed(
-                            id = book.id,
-                            url = book.coverUrl ?: "",
-                            animationKey = BookTransitionKey.calculate(
-                                title = book.title,
-                                authors = book.authors,
-                                isbn = book.isbn13,
-                                source = book.source,
-                                sourceId = book.sourceId,
-                            )
+                    val seed = BookSeed(
+                        id = book.id,
+                        url = book.coverUrl ?: "",
+                        animationKey = BookTransitionKey.calculate(
+                            title = book.title,
+                            authors = book.authors,
+                            isbn = book.isbn13,
+                            source = book.source,
+                            sourceId = book.sourceId,
                         )
                     )
-                    _events.send(ConfirmBookEvent.Saved)
+                    selectBookSeedUseCase(seed)
+
+                    _events.send(ConfirmBookEvent.OpenBookDetails(seed))
                     _internalState.update { it.copy(isSaving = false) }
                 }
                 .onFailure { _ ->
@@ -155,20 +155,20 @@ class ConfirmBookViewModel @Inject constructor(
             saveBookUseCase(editedBook)
                 .onSuccess { result ->
                     val book = result.book
-                    selectBookSeedUseCase(
-                        BookSeed(
-                            id = book.id,
-                            url = book.coverUrl ?: "",
-                            animationKey = BookTransitionKey.calculate(
-                                title = book.title,
-                                authors = book.authors,
-                                isbn = book.isbn13,
-                                source = book.source,
-                                sourceId = book.sourceId,
-                            )
+                    val seed = BookSeed(
+                        id = book.id,
+                        url = book.coverUrl ?: "",
+                        animationKey = BookTransitionKey.calculate(
+                            title = book.title,
+                            authors = book.authors,
+                            isbn = book.isbn13,
+                            source = book.source,
+                            sourceId = book.sourceId,
                         )
                     )
-                    _events.send(ConfirmBookEvent.Saved)
+                    selectBookSeedUseCase(seed)
+
+                    _events.send(ConfirmBookEvent.OpenBookDetails(seed))
                     _internalState.update { it.copy(isSaving = false) }
                 }
                 .onFailure { _ ->

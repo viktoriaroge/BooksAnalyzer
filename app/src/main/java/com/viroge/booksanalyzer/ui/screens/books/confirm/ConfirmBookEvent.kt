@@ -1,16 +1,16 @@
 package com.viroge.booksanalyzer.ui.screens.books.confirm
 
 import com.viroge.booksanalyzer.R
+import com.viroge.booksanalyzer.domain.model.BookSeed
 import com.viroge.booksanalyzer.ui.common.util.UiText
 
 sealed interface ConfirmBookEvent {
-
-    data object Saved : ConfirmBookEvent
 
     data class Error(
         val errorType: ConfirmErrorType,
     ) : ConfirmBookEvent
 
+    data class OpenBookDetails(val seed: BookSeed) : ConfirmBookEvent
     data object OpenBookCoverPicker : ConfirmBookEvent
 }
 

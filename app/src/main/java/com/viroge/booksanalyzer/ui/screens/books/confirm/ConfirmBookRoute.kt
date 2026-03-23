@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.viroge.booksanalyzer.domain.model.BookSeed
 import com.viroge.booksanalyzer.ui.components.snackbar.LocalAppSnackbar
 import com.viroge.booksanalyzer.ui.screens.books.cover.BookCoverPickerSheet
 import com.viroge.booksanalyzer.ui.screens.books.cover.CoverPickerViewModel
@@ -22,7 +23,7 @@ fun ConfirmBookRoute(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     onBack: () -> Unit,
-    onBookSaved: () -> Unit,
+    onOpenBook: (BookSeed) -> Unit,
 ) {
     val coverPickerVM: CoverPickerViewModel = hiltViewModel()
     val coverPickerState by coverPickerVM.state.collectAsStateWithLifecycle()
@@ -43,12 +44,12 @@ fun ConfirmBookRoute(
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             vm.events.collect { event ->
                 when (event) {
-                    is ConfirmBookEvent.Saved -> {
-                        onBookSaved()
-                    }
-
                     is ConfirmBookEvent.Error -> {
                         snackbar.show(message = event.errorType.message.asString(context), duration = SnackbarDuration.Short)
+                    }
+
+                    is ConfirmBookEvent.OpenBookDetails -> {
+                        onOpenBook(event.seed)
                     }
 
                     ConfirmBookEvent.OpenBookCoverPicker -> {

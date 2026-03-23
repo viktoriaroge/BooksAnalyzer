@@ -1,8 +1,10 @@
 package com.viroge.booksanalyzer.ui.screens.books.details
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.BookCoverDataSeed
+import com.viroge.booksanalyzer.domain.model.BookSeed
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.usecase.book.EditBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.book.MarkBookAsOpenedUseCase
@@ -11,6 +13,7 @@ import com.viroge.booksanalyzer.domain.usecase.book.UpdateBookStatusUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookCoverUrlSelectionUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookSeedSelectionUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverDataSeedUseCase
+import com.viroge.booksanalyzer.ui.nav.Routes
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +37,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookDetailsViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val selectBookCoverDataSeedUseCase: SelectBookCoverDataSeedUseCase,
     private val observeBookCoverUrlSelectionUseCase: ObserveBookCoverUrlSelectionUseCase,
     private val observeBookSeedSelectionUseCase: ObserveBookSeedSelectionUseCase,
@@ -43,6 +47,8 @@ class BookDetailsViewModel @Inject constructor(
     private val editBookUseCase: EditBookUseCase,
     private val mapper: BookDetailsMapper,
 ) : ViewModel() {
+
+    private val navSeed: BookSeed? = savedStateHandle[Routes.BOOK_SEED_ARG]
 
     private val _events = Channel<BookDetailsEvent>(Channel.BUFFERED)
     val events: Flow<BookDetailsEvent> = _events.receiveAsFlow()
@@ -102,11 +108,10 @@ class BookDetailsViewModel @Inject constructor(
                     isLoading = true,
                     screenValues = mapper.getScreenValues(),
                     bookData = BookDetailsDataState(
-                        // TODO: Pass navigation seed for those:
-                        id = "",
-                        url = "",
-                        originalUrl = "",
-                        animationKey = "",
+                        id = navSeed?.id ?: "",
+                        url = navSeed?.url ?: "",
+                        originalUrl = navSeed?.url ?: "",
+                        animationKey = navSeed?.animationKey ?: "",
                     ),
                 )
             )

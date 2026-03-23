@@ -99,7 +99,7 @@ class LibraryViewModel @Inject constructor(
             selectBookSeedUseCase(seed)
             selectBookCoverUrlUseCase(null)
 
-            _events.send(LibraryEvent.OpenBook)
+            _events.send(LibraryEvent.OpenBookDetails(seed))
         }
     }
 }

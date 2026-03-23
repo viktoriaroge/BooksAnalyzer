@@ -17,4 +17,7 @@ object Routes {
     const val BOOK_DETAILS = "book_details"
     const val RECENTLY_DELETED_BOOKS = "recently_deleted_books"
     const val APP_TERMS = "app_terms"
+
+    // Arguments:
+    const val BOOK_SEED_ARG = "book_seed_arg"
 }

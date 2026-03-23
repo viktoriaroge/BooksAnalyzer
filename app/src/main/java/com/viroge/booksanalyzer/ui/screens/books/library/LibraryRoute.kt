@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.viroge.booksanalyzer.domain.model.BookSeed
 
 @Composable
 fun LibraryRoute(
@@ -22,7 +23,7 @@ fun LibraryRoute(
     animatedVisibilityScope: AnimatedVisibilityScope,
     onOpenSearch: () -> Unit,
     onOpenCollection: () -> Unit,
-    onOpenBook: () -> Unit,
+    onOpenBook: (BookSeed) -> Unit,
 ) {
     val vm: LibraryViewModel = hiltViewModel()
     val state by vm.state.collectAsStateWithLifecycle()
@@ -33,8 +34,8 @@ fun LibraryRoute(
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             vm.events.collect { event ->
                 when (event) {
-                    LibraryEvent.OpenBook -> {
-                        onOpenBook()
+                    is LibraryEvent.OpenBookDetails -> {
+                        onOpenBook(event.seed)
                     }
                 }
             }

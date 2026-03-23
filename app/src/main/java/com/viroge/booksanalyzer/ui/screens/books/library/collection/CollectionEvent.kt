@@ -1,5 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.library.collection
 
+import com.viroge.booksanalyzer.domain.model.BookSeed
+
 sealed interface CollectionEvent {
-    data object OpenBook : CollectionEvent
+    data class OpenBookDetails(val seed: BookSeed) : CollectionEvent
 }

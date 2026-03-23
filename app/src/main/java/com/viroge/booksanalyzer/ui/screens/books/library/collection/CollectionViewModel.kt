@@ -11,7 +11,6 @@ import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverUrlUseCa
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookSeedUseCase
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
-import com.viroge.booksanalyzer.ui.screens.books.library.LibraryEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,8 +43,8 @@ class CollectionViewModel @Inject constructor(
     private val mapper: CollectionMapper,
 ) : ViewModel() {
 
-    private val _events = Channel<LibraryEvent>(Channel.BUFFERED)
-    val events: Flow<LibraryEvent> = _events.receiveAsFlow()
+    private val _events = Channel<CollectionEvent>(Channel.BUFFERED)
+    val events: Flow<CollectionEvent> = _events.receiveAsFlow()
 
     private val _statusFilter = MutableStateFlow<BookReadingStatusUi?>(value = null) // null == All
     private val _sort: MutableStateFlow<CollectionSortUi> = MutableStateFlow(value = CollectionSortUi.Added)
@@ -151,7 +150,7 @@ class CollectionViewModel @Inject constructor(
             selectBookSeedUseCase(seed)
             selectBookCoverUrlUseCase(null)
 
-            _events.send(LibraryEvent.OpenBook)
+            _events.send(CollectionEvent.OpenBookDetails(seed))
         }
     }
 }
