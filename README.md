@@ -119,9 +119,9 @@ Future sync and backup will be optional and user-controlled.
 
   * 🌳 Handle configuration changes
 
-  * 🌱 Move Singleton logic of saved state to DataStore
+  * 🌳 Move Singleton logic of saved state to DataStore
 
-  * 🌰 Handle the Cold Start of the app
+  * 🌱 Handle the Cold Start of the app
 
 
 ### 🌰 MVP 2 – Reading sessions
