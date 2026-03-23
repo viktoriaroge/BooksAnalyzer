@@ -109,6 +109,20 @@ Future sync and backup will be optional and user-controlled.
 
 * 🌱 Stabilization Phase: Apply Clean Architecture with MVVM. Separate data models, use cases, etc.
 
+  * 🌳 Apply Clean Architecture and split separate layers for data, domain and ui
+
+  * 🌳 Extract domain logic to UseCases, keep ViewModel logic lean but reactive
+
+  * 🌳 Simplify UI to react on states and make minimal choices
+
+  * 🌳 Simplify ui data to Immutable objects to optimise composition
+
+  * 🌳 Handle configuration changes
+
+  * 🌱 Move Singleton logic of saved state to DataStore
+
+  * 🌰 Handle the Cold Start of the app
+
 
 ### 🌰 MVP 2 – Reading sessions
 
