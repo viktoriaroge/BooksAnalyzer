@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.BookCoverDataSeed
 import com.viroge.booksanalyzer.domain.model.BookSeed
 import com.viroge.booksanalyzer.domain.model.BookSource
+import com.viroge.booksanalyzer.domain.model.TempBook
 import com.viroge.booksanalyzer.domain.usecase.book.SaveBookUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookCoverUrlSelectionUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.ObserveTempBookSelectionUseCase
@@ -42,39 +43,28 @@ class ConfirmBookViewModel @Inject constructor(
     private val mapper: ConfirmBookMapper,
 ) : ViewModel() {
 
-    private val navSeed: BookSeed? = savedStateHandle[Routes.BOOK_SEED_ARG]
-
-    private var needsInitializing: Boolean = true
+    private val navSeed: TempBook? = savedStateHandle[Routes.TEMP_BOOK_SEED_ARG]
 
     private val _events = Channel<ConfirmBookEvent>(Channel.BUFFERED)
     val events: Flow<ConfirmBookEvent> = _events.receiveAsFlow()
 
-    private val _internalState = MutableStateFlow(ConfirmBookScreenState())
+    private val _internalState = MutableStateFlow(
+        ConfirmBookScreenState(
+            screenValues = mapper.getScreenValues(),
+            editState = navSeed?.let { mapper.mapToEditState(it) } ?: ConfirmBookEditState(),
+        )
+    )
+
     val state = combine(
         _internalState,
         observeBookCoverUrlSelectionUseCase(),
         observeTempBookSelectionUseCase(), // temp book, not in DB (both confirm and manual)
     ) { internalState, selectedCoverUrl, selectedBook ->
-
-        val newState = internalState.copy(
-            screenValues = mapper.getScreenValues(),
-            isInManualMode = selectedBook?.source == BookSource.MANUAL,
-        )
-        if (selectedBook != null && needsInitializing) {
-            val stateWithInitialEditFields = newState.copy(
-                editState = newState.editState.copy(
-                    editTitle = selectedBook.title,
-                    editAuthors = selectedBook.authors.joinToString(separator = ", "),
-                    editYear = selectedBook.year.orEmpty(),
-                    editIsbn13 = selectedBook.isbn13.orEmpty(),
-                ),
-            )
-            needsInitializing = false
-            _internalState.update { stateWithInitialEditFields } // just once at initializing, will retrigger the source above
-        }
-
         ConfirmBookUiState(
-            screenState = newState,
+            screenState = internalState.copy(
+                screenValues = mapper.getScreenValues(),
+                isInManualMode = selectedBook?.source == BookSource.MANUAL,
+            ),
             bookData = selectedBook?.let { mapper.mapToDataState(it, selectedCoverUrl) },
         )
     }.distinctUntilChanged()
@@ -83,12 +73,14 @@ class ConfirmBookViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-            initialValue = ConfirmBookUiState()
+            initialValue = ConfirmBookUiState(
+                screenState = ConfirmBookScreenState(
+                    screenValues = mapper.getScreenValues(),
+                    editState = navSeed?.let { mapper.mapToEditState(it) } ?: ConfirmBookEditState(),
+                ),
+                bookData = navSeed?.let { mapper.mapToDataState(navSeed, null) }
+            )
         )
-
-    init {
-        needsInitializing = true
-    }
 
     fun saveBook() {
         if (_internalState.value.isSaving) return

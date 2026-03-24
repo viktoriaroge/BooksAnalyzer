@@ -42,4 +42,13 @@ class ConfirmBookMapper @Inject constructor() {
         originalCoverUrl = book.originalCoverUrl,
         coverUrl = selectedCoverUrl ?: book.coverUrl,
     )
+
+    fun mapToEditState(
+        book: TempBook,
+    ): ConfirmBookEditState = ConfirmBookEditState(
+        editTitle = book.title,
+        editAuthors = book.authors.joinToString(separator = ", "),
+        editYear = book.year.orEmpty(),
+        editIsbn13 = book.isbn13.orEmpty(),
+    )
 }

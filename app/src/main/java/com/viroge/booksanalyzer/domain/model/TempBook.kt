@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Parcelize
 data class TempBook(
+    val animationKey: String,
     val source: BookSource,
     val sourceId: String?,
     val title: String,

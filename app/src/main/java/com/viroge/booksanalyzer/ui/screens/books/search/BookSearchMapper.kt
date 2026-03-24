@@ -78,6 +78,7 @@ class BookSearchMapper @Inject constructor() {
     fun mapToTempBook(
         book: SearchBookDataState,
     ): TempBook = TempBook(
+        animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13, book.source.domainSource, book.sourceId),
         source = book.source.domainSource,
         sourceId = book.sourceId,
         title = book.title,
@@ -93,6 +94,7 @@ class BookSearchMapper @Inject constructor() {
         query: String,
         mode: SearchMode,
     ): TempBook = TempBook(
+        animationKey = "",
         source = BookSource.MANUAL,
         sourceId = null,
         title = when (mode) {
