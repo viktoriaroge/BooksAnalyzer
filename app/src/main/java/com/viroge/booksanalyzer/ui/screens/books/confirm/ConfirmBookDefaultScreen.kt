@@ -37,20 +37,18 @@ import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConfirmBookScreen(
+fun ConfirmBookDefaultScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    state: ConfirmBookUiState,
+    screenState: ConfirmBookScreenState.DefaultData,
     onOpenCoverPicker: () -> Unit,
     onBack: () -> Unit,
     onSave: () -> Unit,
 ) {
-
-    if (state.screenState.isInManualMode) return
-    val book = state.bookData ?: return
+    val book = screenState.bookData ?: return
+    val values = screenState.screenValues
 
     val appScaffoldPadding = LocalAppScaffoldPadding.current
-    val values = state.screenState.screenValues
 
     val scrollState = rememberScrollState()
     val scrollFraction = remember { derivedStateOf { (scrollState.value / 100f).coerceIn(0f, 1f) } }.value
@@ -63,7 +61,7 @@ fun ConfirmBookScreen(
     Scaffold(
         topBar = {
             PvTopAppBar(
-                title = stringResource(values.screenTitleConfirm),
+                title = stringResource(values.screenTitle),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = appBarColor,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
@@ -99,7 +97,6 @@ fun ConfirmBookScreen(
             )
 
             Spacer(Modifier.height(24.dp))
-
             Text(
                 text = book.title,
                 style = MaterialTheme.typography.titleMedium,
@@ -136,7 +133,7 @@ fun ConfirmBookScreen(
                 text = stringResource(values.saveButtonLabel),
                 icon = Icons.Default.Save,
                 onClick = onSave,
-                enabled = !state.screenState.isSaving,
+                enabled = !screenState.isSaving,
             )
 
             Spacer(Modifier.height(24.dp))

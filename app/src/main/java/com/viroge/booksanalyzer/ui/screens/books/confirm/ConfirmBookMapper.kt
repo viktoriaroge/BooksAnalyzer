@@ -10,12 +10,25 @@ import javax.inject.Singleton
 @Singleton
 class ConfirmBookMapper @Inject constructor() {
 
-    fun getScreenValues(): ConfirmBookScreenValues = ConfirmBookScreenValues(
-        screenTitleConfirm = R.string.confirm_book_screen_name,
-        screenTitleManual = R.string.confirm_book_screen_in_manual_mode_name,
-        changeCoverButtonLabel = R.string.confirm_book_screen_change_book_cover_button_label,
+    fun getScreenLoadingValues(isManual: Boolean): ConfirmBookLoadingValues = ConfirmBookLoadingValues(
+        screenTitle = if (isManual) R.string.confirm_book_screen_in_manual_mode_name else R.string.confirm_book_screen_name,
+    )
+
+    fun getScreenDefaultValues(): ConfirmBookDefaultValues = ConfirmBookDefaultValues(
+        screenTitle = R.string.confirm_book_screen_name,
         isbnLabel = R.string.confirm_book_screen_isbn13_label,
         sourceLabel = R.string.confirm_book_screen_source_label,
+
+        changeCoverButtonLabel = R.string.confirm_book_screen_change_book_cover_button_label,
+        saveButtonLabel = R.string.confirm_book_screen_save_button_label,
+    )
+
+    fun getScreenManualValues(): ConfirmBookManualValues = ConfirmBookManualValues(
+        screenTitle = R.string.confirm_book_screen_in_manual_mode_name,
+        isbnLabel = R.string.confirm_book_screen_isbn13_label,
+        sourceLabel = R.string.confirm_book_screen_source_label,
+
+        changeCoverButtonLabel = R.string.confirm_book_screen_change_book_cover_button_label,
         saveButtonLabel = R.string.confirm_book_screen_save_button_label,
 
         manualInstruction = R.string.confirm_book_screen_manual_form_instruction_text,
@@ -32,7 +45,7 @@ class ConfirmBookMapper @Inject constructor() {
     fun mapToDataState(
         book: TempBook,
         selectedCoverUrl: String?,
-    ): ConfirmBookDataState = ConfirmBookDataState(
+    ): ConfirmBookData = ConfirmBookData(
         animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13, book.source, book.sourceId),
         title = book.title,
         authors = book.authors.joinToString(separator = ", "),
@@ -41,14 +54,5 @@ class ConfirmBookMapper @Inject constructor() {
         sourceId = book.sourceId,
         originalCoverUrl = book.originalCoverUrl,
         coverUrl = selectedCoverUrl ?: book.coverUrl,
-    )
-
-    fun mapToEditState(
-        book: TempBook,
-    ): ConfirmBookEditState = ConfirmBookEditState(
-        editTitle = book.title,
-        editAuthors = book.authors.joinToString(separator = ", "),
-        editYear = book.year.orEmpty(),
-        editIsbn13 = book.isbn13.orEmpty(),
     )
 }

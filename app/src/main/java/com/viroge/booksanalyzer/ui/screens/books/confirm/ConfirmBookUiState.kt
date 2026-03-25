@@ -7,22 +7,46 @@ import com.viroge.booksanalyzer.ui.screens.books.BookSourceUi
 
 @Immutable
 data class ConfirmBookUiState(
-    val screenState: ConfirmBookScreenState = ConfirmBookScreenState(),
-    val bookData: ConfirmBookDataState? = null,
+    val screenState: ConfirmBookScreenState = ConfirmBookScreenState.Loading(
+        screenValues = ConfirmBookLoadingValues(),
+    ),
 )
 
+sealed class ConfirmBookScreenState {
+    @Immutable
+    data class Loading(
+        val bookData: ConfirmBookData? = null,
+        val isManual: Boolean = false,
+
+        val screenValues: ConfirmBookLoadingValues,
+    ) : ConfirmBookScreenState()
+
+    @Immutable
+    data class DefaultData(
+        val bookData: ConfirmBookData? = null,
+        val isSaving: Boolean = false,
+
+        val screenValues: ConfirmBookDefaultValues,
+    ) : ConfirmBookScreenState()
+
+    @Immutable
+    data class ManualInput(
+        val bookData: ConfirmBookData? = null,
+
+        val editTitle: String = "",
+        val showTitleError: Boolean = false,
+        val editAuthors: String = "",
+        val showAuthorError: Boolean = false,
+        val editYear: String = "",
+        val editIsbn13: String = "",
+        val isSaving: Boolean = false,
+
+        val screenValues: ConfirmBookManualValues,
+    ) : ConfirmBookScreenState()
+}
+
 @Immutable
-data class ConfirmBookScreenState(
-    val isSaving: Boolean = false,
-    val isInManualMode: Boolean = false,
-
-    val editState: ConfirmBookEditState = ConfirmBookEditState(),
-
-    val screenValues: ConfirmBookScreenValues = ConfirmBookScreenValues(),
-)
-
-@Immutable
-data class ConfirmBookDataState(
+data class ConfirmBookData(
     val animationKey: String,
     val title: String,
     val authors: String,
@@ -34,22 +58,29 @@ data class ConfirmBookDataState(
 )
 
 @Immutable
-data class ConfirmBookEditState(
-    val editTitle: String = "",
-    val showTitleError: Boolean = false,
-    val editAuthors: String = "",
-    val showAuthorError: Boolean = false,
-    val editYear: String = "",
-    val editIsbn13: String = "",
+data class ConfirmBookLoadingValues(
+    @param:StringRes val screenTitle: Int = R.string.empty_text,
 )
 
 @Immutable
-data class ConfirmBookScreenValues(
-    @param:StringRes val screenTitleConfirm: Int = R.string.empty_text,
-    @param:StringRes val screenTitleManual: Int = R.string.empty_text,
+data class ConfirmBookDefaultValues(
+    @param:StringRes val screenTitle: Int = R.string.empty_text,
+
     @param:StringRes val isbnLabel: Int = R.string.empty_text,
     @param:StringRes val sourceLabel: Int = R.string.empty_text,
+    @param:StringRes val genericErrorMessage: Int = R.string.empty_text,
+    @param:StringRes val titleRequiredError: Int = R.string.empty_text,
+
+    @param:StringRes val changeCoverButtonLabel: Int = R.string.empty_text,
     @param:StringRes val saveButtonLabel: Int = R.string.empty_text,
+)
+
+@Immutable
+data class ConfirmBookManualValues(
+    @param:StringRes val screenTitle: Int = R.string.empty_text,
+
+    @param:StringRes val isbnLabel: Int = R.string.empty_text,
+    @param:StringRes val sourceLabel: Int = R.string.empty_text,
     @param:StringRes val genericErrorMessage: Int = R.string.empty_text,
     @param:StringRes val titleRequiredError: Int = R.string.empty_text,
 
@@ -64,4 +95,5 @@ data class ConfirmBookScreenValues(
     @param:StringRes val manualSaveButtonLabel: Int = R.string.empty_text,
 
     @param:StringRes val changeCoverButtonLabel: Int = R.string.empty_text,
+    @param:StringRes val saveButtonLabel: Int = R.string.empty_text,
 )

@@ -38,7 +38,7 @@ import com.viroge.booksanalyzer.ui.nav.LocalAppScaffoldPadding
 fun ConfirmManualBookScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    state: ConfirmBookUiState,
+    screenState: ConfirmBookScreenState.ManualInput,
     onTitleChange: (String) -> Unit,
     onAuthorsChange: (String) -> Unit,
     onYearChange: (String) -> Unit,
@@ -47,13 +47,10 @@ fun ConfirmManualBookScreen(
     onOpenCoverPicker: () -> Unit,
     onSave: () -> Unit,
 ) {
+    val book = screenState.bookData ?: return
+    val values = screenState.screenValues
+
     val appScaffoldPadding = LocalAppScaffoldPadding.current
-
-    if (!state.screenState.isInManualMode) return
-    val book = state.bookData ?: return
-
-    val screenValues = state.screenState.screenValues
-    val editState = state.screenState.editState
 
     val scrollState = rememberScrollState()
     val scrollFraction = remember { derivedStateOf { (scrollState.value / 100f).coerceIn(0f, 1f) } }.value
@@ -66,7 +63,7 @@ fun ConfirmManualBookScreen(
     Scaffold(
         topBar = {
             PvTopAppBar(
-                title = stringResource(screenValues.screenTitleManual),
+                title = stringResource(values.screenTitle),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = appBarColor,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
@@ -86,7 +83,7 @@ fun ConfirmManualBookScreen(
                 .padding(bottom = appScaffoldPadding.calculateBottomPadding())
                 .imePadding(),
         ) {
-            if (state.screenState.isSaving) {
+            if (screenState.isSaving) {
                 PvLinearProgressIndicator(modifier = Modifier.padding(top = 12.dp))
             }
 
@@ -101,7 +98,7 @@ fun ConfirmManualBookScreen(
 
             PvButton(
                 buttonType = PvButtonType.Secondary,
-                text = stringResource(screenValues.changeCoverButtonLabel),
+                text = stringResource(values.changeCoverButtonLabel),
                 icon = Icons.Default.ImageSearch,
                 onClick = onOpenCoverPicker,
             )
@@ -110,7 +107,7 @@ fun ConfirmManualBookScreen(
 
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                text = stringResource(screenValues.manualInstruction),
+                text = stringResource(values.manualInstruction),
                 style = MaterialTheme.typography.bodyMedium,
             )
 
@@ -119,15 +116,15 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = editState.editTitle,
+                value = screenState.editTitle,
                 onValueChange = { onTitleChange(it) },
-                label = { Text(stringResource(screenValues.manualTitleLabel)) },
+                label = { Text(stringResource(values.manualTitleLabel)) },
                 singleLine = true,
-                isError = editState.showTitleError,
+                isError = screenState.showTitleError,
                 supportingText = {
-                    if (editState.showTitleError) {
+                    if (screenState.showTitleError) {
                         Text(
-                            text = stringResource(screenValues.manualTitleError),
+                            text = stringResource(values.manualTitleError),
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -139,15 +136,15 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = editState.editAuthors,
+                value = screenState.editAuthors,
                 onValueChange = { onAuthorsChange(it) },
-                label = { Text(stringResource(screenValues.manualAuthorLabel)) },
+                label = { Text(stringResource(values.manualAuthorLabel)) },
                 singleLine = true,
-                isError = editState.showAuthorError,
+                isError = screenState.showAuthorError,
                 supportingText = {
-                    if (editState.showAuthorError) {
+                    if (screenState.showAuthorError) {
                         Text(
-                            text = stringResource(screenValues.manualAuthorError),
+                            text = stringResource(values.manualAuthorError),
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -159,9 +156,9 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = editState.editYear,
+                value = screenState.editYear,
                 onValueChange = { onYearChange(it) },
-                label = { Text(stringResource(screenValues.manualYearLabel)) },
+                label = { Text(stringResource(values.manualYearLabel)) },
                 singleLine = true,
             )
 
@@ -170,18 +167,18 @@ fun ConfirmManualBookScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = editState.editIsbn13,
+                value = screenState.editIsbn13,
                 onValueChange = { onIsbnChange(it) },
-                label = { Text(stringResource(screenValues.manualIsbn13Label)) },
+                label = { Text(stringResource(values.manualIsbn13Label)) },
                 singleLine = true,
             )
 
             Spacer(Modifier.height(16.dp))
             PvButton(
-                text = stringResource(screenValues.manualSaveButtonLabel),
+                text = stringResource(values.manualSaveButtonLabel),
                 icon = Icons.Default.Save,
                 onClick = onSave,
-                enabled = !state.screenState.isSaving,
+                enabled = !screenState.isSaving,
             )
 
             Spacer(Modifier.height(24.dp))

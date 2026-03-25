@@ -30,7 +30,6 @@ fun ConfirmBookRoute(
 
     val vm: ConfirmBookViewModel = hiltViewModel()
     val state by vm.state.collectAsStateWithLifecycle()
-    val book = state.bookData
 
     BackHandler(enabled = true) {
         onBack()
@@ -60,40 +59,59 @@ fun ConfirmBookRoute(
         }
     }
 
-    ConfirmBookScreen(
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope,
-        state = state,
-        onOpenCoverPicker = {
-            book ?: return@ConfirmBookScreen
-
-            vm.onOpenCoverPicker(
-                selectedCoverUrl = book.coverUrl,
-                originalCoverUrl = book.originalCoverUrl,
-                isbn13 = book.isbn13,
-                source = book.source.domainSource,
-                sourceId = book.sourceId,
+    when (val screenState = state.screenState) {
+        is ConfirmBookScreenState.Loading -> {
+            ConfirmBookLoadingScreen(
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+                screenState = screenState,
+                onBack = onBack,
             )
-        },
-        onBack = onBack,
-        onSave = vm::saveBook,
-    )
+        }
 
-    ConfirmManualBookScreen(
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope,
-        state = state,
-        onBack = onBack,
-        onTitleChange = vm::onTitleChange,
-        onAuthorsChange = vm::onAuthorsChange,
-        onYearChange = vm::onYearChange,
-        onIsbnChange = vm::onIsbnChange,
-        onOpenCoverPicker = {
-            vm.onOpenCoverPickerInManualInputMode()
-            coverPickerVM.openCoverPicker()
-        },
-        onSave = vm::saveManualBook,
-    )
+        is ConfirmBookScreenState.DefaultData -> {
+            val book = screenState.bookData
+
+            ConfirmBookDefaultScreen(
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+                screenState = screenState,
+
+                onOpenCoverPicker = {
+                    book ?: return@ConfirmBookDefaultScreen
+
+                    vm.onOpenCoverPicker(
+                        selectedCoverUrl = book.coverUrl,
+                        originalCoverUrl = book.originalCoverUrl,
+                        isbn13 = book.isbn13,
+                        source = book.source.domainSource,
+                        sourceId = book.sourceId,
+                    )
+                },
+                onBack = onBack,
+                onSave = vm::saveBook,
+            )
+        }
+
+        is ConfirmBookScreenState.ManualInput -> {
+            ConfirmManualBookScreen(
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+                screenState = screenState,
+
+                onBack = onBack,
+                onTitleChange = vm::onTitleChange,
+                onAuthorsChange = vm::onAuthorsChange,
+                onYearChange = vm::onYearChange,
+                onIsbnChange = vm::onIsbnChange,
+                onOpenCoverPicker = {
+                    vm.onOpenCoverPickerInManualInputMode()
+                    coverPickerVM.openCoverPicker()
+                },
+                onSave = vm::saveManualBook,
+            )
+        }
+    }
 
     BookCoverPickerSheet(
         state = coverPickerState,
