@@ -44,6 +44,7 @@ class ConfirmBookViewModel @Inject constructor(
     private val mapper: ConfirmBookMapper,
 ) : ViewModel() {
 
+    private val transitionPref: String = savedStateHandle[StateArguments.TRANSITION_PREFIX_ARG] ?: ""
     private val navSeed: TempBook? = savedStateHandle[StateArguments.BOOK_SEED_ARG]
 
     private val _events = Channel<ConfirmBookEvent>(Channel.BUFFERED)
@@ -51,7 +52,7 @@ class ConfirmBookViewModel @Inject constructor(
 
     private val _manualInputState: MutableStateFlow<ConfirmBookScreenState.ManualInput> = MutableStateFlow(
         ConfirmBookScreenState.ManualInput(
-            bookData = navSeed?.let { mapper.mapToDataState(it, null) },
+            bookData = navSeed?.let { mapper.mapToDataState(it, null, transitionPref) },
             editTitle = navSeed?.title.orEmpty(),
             showTitleError = false,
             editAuthors = navSeed?.authors?.joinToString(separator = ", ").orEmpty(),
@@ -72,7 +73,7 @@ class ConfirmBookViewModel @Inject constructor(
         when (selectedBook?.source) {
             BookSource.GOOGLE_BOOKS, BookSource.OPEN_LIBRARY -> ConfirmBookUiState(
                 screenState = ConfirmBookScreenState.DefaultData(
-                    bookData = mapper.mapToDataState(selectedBook, selectedCoverUrl),
+                    bookData = mapper.mapToDataState(selectedBook, selectedCoverUrl, transitionPref),
                     isSaving = false,
                     screenValues = mapper.getScreenDefaultValues(),
                 ),
@@ -94,7 +95,7 @@ class ConfirmBookViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
             initialValue = ConfirmBookUiState(
                 screenState = ConfirmBookScreenState.Loading(
-                    bookData = navSeed?.let { mapper.mapToDataState(navSeed, null) },
+                    bookData = navSeed?.let { mapper.mapToDataState(navSeed, null, transitionPref) },
                     isManual = navSeed?.source == BookSource.MANUAL,
                     screenValues = mapper.getScreenLoadingValues(navSeed?.source == BookSource.MANUAL),
                 )
@@ -118,6 +119,7 @@ class ConfirmBookViewModel @Inject constructor(
                         id = book.id,
                         url = book.coverUrl ?: "",
                         animationKey = BookTransitionKey.calculate(
+                            transitionPref = transitionPref,
                             title = book.title,
                             authors = book.authors,
                             isbn = book.isbn13,
@@ -175,6 +177,7 @@ class ConfirmBookViewModel @Inject constructor(
                         id = book.id,
                         url = book.coverUrl ?: "",
                         animationKey = BookTransitionKey.calculate(
+                            transitionPref = transitionPref,
                             title = book.title,
                             authors = book.authors,
                             isbn = book.isbn13,

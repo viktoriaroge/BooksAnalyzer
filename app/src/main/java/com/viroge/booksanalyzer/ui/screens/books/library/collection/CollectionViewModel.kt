@@ -1,6 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.library.collection
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.BookSeed
@@ -9,6 +10,7 @@ import com.viroge.booksanalyzer.domain.usecase.book.ObserveHasAvailableBooksUseC
 import com.viroge.booksanalyzer.domain.usecase.book.ObserveLibraryDataUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverUrlUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookSeedUseCase
+import com.viroge.booksanalyzer.ui.nav.StateArguments
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +37,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CollectionViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val selectBookCoverUrlUseCase: SelectBookCoverUrlUseCase,
     private val selectBookSeedUseCase: SelectBookSeedUseCase,
     private val observeLibraryDataUseCase: ObserveLibraryDataUseCase,
@@ -42,6 +45,8 @@ class CollectionViewModel @Inject constructor(
     private val getBookUseCase: GetBookUseCase,
     private val mapper: CollectionMapper,
 ) : ViewModel() {
+
+    private val transitionPref: String = savedStateHandle[StateArguments.TRANSITION_PREFIX_ARG] ?: ""
 
     private val _events = Channel<CollectionEvent>(Channel.BUFFERED)
     val events: Flow<CollectionEvent> = _events.receiveAsFlow()
@@ -86,7 +91,7 @@ class CollectionViewModel @Inject constructor(
                     filtersSheetValues = mapper.getFiltersSheetValues(),
                     selectedStatus = status,
                     sortState = sort,
-                    allBooks = data.books.map { mapper.mapToData(it) },
+                    allBooks = data.books.map { mapper.mapToData(it, transitionPref) },
 
                     isInEmptyState = data.books.isEmpty(),
                     showEmptyStateButton = !hasAnyBooks,
@@ -140,6 +145,7 @@ class CollectionViewModel @Inject constructor(
                 id = book.id,
                 url = book.coverUrl ?: "",
                 animationKey = BookTransitionKey.calculate(
+                    transitionPref = transitionPref,
                     title = book.title,
                     authors = book.authors,
                     isbn = book.isbn13,

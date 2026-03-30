@@ -2,7 +2,6 @@ package com.viroge.booksanalyzer.data.remote.openlibrary
 
 import com.viroge.booksanalyzer.domain.model.BookSource
 import com.viroge.booksanalyzer.domain.model.TempBook
-import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,15 +14,11 @@ class OpenLibraryMapper @Inject constructor() {
 
         val (isbn13, isbn10) = splitIsbns(isbns = doc.isbn)
 
-        val authors = doc.authorName
-        val source = BookSource.OPEN_LIBRARY
-
         return TempBook(
-            animationKey = BookTransitionKey.calculate(title, authors, isbn13, source, sourceId),
             sourceId = sourceId,
-            source = source,
+            source = BookSource.OPEN_LIBRARY,
             title = title,
-            authors = authors,
+            authors = doc.authorName,
             year = doc.firstPublishYear?.toString(),
             isbn13 = isbn13,
             isbn10 = isbn10,

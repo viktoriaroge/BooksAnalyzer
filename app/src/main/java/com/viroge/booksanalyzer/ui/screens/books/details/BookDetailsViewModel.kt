@@ -48,6 +48,7 @@ class BookDetailsViewModel @Inject constructor(
     private val mapper: BookDetailsMapper,
 ) : ViewModel() {
 
+    private val transitionPref: String = savedStateHandle[StateArguments.TRANSITION_PREFIX_ARG] ?: ""
     private val navSeed: BookSeed? = savedStateHandle[StateArguments.BOOK_SEED_ARG]
 
     private val _events = Channel<BookDetailsEvent>(Channel.BUFFERED)
@@ -69,7 +70,7 @@ class BookDetailsViewModel @Inject constructor(
 
             getBookUseCase(currentSeed.id)
                 .combine(observeBookCoverUrlSelectionUseCase())
-                { dbBook, selectedCoverUrl -> mapper.mapToDataState(dbBook, selectedCoverUrl) }
+                { dbBook, selectedCoverUrl -> mapper.mapToDataState(dbBook, selectedCoverUrl, transitionPref) }
         }
         .flowOn(Dispatchers.Default)
 

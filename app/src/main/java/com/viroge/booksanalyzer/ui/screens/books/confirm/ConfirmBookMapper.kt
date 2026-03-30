@@ -45,8 +45,16 @@ class ConfirmBookMapper @Inject constructor() {
     fun mapToDataState(
         book: TempBook,
         selectedCoverUrl: String?,
+        transitionPref: String,
     ): ConfirmBookData = ConfirmBookData(
-        animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13, book.source, book.sourceId),
+        animationKey = BookTransitionKey.calculate(
+            transitionPref = transitionPref,
+            title = book.title,
+            authors = book.authors,
+            isbn = book.isbn13,
+            source = book.source,
+            sourceId = book.sourceId,
+        ),
         title = book.title,
         authors = book.authors.joinToString(separator = ", "),
         isbn13 = book.isbn13,

@@ -48,6 +48,8 @@ class BookSearchViewModel @Inject constructor(
     private val mapper: BookSearchMapper,
 ) : ViewModel() {
 
+    private val transitionPref: String = savedStateHandle[StateArguments.TRANSITION_PREFIX_ARG] ?: ""
+
     private val _events = Channel<BookSearchEvent>(Channel.BUFFERED)
     val events: Flow<BookSearchEvent> = _events.receiveAsFlow()
 
@@ -113,7 +115,7 @@ class BookSearchViewModel @Inject constructor(
         val shouldTriggerReset = q.isNotEmpty() && !hasResetScroll
 
         // Map the raw domain books to UI state objects:
-        val items = rawItems.map { mapper.mapToDataState(it) }
+        val items = rawItems.map { mapper.mapToDataState(it, transitionPref) }
 
         when (phase) {
             SearchPhase.Loading -> SearchScreenState.Loading

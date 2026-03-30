@@ -38,8 +38,16 @@ class CollectionMapper @Inject constructor() {
 
     fun mapToData(
         book: Book,
+        transitionPref: String,
     ): CollectionBookData = CollectionBookData(
-        animationKey = BookTransitionKey.calculate(book.title, book.authors, book.isbn13, book.source, book.sourceId),
+        animationKey = BookTransitionKey.calculate(
+            transitionPref = transitionPref,
+            title = book.title,
+            authors = book.authors,
+            isbn = book.isbn13,
+            source = book.source,
+            sourceId = book.sourceId,
+        ),
         id = book.id,
         title = book.title,
         authors = book.authors.joinToString(separator = ", "),

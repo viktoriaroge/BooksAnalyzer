@@ -1,6 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.library
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.BookSeed
@@ -9,6 +10,7 @@ import com.viroge.booksanalyzer.domain.usecase.book.LibrarySort
 import com.viroge.booksanalyzer.domain.usecase.book.ObserveLibraryDataUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverUrlUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookSeedUseCase
+import com.viroge.booksanalyzer.ui.nav.StateArguments
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,12 +30,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val selectBookCoverUrlUseCase: SelectBookCoverUrlUseCase,
     private val selectBookSeedUseCase: SelectBookSeedUseCase,
     observeLibraryDataUseCase: ObserveLibraryDataUseCase,
     private val getBookUseCase: GetBookUseCase,
     private val mapper: LibraryMapper,
 ) : ViewModel() {
+
+    private val transitionPref: String = savedStateHandle[StateArguments.TRANSITION_PREFIX_ARG] ?: ""
 
     private val _events = Channel<LibraryEvent>(Channel.BUFFERED)
     val events: Flow<LibraryEvent> = _events.receiveAsFlow()
@@ -55,7 +60,7 @@ class LibraryViewModel @Inject constructor(
 
                     else -> LibraryScreenState.Content(
                         contentStateValues = mapper.getContentStateValues(),
-                        currentBooks = data.currentlyReading.map { mapper.mapToData(it) },
+                        currentBooks = data.currentlyReading.map { mapper.mapToData(it, transitionPref) },
                     )
                 }
             }
@@ -89,6 +94,7 @@ class LibraryViewModel @Inject constructor(
                 id = book.id,
                 url = book.coverUrl ?: "",
                 animationKey = BookTransitionKey.calculate(
+                    transitionPref = transitionPref,
                     title = book.title,
                     authors = book.authors,
                     isbn = book.isbn13,

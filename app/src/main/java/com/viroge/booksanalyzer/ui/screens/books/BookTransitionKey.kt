@@ -5,6 +5,7 @@ import com.viroge.booksanalyzer.domain.model.BookSource
 object BookTransitionKey {
 
     fun calculate(
+        transitionPref: String,
         title: String,
         authors: List<String>,
         isbn: String?,
@@ -12,10 +13,11 @@ object BookTransitionKey {
         sourceId: String?,
     ): String {
         val normalizedAuthors = authors.joinToString(separator = ", ")
-        return calculate(title, normalizedAuthors, isbn, source, sourceId)
+        return calculate(transitionPref, title, normalizedAuthors, isbn, source, sourceId)
     }
 
     fun calculate(
+        transitionPref: String,
         title: String,
         authors: String?,
         isbn: String?,
@@ -28,7 +30,7 @@ object BookTransitionKey {
         val normalizedSource = source.name.lowercase().hashCode()
         val normalizedSourceId = sourceId?.trim()?.lowercase()?.hashCode() ?: "no-source-id"
 
-        // Example output: "book-9780547928227-1234567-890123-2345678-7890123"
-        return "book-$normalizedIsbn-$normalizedTitle-$normalizedAuthors-$normalizedSource-$normalizedSourceId"
+        // Example output: "library-book-9780547928227-1234567-890123-2345678-7890123"
+        return "$transitionPref-book-$normalizedIsbn-$normalizedTitle-$normalizedAuthors-$normalizedSource-$normalizedSourceId"
     }
 }
