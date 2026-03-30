@@ -91,6 +91,7 @@ class CollectionViewModel @Inject constructor(
                     filtersSheetValues = mapper.getFiltersSheetValues(),
                     selectedStatus = status,
                     sortState = sort,
+                    // TODO: Implement paging, this can easily get out of hand:
                     allBooks = data.books.map { mapper.mapToData(it, transitionPref) },
 
                     isInEmptyState = data.books.isEmpty(),
@@ -115,7 +116,7 @@ class CollectionViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
             initialValue = CollectionUiState(
-                screenValues = CollectionScreenValues(),
+                screenValues = mapper.getScreenValues(),
                 screenState = CollectionScreenState.Loading,
             )
         )

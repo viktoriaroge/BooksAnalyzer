@@ -104,9 +104,9 @@ fun CollectionScreen(
 
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(top = screenPadding.calculateTopPadding()) // top bar
-                .padding(bottom = appScaffoldPadding.calculateBottomPadding())
-                .fillMaxSize(),
+                .padding(bottom = appScaffoldPadding.calculateBottomPadding()),
         ) {
 
             ActiveFiltersRow(

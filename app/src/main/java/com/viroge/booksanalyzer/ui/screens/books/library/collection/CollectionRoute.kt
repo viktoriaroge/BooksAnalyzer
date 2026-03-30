@@ -46,8 +46,10 @@ fun CollectionRoute(
 
     when (val screenState = state.screenState) {
         CollectionScreenState.Loading -> {
-            // Draw nothing and have a smooth transition without anything flickering.
-            // The DB fetch is quick enough. If needed, can be implemented later.
+            CollectionLoadingScreen(
+                screenValues = state.screenValues,
+                onBack = onBack,
+            )
         }
 
         is CollectionScreenState.Content -> {
