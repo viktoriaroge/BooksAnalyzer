@@ -48,7 +48,7 @@ class BookDetailsViewModel @Inject constructor(
     private val mapper: BookDetailsMapper,
 ) : ViewModel() {
 
-    private val navSeed: BookSeed? = savedStateHandle[StateArguments.DETAILS_SCREEN_BOOK_SEED_ARG]
+    private val navSeed: BookSeed? = savedStateHandle[StateArguments.BOOK_SEED_ARG]
 
     private val _events = Channel<BookDetailsEvent>(Channel.BUFFERED)
     val events: Flow<BookDetailsEvent> = _events.receiveAsFlow()

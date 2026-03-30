@@ -51,8 +51,8 @@ class BookSearchViewModel @Inject constructor(
     private val _events = Channel<BookSearchEvent>(Channel.BUFFERED)
     val events: Flow<BookSearchEvent> = _events.receiveAsFlow()
 
-    private val _query = savedStateHandle.getStateFlow(StateArguments.SEARCH_SCREEN_QUERY_ARG, "")
-    private val _mode = savedStateHandle.getStateFlow(StateArguments.SEARCH_SCREEN_MODE_ARG, SearchMode.ALL)
+    private val _query = savedStateHandle.getStateFlow(StateArguments.QUERY_ARG, "")
+    private val _mode = savedStateHandle.getStateFlow(StateArguments.MODE_ARG, SearchMode.ALL)
     private val _searchTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     private val _currentItems = MutableStateFlow<List<TempBook>>(emptyList())
     private val _lastError: MutableStateFlow<SearchError> = MutableStateFlow(SearchError.None)
@@ -183,14 +183,14 @@ class BookSearchViewModel @Inject constructor(
         )
 
     fun changeQuery(newValue: String) {
-        savedStateHandle[StateArguments.SEARCH_SCREEN_QUERY_ARG] = newValue
+        savedStateHandle[StateArguments.QUERY_ARG] = newValue
         if (newValue.trim().length < 2) {
             refreshSearch()
         }
     }
 
     fun changeSearchMode(newMode: BookSearchModeUi) {
-        savedStateHandle[StateArguments.SEARCH_SCREEN_MODE_ARG] = newMode.domainStatus
+        savedStateHandle[StateArguments.MODE_ARG] = newMode.domainStatus
     }
 
     fun refreshSearch() {

@@ -1,20 +1,35 @@
 package com.viroge.booksanalyzer.ui.nav
 
+import com.viroge.booksanalyzer.ui.nav.StateArguments.BOOK_SEED_ARG
+import com.viroge.booksanalyzer.ui.nav.StateArguments.TRANSITION_PREFIX_ARG
+
 object Routes {
 
-    const val LIBRARY = "library"
+    // --- Top-Level screens -------------------------------------------------
+
     const val LIBRARY_GRAPH = "library_graph"
+    const val LIBRARY_ROUTE_PREFIX = "library"
+    const val LIBRARY_ROUTE = "$LIBRARY_ROUTE_PREFIX/{${TRANSITION_PREFIX_ARG}}"
 
-    const val SEARCH_BOOK = "search_book"
     const val SEARCH_BOOK_GRAPH = "search_book_graph"
+    const val SEARCH_BOOK_ROUTE_PREFIX = "search_book"
+    const val SEARCH_BOOK_ROUTE = "$SEARCH_BOOK_ROUTE_PREFIX/{${TRANSITION_PREFIX_ARG}}"
 
-    const val SETTINGS = "settings"
     const val SETTINGS_GRAPH = "settings_graph"
+    const val SETTINGS_ROUTE = "settings"
 
-    // Stand-alone screens:
-    const val COLLECTION = "collection"
-    const val CONFIRM_BOOK = "confirm_book"
-    const val BOOK_DETAILS = "book_details"
-    const val RECENTLY_DELETED_BOOKS = "recently_deleted_books"
-    const val APP_TERMS = "app_terms"
+    // --- Stand-Alone screens ------------------------------------------------
+
+    const val COLLECTION_ROUTE_PREFIX = "collection"
+    const val COLLECTION_ROUTE = "$COLLECTION_ROUTE_PREFIX/{${TRANSITION_PREFIX_ARG}}"
+
+    const val CONFIRM_BOOK_ROUTE_PREFIX = "confirm_book"
+    const val CONFIRM_BOOK_ROUTE = "${CONFIRM_BOOK_ROUTE_PREFIX}/{${BOOK_SEED_ARG}}/{${TRANSITION_PREFIX_ARG}}"
+
+    const val BOOK_DETAILS_ROUTE_PREFIX = "book_details"
+    const val BOOK_DETAILS_ROUTE = "${BOOK_DETAILS_ROUTE_PREFIX}/{${BOOK_SEED_ARG}}/{${TRANSITION_PREFIX_ARG}}"
+
+    const val RECENTLY_DELETED_BOOKS_ROUTE = "recently_deleted_books"
+
+    const val APP_TERMS_ROUTE = "app_terms"
 }

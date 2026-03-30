@@ -31,7 +31,7 @@ class SettingsMapper @Inject constructor() {
                     id = type.name,
                     title = UiText.StringResource(R.string.recently_deleted_screen_name),
                     subtitle = UiText.StringResource(R.string.settings_screen_item_recently_deleted_subtitle),
-                    route = Routes.RECENTLY_DELETED_BOOKS,
+                    route = Routes.RECENTLY_DELETED_BOOKS_ROUTE,
                 )
 
                 SettingsItemType.GUIDE_HEADER -> SettingsRowState(
@@ -45,7 +45,7 @@ class SettingsMapper @Inject constructor() {
                     id = type.name,
                     title = UiText.StringResource(R.string.settings_screen_item_terms_title),
                     subtitle = UiText.StringResource(R.string.settings_screen_item_terms_subtitle),
-                    route = Routes.APP_TERMS,
+                    route = Routes.APP_TERMS_ROUTE,
                 )
 
                 SettingsItemType.APP_HEADER -> SettingsRowState(

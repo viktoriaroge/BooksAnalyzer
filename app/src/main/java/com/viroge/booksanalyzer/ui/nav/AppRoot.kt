@@ -43,7 +43,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -63,12 +62,14 @@ fun AppRoot() {
     val currentDestination = navBackStackEntry?.destination
 
     val topLevelRoutes = setOf(
-        Routes.LIBRARY,
-        Routes.SEARCH_BOOK,
-        Routes.SETTINGS,
+        Routes.LIBRARY_ROUTE,
+        Routes.SEARCH_BOOK_ROUTE,
+        Routes.SETTINGS_ROUTE,
     )
 
-    val showBottomBar = currentDestination?.hierarchy?.any { it.route in topLevelRoutes } == true
+    val showBottomBar = topLevelRoutes.any { route ->
+        currentDestination?.route?.startsWith(route) == true
+    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()

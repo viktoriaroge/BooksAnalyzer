@@ -44,7 +44,7 @@ class ConfirmBookViewModel @Inject constructor(
     private val mapper: ConfirmBookMapper,
 ) : ViewModel() {
 
-    private val navSeed: TempBook? = savedStateHandle[StateArguments.CONFIRM_SCREEN_TEMP_BOOK_SEED_ARG]
+    private val navSeed: TempBook? = savedStateHandle[StateArguments.BOOK_SEED_ARG]
 
     private val _events = Channel<ConfirmBookEvent>(Channel.BUFFERED)
     val events: Flow<ConfirmBookEvent> = _events.receiveAsFlow()

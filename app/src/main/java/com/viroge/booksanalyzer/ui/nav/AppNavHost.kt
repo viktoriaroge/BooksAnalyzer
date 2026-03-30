@@ -9,10 +9,29 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.viroge.booksanalyzer.ui.nav.Routes.APP_TERMS_ROUTE
+import com.viroge.booksanalyzer.ui.nav.Routes.BOOK_DETAILS_ROUTE
+import com.viroge.booksanalyzer.ui.nav.Routes.BOOK_DETAILS_ROUTE_PREFIX
+import com.viroge.booksanalyzer.ui.nav.Routes.COLLECTION_ROUTE
+import com.viroge.booksanalyzer.ui.nav.Routes.COLLECTION_ROUTE_PREFIX
+import com.viroge.booksanalyzer.ui.nav.Routes.CONFIRM_BOOK_ROUTE
+import com.viroge.booksanalyzer.ui.nav.Routes.CONFIRM_BOOK_ROUTE_PREFIX
+import com.viroge.booksanalyzer.ui.nav.Routes.LIBRARY_GRAPH
+import com.viroge.booksanalyzer.ui.nav.Routes.LIBRARY_ROUTE
+import com.viroge.booksanalyzer.ui.nav.Routes.LIBRARY_ROUTE_PREFIX
+import com.viroge.booksanalyzer.ui.nav.Routes.RECENTLY_DELETED_BOOKS_ROUTE
+import com.viroge.booksanalyzer.ui.nav.Routes.SEARCH_BOOK_GRAPH
+import com.viroge.booksanalyzer.ui.nav.Routes.SEARCH_BOOK_ROUTE
+import com.viroge.booksanalyzer.ui.nav.Routes.SEARCH_BOOK_ROUTE_PREFIX
+import com.viroge.booksanalyzer.ui.nav.Routes.SETTINGS_GRAPH
+import com.viroge.booksanalyzer.ui.nav.Routes.SETTINGS_ROUTE
+import com.viroge.booksanalyzer.ui.nav.StateArguments.BOOK_SEED_ARG
+import com.viroge.booksanalyzer.ui.nav.StateArguments.TRANSITION_PREFIX_ARG
 import com.viroge.booksanalyzer.ui.screens.books.confirm.ConfirmBookRoute
 import com.viroge.booksanalyzer.ui.screens.books.deleted.RecentlyDeletedRoute
 import com.viroge.booksanalyzer.ui.screens.books.details.BookDetailsRoute
@@ -28,12 +47,14 @@ import kotlinx.serialization.json.Json
 fun AppNavHost(
     navController: NavHostController,
 ) {
-
+    val libraryTransitionPrefix = TransitionNamespace.Library.prefix
+    val collectionTransitionPrefix = TransitionNamespace.Collection.prefix
+    val searchTransitionPrefix = TransitionNamespace.Search.prefix
 
     SharedTransitionLayout {
         NavHost(
             navController = navController,
-            startDestination = Routes.LIBRARY_GRAPH,
+            startDestination = LIBRARY_GRAPH,
             enterTransition = { fadeIn(tween(400)) },
             exitTransition = { fadeOut(tween(400)) },
         ) {
@@ -41,75 +62,99 @@ fun AppNavHost(
             // --- LIBRARY TAB --------------------------------------------------------------
 
             navigation(
-                route = Routes.LIBRARY_GRAPH,
-                startDestination = Routes.LIBRARY
+                route = LIBRARY_GRAPH,
+                startDestination = "$LIBRARY_ROUTE_PREFIX/$libraryTransitionPrefix",
             ) {
-                composable(Routes.LIBRARY) {
+                composable(
+                    route = LIBRARY_ROUTE,
+                    arguments = listOf(
+                        navArgument(TRANSITION_PREFIX_ARG) { type = NavType.StringType },
+                    ),
+                ) {
                     LibraryRoute(
-                        onOpenSearch = { navController.navigateSafe(route = Routes.SEARCH_BOOK_GRAPH, isTabSwitch = true) },
-                        onOpenCollection = { navController.navigateSafe(Routes.COLLECTION) },
-                        onOpenBook = { seed ->
-                            val seedJson = Uri.encode(Json.encodeToString(seed))
-                            navController.navigateSafe("${Routes.BOOK_DETAILS}/$seedJson")
-                        },
+                        // Animation Parameters:
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
+
+                        onOpenSearch = { navController.navigateSafe(route = SEARCH_BOOK_GRAPH, isTabSwitch = true) },
+                        onOpenCollection = { navController.navigateSafe(route = "$COLLECTION_ROUTE_PREFIX/$collectionTransitionPrefix") },
+                        onOpenBook = { seed ->
+                            val seedJson = Uri.encode(Json.encodeToString(seed))
+                            navController.navigateSafe(route = "${BOOK_DETAILS_ROUTE_PREFIX}/$seedJson/$libraryTransitionPrefix")
+                        },
                     )
                 }
 
-                composable(Routes.COLLECTION) {
+                composable(
+                    route = COLLECTION_ROUTE,
+                    arguments = listOf(
+                        navArgument(TRANSITION_PREFIX_ARG) { type = NavType.StringType },
+                    ),
+                ) {
                     CollectionRoute(
+                        // Animation Parameters:
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedVisibilityScope = this@composable,
+
                         onBack = navController::popBackStack,
                         onOpenSearch = {
-                            navController.popBackStack(route = Routes.LIBRARY, inclusive = false)
-                            navController.navigateSafe(route = Routes.SEARCH_BOOK_GRAPH, isTabSwitch = true)
+                            navController.popBackStack(route = LIBRARY_ROUTE, inclusive = false)
+                            navController.navigateSafe(route = SEARCH_BOOK_GRAPH, isTabSwitch = true)
                         },
                         onOpenBook = { seed ->
                             val seedJson = Uri.encode(Json.encodeToString(seed))
-                            navController.navigateSafe("${Routes.BOOK_DETAILS}/$seedJson")
+                            navController.navigateSafe("${BOOK_DETAILS_ROUTE_PREFIX}/$seedJson/$collectionTransitionPrefix")
                         },
-                        sharedTransitionScope = this@SharedTransitionLayout,
-                        animatedVisibilityScope = this@composable,
                     )
                 }
 
                 bookDetailsDestination(
                     sharedTransitionScope = this@SharedTransitionLayout,
-                    onBack = navController::popBackStack
+                    onBack = navController::popBackStack,
                 )
             }
 
             // --- SEARCH BOOK TAB -------------------------------------------------------------
 
             navigation(
-                route = Routes.SEARCH_BOOK_GRAPH,
-                startDestination = Routes.SEARCH_BOOK
+                route = SEARCH_BOOK_GRAPH,
+                startDestination = "$SEARCH_BOOK_ROUTE_PREFIX/$searchTransitionPrefix",
             ) {
-                composable(Routes.SEARCH_BOOK) {
+                composable(
+                    route = SEARCH_BOOK_ROUTE,
+                    arguments = listOf(
+                        navArgument(TRANSITION_PREFIX_ARG) { type = NavType.StringType },
+                    ),
+                ) {
                     SearchBookRoute(
+                        // Animation Parameters:
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
+
                         onOpenBookConfirmation = { seed ->
                             val seedJson = Uri.encode(Json.encodeToString(seed))
-                            navController.navigateSafe("${Routes.CONFIRM_BOOK}/$seedJson")
+                            navController.navigateSafe("${CONFIRM_BOOK_ROUTE_PREFIX}/$seedJson/$searchTransitionPrefix")
                         },
                     )
                 }
 
                 composable(
-                    route = "${Routes.CONFIRM_BOOK}/{${StateArguments.CONFIRM_SCREEN_TEMP_BOOK_SEED_ARG}}",
+                    route = CONFIRM_BOOK_ROUTE,
                     arguments = listOf(
-                        navArgument(StateArguments.CONFIRM_SCREEN_TEMP_BOOK_SEED_ARG) { type = tempBookSeedNavType }
-                    )
+                        navArgument(BOOK_SEED_ARG) { type = tempBookSeedNavType },
+                        navArgument(TRANSITION_PREFIX_ARG) { type = NavType.StringType },
+                    ),
                 ) {
                     ConfirmBookRoute(
+                        // Animation Parameters:
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@composable,
+
                         onBack = navController::popBackStack,
                         onOpenBook = { seed ->
                             val seedJson = Uri.encode(Json.encodeToString(seed))
-                            navController.navigateSafe("${Routes.BOOK_DETAILS}/$seedJson") {
-                                popUpTo(Routes.SEARCH_BOOK) { inclusive = false }
+                            navController.navigateSafe("${BOOK_DETAILS_ROUTE_PREFIX}/$seedJson/$searchTransitionPrefix") {
+                                popUpTo(SEARCH_BOOK_ROUTE) { inclusive = false }
                             }
                         },
                     )
@@ -124,22 +169,22 @@ fun AppNavHost(
             // --- SETTINGS TAB ------------------------------------------------------------
 
             navigation(
-                route = Routes.SETTINGS_GRAPH,
-                startDestination = Routes.SETTINGS
+                route = SETTINGS_GRAPH,
+                startDestination = SETTINGS_ROUTE,
             ) {
-                composable(Routes.SETTINGS) {
+                composable(SETTINGS_ROUTE) {
                     SettingsRoute(
                         onOpenEntry = navController::navigate,
                     )
                 }
 
-                composable(Routes.RECENTLY_DELETED_BOOKS) {
+                composable(RECENTLY_DELETED_BOOKS_ROUTE) {
                     RecentlyDeletedRoute(
                         onBack = navController::popBackStack,
                     )
                 }
 
-                composable(Routes.APP_TERMS) {
+                composable(APP_TERMS_ROUTE) {
                     TermsRoute(
                         onBack = navController::popBackStack,
                     )
@@ -154,15 +199,24 @@ fun NavGraphBuilder.bookDetailsDestination(
     onBack: () -> Unit,
 ) {
     composable(
-        route = "${Routes.BOOK_DETAILS}/{${StateArguments.DETAILS_SCREEN_BOOK_SEED_ARG}}",
+        route = BOOK_DETAILS_ROUTE,
         arguments = listOf(
-            navArgument(StateArguments.DETAILS_SCREEN_BOOK_SEED_ARG) { type = bookSeedNavType }
-        )
+            navArgument(BOOK_SEED_ARG) { type = bookSeedNavType },
+            navArgument(TRANSITION_PREFIX_ARG) { type = NavType.StringType },
+        ),
     ) {
         BookDetailsRoute(
-            onBack = onBack,
+            // Animation Parameters:
             sharedTransitionScope = sharedTransitionScope,
             animatedVisibilityScope = this@composable,
+
+            onBack = onBack,
         )
     }
+}
+
+enum class TransitionNamespace(val prefix: String) {
+    Search("search"),
+    Library("library"),
+    Collection("collection"),
 }
