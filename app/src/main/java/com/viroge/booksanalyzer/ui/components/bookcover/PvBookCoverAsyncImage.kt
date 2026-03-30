@@ -48,8 +48,6 @@ fun PvBookCoverAsyncImage(
                 height = imageSize.height,
             )
             .clip(RoundedCornerShape(12.dp))
-            .shadow(12.dp, RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
 
         if (animate && animationKey != null && sharedTransitionScope != null && animatedVisibilityScope != null) {
@@ -114,6 +112,8 @@ private fun PvAsyncImage(
         AsyncImage(
             modifier = modifier
                 .fillMaxSize()
+                .shadow(12.dp, RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .clip(RoundedCornerShape(12.dp)),
             model = request, // Pass the request object instead of the string
             imageLoader = imageLoader,
@@ -127,6 +127,8 @@ private fun PvAsyncImage(
         AsyncImage(
             modifier = modifier
                 .fillMaxSize()
+                .shadow(12.dp, RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .clip(RoundedCornerShape(12.dp)),
             model = url,
             imageLoader = imageLoader,
