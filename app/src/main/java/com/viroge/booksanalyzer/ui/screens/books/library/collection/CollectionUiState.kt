@@ -25,6 +25,7 @@ sealed interface CollectionScreenState {
         val stateValues: ContentStateValues,
         val filtersSheetValues: FiltersSheetValues,
 
+        val shouldResetFocus: Boolean = true,
         val isInEmptyState: Boolean = false,
         val showEmptyStateButton: Boolean = false,
     ) : CollectionScreenState

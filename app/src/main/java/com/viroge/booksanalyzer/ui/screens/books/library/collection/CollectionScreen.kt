@@ -29,7 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -74,8 +77,13 @@ fun CollectionScreen(
     onQueryChange: (String) -> Unit,
     onBack: () -> Unit,
     onOpenBook: (String) -> Unit,
+    onResetFocusConsumed: () -> Unit,
 ) {
     val appScaffoldPadding = LocalAppScaffoldPadding.current
+
+    var localQuery by remember(query) {
+        mutableStateOf(query)
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -121,8 +129,11 @@ fun CollectionScreen(
             val focusRequester = remember { FocusRequester() }
             if (showSearch) {
                 OutlinedTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
+                    value = localQuery,
+                    onValueChange = {
+                        localQuery = it
+                        onQueryChange(it)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
@@ -130,8 +141,11 @@ fun CollectionScreen(
                     placeholder = { Text(text = stringResource(values.searchPlaceholder)) },
                     trailingIcon = {
                         IconButton(onClick = {
-                            if (query.isBlank()) onHideSearch()
-                            else onQueryChange("")
+                            if (localQuery.isBlank()) onHideSearch()
+                            else {
+                                localQuery = ""
+                                onQueryChange("")
+                            }
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
@@ -141,8 +155,12 @@ fun CollectionScreen(
                     },
                 )
                 LaunchedEffect(Unit) {
-                    yield() // Sometimes the keyboard needs a millisecond to breathe
-                    focusRequester.requestFocus()
+                    if (state.shouldResetFocus) {
+                        onResetFocusConsumed()
+                    } else {
+                        yield() // Sometimes the keyboard needs a millisecond to breathe
+                        focusRequester.requestFocus()
+                    }
                 }
             }
 

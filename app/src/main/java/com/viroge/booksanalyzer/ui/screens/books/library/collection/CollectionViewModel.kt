@@ -5,7 +5,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.domain.model.BookSeed
+import com.viroge.booksanalyzer.domain.model.ReadingStatus
 import com.viroge.booksanalyzer.domain.usecase.book.GetBookUseCase
+import com.viroge.booksanalyzer.domain.usecase.book.LibrarySort
 import com.viroge.booksanalyzer.domain.usecase.book.ObserveHasAvailableBooksUseCase
 import com.viroge.booksanalyzer.domain.usecase.book.ObserveLibraryDataUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverUrlUseCase
@@ -22,7 +24,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -37,7 +38,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CollectionViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val selectBookCoverUrlUseCase: SelectBookCoverUrlUseCase,
     private val selectBookSeedUseCase: SelectBookSeedUseCase,
     private val observeLibraryDataUseCase: ObserveLibraryDataUseCase,
@@ -51,17 +52,24 @@ class CollectionViewModel @Inject constructor(
     private val _events = Channel<CollectionEvent>(Channel.BUFFERED)
     val events: Flow<CollectionEvent> = _events.receiveAsFlow()
 
-    private val _statusFilter = MutableStateFlow<BookReadingStatusUi?>(value = null) // null == All
-    private val _sort: MutableStateFlow<CollectionSortUi> = MutableStateFlow(value = CollectionSortUi.Added)
+    private val _statusFilter: StateFlow<ReadingStatus?> =
+        savedStateHandle.getStateFlow(StateArguments.STATUS_ARG, null) // null == All
+    private val _sort: StateFlow<LibrarySort> =
+        savedStateHandle.getStateFlow(StateArguments.SORT_ARG, LibrarySort.ADDED)
 
-    private val _query = MutableStateFlow(value = "")
-    val query: StateFlow<String> = _query.asStateFlow()
+    private val _hasResetFocus = MutableStateFlow(false)
+
+    val query: StateFlow<String> = savedStateHandle.getStateFlow(StateArguments.QUERY_ARG, "")
 
     val filters: StateFlow<CollectionFilters> = combine(
         _statusFilter,
         _sort
-    ) { status, sort -> CollectionFilters(status, sort) }
-        .flowOn(Dispatchers.Default)
+    ) { status, sort ->
+        CollectionFilters(
+            status = status?.let { BookReadingStatusUi.fromDomain(it) },
+            sort = CollectionSortUi.fromDomain(sort),
+        )
+    }.flowOn(Dispatchers.Default)
         .catch { _ -> Log.e("CollectionViewModel", "Failed to prepare filters.") } // TODO: Send error to UI
         .stateIn(
             scope = viewModelScope,
@@ -79,21 +87,26 @@ class CollectionViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     private val screenState: Flow<CollectionScreenState> = combine(
-        _query.debounce(300),
+        _hasResetFocus,
+        query.debounce(300),
         _statusFilter,
         _sort,
         hasBooks
-    ) { q, status, sort, hasAnyBooks ->
-        observeLibraryDataUseCase(q, status?.domainStatus, sort.domainSource)
+    ) { hasResetFocus, q, status, sort, hasAnyBooks ->
+
+        val shouldResetFocus = q.isNotEmpty() && !hasResetFocus
+
+        observeLibraryDataUseCase(q, status, sort)
             .map { data ->
                 CollectionScreenState.Content(
                     stateValues = mapper.getContentStateValues(!hasAnyBooks),
                     filtersSheetValues = mapper.getFiltersSheetValues(),
-                    selectedStatus = status,
-                    sortState = sort,
+                    selectedStatus = status?.let { BookReadingStatusUi.fromDomain(it) },
+                    sortState = CollectionSortUi.fromDomain(sort),
                     // TODO: Implement paging, this can easily get out of hand:
                     allBooks = data.books.map { mapper.mapToData(it, transitionPref) },
 
+                    shouldResetFocus = shouldResetFocus,
                     isInEmptyState = data.books.isEmpty(),
                     showEmptyStateButton = !hasAnyBooks,
                 )
@@ -121,21 +134,25 @@ class CollectionViewModel @Inject constructor(
             )
         )
 
+    fun onFocusResetConsumed() {
+        _hasResetFocus.value = true
+    }
+
     fun onQueryChange(value: String) {
-        _query.value = value
+        savedStateHandle[StateArguments.QUERY_ARG] = value
     }
 
     fun onStatusChange(status: BookReadingStatusUi?) {
-        _statusFilter.value = status
+        savedStateHandle[StateArguments.STATUS_ARG] = status?.domainStatus
     }
 
     fun onSortChange(newSort: CollectionSortUi) {
-        _sort.value = newSort
+        savedStateHandle[StateArguments.SORT_ARG] = newSort.domainSource
     }
 
     fun onClearFilters() {
-        _statusFilter.value = null
-        _sort.value = CollectionSortUi.Added
+        savedStateHandle[StateArguments.STATUS_ARG] = null
+        savedStateHandle[StateArguments.SORT_ARG] = LibrarySort.ADDED
     }
 
     fun onOpenBook(bookId: String) {

@@ -85,6 +85,7 @@ fun CollectionRoute(
                 onQueryChange = vm::onQueryChange,
                 onBack = onBack,
                 onOpenBook = vm::onOpenBook,
+                onResetFocusConsumed = vm::onFocusResetConsumed,
             )
 
             if (showFilters) {

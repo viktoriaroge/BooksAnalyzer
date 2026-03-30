@@ -11,4 +11,6 @@ object StateArguments {
 
     const val QUERY_ARG = "query_arg"
     const val MODE_ARG = "mode_arg"
+    const val SORT_ARG = "sort_arg"
+    const val STATUS_ARG = "status_arg"
 }
