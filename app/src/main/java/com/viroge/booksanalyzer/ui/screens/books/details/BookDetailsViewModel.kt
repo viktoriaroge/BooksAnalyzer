@@ -13,7 +13,7 @@ import com.viroge.booksanalyzer.domain.usecase.book.UpdateBookStatusUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookCoverUrlSelectionUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookSeedSelectionUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverDataSeedUseCase
-import com.viroge.booksanalyzer.ui.nav.Routes
+import com.viroge.booksanalyzer.ui.nav.StateArguments
 import com.viroge.booksanalyzer.ui.screens.books.BookReadingStatusUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +48,7 @@ class BookDetailsViewModel @Inject constructor(
     private val mapper: BookDetailsMapper,
 ) : ViewModel() {
 
-    private val navSeed: BookSeed? = savedStateHandle[Routes.BOOK_SEED_ARG]
+    private val navSeed: BookSeed? = savedStateHandle[StateArguments.DETAILS_SCREEN_BOOK_SEED_ARG]
 
     private val _events = Channel<BookDetailsEvent>(Channel.BUFFERED)
     val events: Flow<BookDetailsEvent> = _events.receiveAsFlow()

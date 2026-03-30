@@ -97,9 +97,9 @@ fun AppNavHost(
                 }
 
                 composable(
-                    route = "${Routes.CONFIRM_BOOK}/{${Routes.TEMP_BOOK_SEED_ARG}}",
+                    route = "${Routes.CONFIRM_BOOK}/{${StateArguments.CONFIRM_SCREEN_TEMP_BOOK_SEED_ARG}}",
                     arguments = listOf(
-                        navArgument(Routes.TEMP_BOOK_SEED_ARG) { type = tempBookSeedNavType }
+                        navArgument(StateArguments.CONFIRM_SCREEN_TEMP_BOOK_SEED_ARG) { type = tempBookSeedNavType }
                     )
                 ) {
                     ConfirmBookRoute(
@@ -154,9 +154,9 @@ fun NavGraphBuilder.bookDetailsDestination(
     onBack: () -> Unit,
 ) {
     composable(
-        route = "${Routes.BOOK_DETAILS}/{${Routes.BOOK_SEED_ARG}}",
+        route = "${Routes.BOOK_DETAILS}/{${StateArguments.DETAILS_SCREEN_BOOK_SEED_ARG}}",
         arguments = listOf(
-            navArgument(Routes.BOOK_SEED_ARG) { type = bookSeedNavType }
+            navArgument(StateArguments.DETAILS_SCREEN_BOOK_SEED_ARG) { type = bookSeedNavType }
         )
     ) {
         BookDetailsRoute(

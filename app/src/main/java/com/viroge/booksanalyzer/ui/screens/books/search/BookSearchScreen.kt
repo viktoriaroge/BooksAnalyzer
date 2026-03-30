@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,6 +34,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,6 +78,7 @@ fun BookSearchScreen(
     onRecentSearchSelected: (String) -> Unit,
     onRemoveRecentSearch: (String) -> Unit,
     onClearRecentSearches: () -> Unit,
+    onScrollResetConsumed: () -> Unit,
     onManualAdd: (String) -> Unit,
     onSelectBook: (SearchBookDataState) -> Unit,
 ) {
@@ -144,8 +148,7 @@ fun BookSearchScreen(
 
             when (val screenState = state.screenState) {
                 SearchScreenState.Loading -> {
-                    Spacer(Modifier.height(height = 4.dp))
-                    PvLinearProgressIndicator()
+                    LoadingState()
                 }
 
                 is SearchScreenState.Idle -> {
@@ -177,7 +180,17 @@ fun BookSearchScreen(
                 }
 
                 is SearchScreenState.Content -> {
+                    val listState = rememberLazyListState(
+                        initialFirstVisibleItemIndex = 0
+                    )
+                    if (screenState.shouldResetScroll) {
+                        SideEffect {
+                            listState.requestScrollToItem(0)
+                            onScrollResetConsumed()
+                        }
+                    }
                     BooksList(
+                        listState = listState,
                         contentStateValues = screenState.contentStateValues,
                         sharedTransitionScope = sharedTransitionScope,
                         animatedVisibilityScope = animatedVisibilityScope,
@@ -222,7 +235,14 @@ fun SearchModeChips(
 }
 
 @Composable
+private fun LoadingState() {
+    Spacer(Modifier.height(height = 4.dp))
+    PvLinearProgressIndicator()
+}
+
+@Composable
 private fun BooksList(
+    listState: LazyListState,
     contentStateValues: ContentStateValues,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -244,6 +264,7 @@ private fun BooksList(
     }
 
     LazyColumn(
+        state = listState,
         modifier = Modifier.padding(horizontal = 16.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(space = 8.dp),

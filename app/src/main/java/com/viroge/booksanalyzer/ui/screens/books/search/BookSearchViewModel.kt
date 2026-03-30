@@ -1,6 +1,7 @@
 package com.viroge.booksanalyzer.ui.screens.books.search
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.viroge.booksanalyzer.data.common.util.BooksUtil.mergeAndRank
@@ -12,6 +13,7 @@ import com.viroge.booksanalyzer.domain.usecase.search.SearchBooksUseCase
 import com.viroge.booksanalyzer.domain.usecase.search.SearchError
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverUrlUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectTempBookUseCase
+import com.viroge.booksanalyzer.ui.nav.StateArguments
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,6 +39,7 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class BookSearchViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val selectTempBookUseCase: SelectTempBookUseCase,
     private val selectBookCoverUrlUseCase: SelectBookCoverUrlUseCase,
     private val searchBooksUseCase: SearchBooksUseCase,
@@ -48,13 +51,14 @@ class BookSearchViewModel @Inject constructor(
     private val _events = Channel<BookSearchEvent>(Channel.BUFFERED)
     val events: Flow<BookSearchEvent> = _events.receiveAsFlow()
 
-    private val _query = MutableStateFlow("")
-    private val _mode = MutableStateFlow(SearchMode.ALL)
+    private val _query = savedStateHandle.getStateFlow(StateArguments.SEARCH_SCREEN_QUERY_ARG, "")
+    private val _mode = savedStateHandle.getStateFlow(StateArguments.SEARCH_SCREEN_MODE_ARG, SearchMode.ALL)
     private val _searchTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     private val _currentItems = MutableStateFlow<List<TempBook>>(emptyList())
     private val _lastError: MutableStateFlow<SearchError> = MutableStateFlow(SearchError.None)
     private val _nextToken = MutableStateFlow<String?>(null)
     private val _loadingIndicator = MutableStateFlow(LoadingIndicator(canLoadMore = false, isLoadingMore = false))
+    private val _hasResetScroll = MutableStateFlow(false)
 
     private var lastQuery: String = ""
     private var lastMode: SearchMode? = null
@@ -102,8 +106,11 @@ class BookSearchViewModel @Inject constructor(
         _query,
         _lastError,
         screenPhase,
-        _currentItems
-    ) { q, error, phase, rawItems ->
+        _currentItems,
+        _hasResetScroll
+    ) { q, error, phase, rawItems, hasResetScroll ->
+
+        val shouldTriggerReset = q.isNotEmpty() && !hasResetScroll
 
         // Map the raw domain books to UI state objects:
         val items = rawItems.map { mapper.mapToDataState(it) }
@@ -125,6 +132,7 @@ class BookSearchViewModel @Inject constructor(
                 error != SearchError.None && items.isNotEmpty() -> SearchScreenState.Content(
                     query = q,
                     items = items,
+                    shouldResetScroll = shouldTriggerReset,
                     contentStateValues = mapper.getContentStateValues(),
                     showError = true,
                     errorStateValues = mapper.getErrorStateValues(error),
@@ -140,6 +148,7 @@ class BookSearchViewModel @Inject constructor(
                 else -> SearchScreenState.Content(
                     query = q,
                     items = items,
+                    shouldResetScroll = shouldTriggerReset,
                     contentStateValues = mapper.getContentStateValues()
                 )
             }
@@ -174,14 +183,14 @@ class BookSearchViewModel @Inject constructor(
         )
 
     fun changeQuery(newValue: String) {
-        _query.value = newValue
+        savedStateHandle[StateArguments.SEARCH_SCREEN_QUERY_ARG] = newValue
         if (newValue.trim().length < 2) {
             refreshSearch()
         }
     }
 
     fun changeSearchMode(newMode: BookSearchModeUi) {
-        _mode.value = newMode.domainStatus
+        savedStateHandle[StateArguments.SEARCH_SCREEN_MODE_ARG] = newMode.domainStatus
     }
 
     fun refreshSearch() {
@@ -197,6 +206,10 @@ class BookSearchViewModel @Inject constructor(
 
     fun clearRecents() = viewModelScope.launch { manageHistoryUseCase.clearAll() }
 
+    fun onScrollResetConsumed() {
+        _hasResetScroll.value = true
+    }
+
     fun selectBook(book: SearchBookDataState) {
         viewModelScope.launch {
             val tempBookSeed = mapper.mapToTempBook(book)
@@ -207,9 +220,9 @@ class BookSearchViewModel @Inject constructor(
         }
     }
 
-    fun setManualPrefill(query: String, mode: BookSearchModeUi) {
+    fun setManualPrefill(query: String) {
         viewModelScope.launch {
-            val tempBookSeed = mapper.mapToTempBook(query, mode.domainStatus)
+            val tempBookSeed = mapper.mapToTempBook(query, _mode.value)
             selectTempBookUseCase(tempBookSeed)
 
             _events.send(BookSearchEvent.OpenBookConfirmation(tempBookSeed))

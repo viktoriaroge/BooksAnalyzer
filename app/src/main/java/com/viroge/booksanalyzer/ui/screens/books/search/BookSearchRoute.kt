@@ -55,8 +55,9 @@ fun SearchBookRoute(
         onRecentSearchSelected = vm::selectRecent,
         onRemoveRecentSearch = vm::removeRecent,
         onClearRecentSearches = { confirmClear = true },
-        onManualAdd = { prefill -> vm.setManualPrefill(prefill, state.mode) },
-        onSelectBook = { book -> vm.selectBook(book) },
+        onScrollResetConsumed = vm::onScrollResetConsumed,
+        onManualAdd = vm::setManualPrefill,
+        onSelectBook = vm::selectBook,
     )
 
     when (val screenState = state.screenState) {

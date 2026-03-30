@@ -47,6 +47,7 @@ sealed interface SearchScreenState {
         val query: String,
         val items: List<SearchBookDataState>,
         val contentStateValues: ContentStateValues,
+        val shouldResetScroll: Boolean = false,
 
         val showError: Boolean = false,
         val errorStateValues: ErrorStateValues = ErrorStateValues(),

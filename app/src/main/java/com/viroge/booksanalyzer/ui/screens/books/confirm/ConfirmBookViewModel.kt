@@ -13,7 +13,7 @@ import com.viroge.booksanalyzer.domain.usecase.selection.ObserveBookCoverUrlSele
 import com.viroge.booksanalyzer.domain.usecase.selection.ObserveTempBookSelectionUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverDataSeedUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookSeedUseCase
-import com.viroge.booksanalyzer.ui.nav.Routes
+import com.viroge.booksanalyzer.ui.nav.StateArguments
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +44,7 @@ class ConfirmBookViewModel @Inject constructor(
     private val mapper: ConfirmBookMapper,
 ) : ViewModel() {
 
-    private val navSeed: TempBook? = savedStateHandle[Routes.TEMP_BOOK_SEED_ARG]
+    private val navSeed: TempBook? = savedStateHandle[StateArguments.CONFIRM_SCREEN_TEMP_BOOK_SEED_ARG]
 
     private val _events = Channel<ConfirmBookEvent>(Channel.BUFFERED)
     val events: Flow<ConfirmBookEvent> = _events.receiveAsFlow()
