@@ -3,17 +3,14 @@ package com.viroge.booksanalyzer.ui.components.bookcover
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -47,7 +44,6 @@ fun PvBookCoverAsyncImage(
                 width = imageSize.width,
                 height = imageSize.height,
             )
-            .clip(RoundedCornerShape(12.dp))
     ) {
 
         if (animate && animationKey != null && sharedTransitionScope != null && animatedVisibilityScope != null) {
@@ -112,8 +108,6 @@ private fun PvAsyncImage(
         AsyncImage(
             modifier = modifier
                 .fillMaxSize()
-                .shadow(12.dp, RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .clip(RoundedCornerShape(12.dp)),
             model = request, // Pass the request object instead of the string
             imageLoader = imageLoader,
@@ -127,8 +121,6 @@ private fun PvAsyncImage(
         AsyncImage(
             modifier = modifier
                 .fillMaxSize()
-                .shadow(12.dp, RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .clip(RoundedCornerShape(12.dp)),
             model = url,
             imageLoader = imageLoader,

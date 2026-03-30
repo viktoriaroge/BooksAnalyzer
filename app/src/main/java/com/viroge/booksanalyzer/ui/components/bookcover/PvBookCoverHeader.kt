@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 fun PvBookCoverHeader(
     modifier: Modifier = Modifier,
     imageUrl: String?,
+
     // Animation parameters:
     animate: Boolean = false,
     animationKey: String? = null,
@@ -44,6 +45,7 @@ fun PvBookCoverHeader(
                 .padding(top = headerCoverPadding),
             url = imageUrl,
             imageSize = PvBookCoverImageSize.XLarge,
+
             // Animation parameters:
             animate = animate,
             animationKey = animationKey,
