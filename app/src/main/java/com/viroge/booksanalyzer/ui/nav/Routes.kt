@@ -7,13 +7,12 @@ object Routes {
 
     // --- Top-Level screens -------------------------------------------------
 
+    // NOTE: Always keep Top-Level screen routes unparameterized!
     const val LIBRARY_GRAPH = "library_graph"
-    const val LIBRARY_ROUTE_PREFIX = "library"
-    const val LIBRARY_ROUTE = "$LIBRARY_ROUTE_PREFIX/{${TRANSITION_PREFIX_ARG}}"
+    const val LIBRARY_ROUTE = "library"
 
     const val SEARCH_BOOK_GRAPH = "search_book_graph"
-    const val SEARCH_BOOK_ROUTE_PREFIX = "search_book"
-    const val SEARCH_BOOK_ROUTE = "$SEARCH_BOOK_ROUTE_PREFIX/{${TRANSITION_PREFIX_ARG}}"
+    const val SEARCH_BOOK_ROUTE = "search_book"
 
     const val SETTINGS_GRAPH = "settings_graph"
     const val SETTINGS_ROUTE = "settings"

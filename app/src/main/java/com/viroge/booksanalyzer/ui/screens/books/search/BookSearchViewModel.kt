@@ -14,6 +14,7 @@ import com.viroge.booksanalyzer.domain.usecase.search.SearchError
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverUrlUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectTempBookUseCase
 import com.viroge.booksanalyzer.ui.nav.StateArguments
+import com.viroge.booksanalyzer.ui.nav.StateArguments.SEARCH_PREFIX_ARG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,8 +48,6 @@ class BookSearchViewModel @Inject constructor(
     private val manageHistoryUseCase: ManageSearchHistoryUseCase,
     private val mapper: BookSearchMapper,
 ) : ViewModel() {
-
-    private val transitionPref: String = savedStateHandle[StateArguments.TRANSITION_PREFIX_ARG] ?: ""
 
     private val _events = Channel<BookSearchEvent>(Channel.BUFFERED)
     val events: Flow<BookSearchEvent> = _events.receiveAsFlow()
@@ -115,7 +114,7 @@ class BookSearchViewModel @Inject constructor(
         val shouldTriggerReset = q.isNotEmpty() && !hasResetScroll
 
         // Map the raw domain books to UI state objects:
-        val items = rawItems.map { mapper.mapToDataState(it, transitionPref) }
+        val items = rawItems.map { mapper.mapToDataState(it, TRANSITION_PREF) }
 
         when (phase) {
             SearchPhase.Loading -> SearchScreenState.Loading
@@ -258,6 +257,10 @@ class BookSearchViewModel @Inject constructor(
     }
 
     private enum class SearchPhase { Idle, Loading, DisplayingResults }
+
+    companion object {
+        private const val TRANSITION_PREF = SEARCH_PREFIX_ARG // see: TransitionNamespace.Search.prefix
+    }
 }
 
 data class LoadingIndicator(

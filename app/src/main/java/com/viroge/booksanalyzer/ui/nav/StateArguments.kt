@@ -13,4 +13,9 @@ object StateArguments {
     const val MODE_ARG = "mode_arg"
     const val SORT_ARG = "sort_arg"
     const val STATUS_ARG = "status_arg"
+
+    // --- Screen Prefix Arguments ------------------------------
+    const val LIBRARY_PREFIX_ARG = "lib"
+    const val COLLECTION_PREFIX_ARG = "col"
+    const val SEARCH_PREFIX_ARG = "sea"
 }

@@ -23,15 +23,16 @@ import com.viroge.booksanalyzer.ui.nav.Routes.CONFIRM_BOOK_ROUTE
 import com.viroge.booksanalyzer.ui.nav.Routes.CONFIRM_BOOK_ROUTE_PREFIX
 import com.viroge.booksanalyzer.ui.nav.Routes.LIBRARY_GRAPH
 import com.viroge.booksanalyzer.ui.nav.Routes.LIBRARY_ROUTE
-import com.viroge.booksanalyzer.ui.nav.Routes.LIBRARY_ROUTE_PREFIX
 import com.viroge.booksanalyzer.ui.nav.Routes.RECENTLY_DELETED_BOOKS_ROUTE
 import com.viroge.booksanalyzer.ui.nav.Routes.SCAN_BOOK_BARCODE_ROUTE
 import com.viroge.booksanalyzer.ui.nav.Routes.SEARCH_BOOK_GRAPH
 import com.viroge.booksanalyzer.ui.nav.Routes.SEARCH_BOOK_ROUTE
-import com.viroge.booksanalyzer.ui.nav.Routes.SEARCH_BOOK_ROUTE_PREFIX
 import com.viroge.booksanalyzer.ui.nav.Routes.SETTINGS_GRAPH
 import com.viroge.booksanalyzer.ui.nav.Routes.SETTINGS_ROUTE
 import com.viroge.booksanalyzer.ui.nav.StateArguments.BOOK_SEED_ARG
+import com.viroge.booksanalyzer.ui.nav.StateArguments.COLLECTION_PREFIX_ARG
+import com.viroge.booksanalyzer.ui.nav.StateArguments.LIBRARY_PREFIX_ARG
+import com.viroge.booksanalyzer.ui.nav.StateArguments.SEARCH_PREFIX_ARG
 import com.viroge.booksanalyzer.ui.nav.StateArguments.TRANSITION_PREFIX_ARG
 import com.viroge.booksanalyzer.ui.screens.books.confirm.ConfirmBookRoute
 import com.viroge.booksanalyzer.ui.screens.books.deleted.RecentlyDeletedRoute
@@ -65,14 +66,9 @@ fun AppNavHost(
 
             navigation(
                 route = LIBRARY_GRAPH,
-                startDestination = "$LIBRARY_ROUTE_PREFIX/$libraryTransitionPrefix",
+                startDestination = LIBRARY_ROUTE,
             ) {
-                composable(
-                    route = LIBRARY_ROUTE,
-                    arguments = listOf(
-                        navArgument(TRANSITION_PREFIX_ARG) { type = NavType.StringType },
-                    ),
-                ) {
+                composable(route = LIBRARY_ROUTE) {
                     LibraryRoute(
                         // Animation Parameters:
                         sharedTransitionScope = this@SharedTransitionLayout,
@@ -120,14 +116,9 @@ fun AppNavHost(
 
             navigation(
                 route = SEARCH_BOOK_GRAPH,
-                startDestination = "$SEARCH_BOOK_ROUTE_PREFIX/$searchTransitionPrefix",
+                startDestination = SEARCH_BOOK_ROUTE,
             ) {
-                composable(
-                    route = SEARCH_BOOK_ROUTE,
-                    arguments = listOf(
-                        navArgument(TRANSITION_PREFIX_ARG) { type = NavType.StringType },
-                    ),
-                ) {
+                composable(route = SEARCH_BOOK_ROUTE) {
                     SearchBookRoute(
                         // Animation Parameters:
                         sharedTransitionScope = this@SharedTransitionLayout,
@@ -227,7 +218,7 @@ fun NavGraphBuilder.bookDetailsDestination(
 }
 
 enum class TransitionNamespace(val prefix: String) {
-    Search("search"),
-    Library("library"),
-    Collection("collection"),
+    Library(LIBRARY_PREFIX_ARG),
+    Collection(COLLECTION_PREFIX_ARG),
+    Search(SEARCH_PREFIX_ARG),
 }
