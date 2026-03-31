@@ -10,7 +10,7 @@ import com.viroge.booksanalyzer.domain.usecase.book.LibrarySort
 import com.viroge.booksanalyzer.domain.usecase.book.ObserveLibraryDataUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookCoverUrlUseCase
 import com.viroge.booksanalyzer.domain.usecase.selection.SelectBookSeedUseCase
-import com.viroge.booksanalyzer.ui.nav.StateArguments
+import com.viroge.booksanalyzer.ui.nav.StateArguments.LIBRARY_PREFIX_ARG
 import com.viroge.booksanalyzer.ui.screens.books.BookTransitionKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -38,8 +38,6 @@ class LibraryViewModel @Inject constructor(
     private val mapper: LibraryMapper,
 ) : ViewModel() {
 
-    private val transitionPref: String = savedStateHandle[StateArguments.TRANSITION_PREFIX_ARG] ?: ""
-
     private val _events = Channel<LibraryEvent>(Channel.BUFFERED)
     val events: Flow<LibraryEvent> = _events.receiveAsFlow()
 
@@ -60,7 +58,7 @@ class LibraryViewModel @Inject constructor(
 
                     else -> LibraryScreenState.Content(
                         contentStateValues = mapper.getContentStateValues(),
-                        currentBooks = data.currentlyReading.map { mapper.mapToData(it, transitionPref) },
+                        currentBooks = data.currentlyReading.map { mapper.mapToData(it, TRANSITION_PREF) },
                     )
                 }
             }
@@ -94,7 +92,7 @@ class LibraryViewModel @Inject constructor(
                 id = book.id,
                 url = book.coverUrl ?: "",
                 animationKey = BookTransitionKey.calculate(
-                    transitionPref = transitionPref,
+                    transitionPref = TRANSITION_PREF,
                     title = book.title,
                     authors = book.authors,
                     isbn = book.isbn13,
@@ -107,5 +105,9 @@ class LibraryViewModel @Inject constructor(
 
             _events.send(LibraryEvent.OpenBookDetails(seed))
         }
+    }
+
+    companion object {
+        private const val TRANSITION_PREF = LIBRARY_PREFIX_ARG // see: TransitionNamespace.Library.prefix
     }
 }
