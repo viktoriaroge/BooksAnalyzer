@@ -105,6 +105,8 @@
     <string name="search_screen_recent_searches_section_text">Past Inquiries</string>
     <string name="search_screen_recent_searches_clear_button">Strike All</string>
 
+    <string name="scan_book_barcode_screen_name">Scan Barcode</string>
+
     <string name="confirm_book_screen_name">Finalize the PageVow</string>
     <string name="confirm_book_screen_in_manual_mode_name">Inscribe by Hand</string>
     <string name="confirm_book_screen_change_book_cover_button_label">Calibrate the Visage</string>

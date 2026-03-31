@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -81,6 +82,7 @@ fun BookSearchScreen(
     onScrollResetConsumed: () -> Unit,
     onManualAdd: (String) -> Unit,
     onSelectBook: (SearchBookDataState) -> Unit,
+    onOpenScanner: () -> Unit,
 ) {
     val appScaffoldPadding = LocalAppScaffoldPadding.current
     val focusManager = LocalFocusManager.current
@@ -92,7 +94,19 @@ fun BookSearchScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
-        topBar = { PvTopAppBar(title = stringResource(state.screenValues.screenName)) },
+        topBar = {
+            PvTopAppBar(
+                title = stringResource(state.screenValues.screenName),
+                actions = {
+                    IconButton(onClick = onOpenScanner) {
+                        Icon(
+                            imageVector = Icons.Default.QrCode,
+                            contentDescription = "",
+                        )
+                    }
+                },
+            )
+        },
     ) { screenPadding ->
 
         Column(

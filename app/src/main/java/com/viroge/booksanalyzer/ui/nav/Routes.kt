@@ -29,6 +29,8 @@ object Routes {
     const val BOOK_DETAILS_ROUTE_PREFIX = "book_details"
     const val BOOK_DETAILS_ROUTE = "${BOOK_DETAILS_ROUTE_PREFIX}/{${BOOK_SEED_ARG}}/{${TRANSITION_PREFIX_ARG}}"
 
+    const val SCAN_BOOK_BARCODE_ROUTE = "scan_book_barcode_route"
+
     const val RECENTLY_DELETED_BOOKS_ROUTE = "recently_deleted_books"
 
     const val APP_TERMS_ROUTE = "app_terms"

@@ -24,6 +24,7 @@ fun SearchBookRoute(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     onOpenBookConfirmation: (TempBook) -> Unit,
+    onOpenScanner: () -> Unit,
 ) {
     val vm: BookSearchViewModel = hiltViewModel()
     val state by vm.state.collectAsStateWithLifecycle()
@@ -58,6 +59,7 @@ fun SearchBookRoute(
         onScrollResetConsumed = vm::onScrollResetConsumed,
         onManualAdd = vm::setManualPrefill,
         onSelectBook = vm::selectBook,
+        onOpenScanner = onOpenScanner,
     )
 
     when (val screenState = state.screenState) {

@@ -115,6 +115,14 @@ dependencies {
     // Images with Coil
     implementation(libs.coil.compose)
 
+    // Camera
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+
+    // Barcode Scanning
+    implementation(libs.mlkit.barcode.scanning)
+
     // Tests
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

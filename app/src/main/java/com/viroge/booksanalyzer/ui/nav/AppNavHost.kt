@@ -25,6 +25,7 @@ import com.viroge.booksanalyzer.ui.nav.Routes.LIBRARY_GRAPH
 import com.viroge.booksanalyzer.ui.nav.Routes.LIBRARY_ROUTE
 import com.viroge.booksanalyzer.ui.nav.Routes.LIBRARY_ROUTE_PREFIX
 import com.viroge.booksanalyzer.ui.nav.Routes.RECENTLY_DELETED_BOOKS_ROUTE
+import com.viroge.booksanalyzer.ui.nav.Routes.SCAN_BOOK_BARCODE_ROUTE
 import com.viroge.booksanalyzer.ui.nav.Routes.SEARCH_BOOK_GRAPH
 import com.viroge.booksanalyzer.ui.nav.Routes.SEARCH_BOOK_ROUTE
 import com.viroge.booksanalyzer.ui.nav.Routes.SEARCH_BOOK_ROUTE_PREFIX
@@ -38,6 +39,7 @@ import com.viroge.booksanalyzer.ui.screens.books.details.BookDetailsRoute
 import com.viroge.booksanalyzer.ui.screens.books.library.LibraryRoute
 import com.viroge.booksanalyzer.ui.screens.books.library.collection.CollectionRoute
 import com.viroge.booksanalyzer.ui.screens.books.search.SearchBookRoute
+import com.viroge.booksanalyzer.ui.screens.books.scanner.ScanBookBarcodeRoute
 import com.viroge.booksanalyzer.ui.screens.settings.SettingsRoute
 import com.viroge.booksanalyzer.ui.screens.terms.TermsRoute
 import kotlinx.serialization.encodeToString
@@ -135,6 +137,15 @@ fun AppNavHost(
                             val seedJson = Uri.encode(Json.encodeToString(seed))
                             navController.navigateSafe("${CONFIRM_BOOK_ROUTE_PREFIX}/$seedJson/$searchTransitionPrefix")
                         },
+                        onOpenScanner = {
+                            navController.navigateSafe(route = SCAN_BOOK_BARCODE_ROUTE)
+                        },
+                    )
+                }
+
+                composable(SCAN_BOOK_BARCODE_ROUTE) {
+                    ScanBookBarcodeRoute(
+                        onBack = navController::popBackStack,
                     )
                 }
 
